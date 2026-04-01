@@ -1,0 +1,189 @@
+package com.playoffpool.service;
+
+import com.playoffpool.dto.AnswerDto;
+import com.playoffpool.dto.ParticipantResponseDto;
+import com.playoffpool.model.*;
+import com.playoffpool.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class AdminParticipantService {
+
+    private final ParticipantRepository participantRepository;
+    private final ResponseRepository responseRepository;
+    private final ResponseAnswerRepository responseAnswerRepository;
+    private final QuestionRepository questionRepository;
+    private final QuestionOptionRepository questionOptionRepository;
+    private final ParticipantScoreRepository participantScoreRepository;
+
+    public AdminParticipantService(ParticipantRepository participantRepository,
+                                   ResponseRepository responseRepository,
+                                   ResponseAnswerRepository responseAnswerRepository,
+                                   QuestionRepository questionRepository,
+                                   QuestionOptionRepository questionOptionRepository,
+                                   ParticipantScoreRepository participantScoreRepository) {
+        this.participantRepository = participantRepository;
+        this.responseRepository = responseRepository;
+        this.responseAnswerRepository = responseAnswerRepository;
+        this.questionRepository = questionRepository;
+        this.questionOptionRepository = questionOptionRepository;
+        this.participantScoreRepository = participantScoreRepository;
+    }
+
+    public List<Participant> getAllParticipants() {
+        return participantRepository.findAll();
+    }
+
+    public List<Participant> getParticipantsBySeason(Integer seasonId) {
+        return participantRepository.findBySeasonId(seasonId);
+    }
+
+    @Transactional
+    public void deleteParticipant(Integer id) {
+        // Delete scores
+        participantScoreRepository.deleteAll(participantScoreRepository.findByParticipantId(id));
+        // Delete response answers and responses
+        List<Response> responses = responseRepository.findByParticipantId(id);
+        for (Response r : responses) {
+            responseAnswerRepository.deleteAll(responseAnswerRepository.findByResponseId(r.getId()));
+        }
+        responseRepository.deleteAll(responses);
+        participantRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParticipantResponseDto> getResponsesByRound(Integer roundId) {
+        return buildResponseDtos(responseRepository.findByRoundId(roundId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParticipantResponseDto> getResponsesByParticipant(Integer participantId) {
+        return buildResponseDtos(responseRepository.findByParticipantId(participantId));
+    }
+
+    private List<ParticipantResponseDto> buildResponseDtos(List<Response> responses) {
+        if (responses.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Load scores for all participants in this result set
+        Set<Integer> participantIds = responses.stream()
+                .map(r -> r.getParticipant().getId())
+                .collect(Collectors.toSet());
+        Map<String, Integer> scoreMap = new java.util.HashMap<>(); // "participantId:questionId" -> points
+        for (Integer pid : participantIds) {
+            for (ParticipantScore ps : participantScoreRepository.findByParticipantId(pid)) {
+                scoreMap.put(pid + ":" + ps.getQuestion().getId(), ps.getPointsEarned());
+            }
+        }
+
+        List<Integer> responseIds = responses.stream()
+                .map(Response::getId)
+                .collect(Collectors.toList());
+
+        List<ResponseAnswer> allAnswers = responseAnswerRepository.findByResponseIdIn(responseIds);
+
+        // Build question map from all referenced questions
+        Map<Integer, Question> questionMap = new java.util.HashMap<>();
+        for (ResponseAnswer ra : allAnswers) {
+            Integer qId = ra.getQuestion().getId();
+            if (!questionMap.containsKey(qId)) {
+                questionRepository.findById(qId).ifPresent(q -> questionMap.put(qId, q));
+            }
+        }
+
+        List<QuestionOption> allOptions = questionOptionRepository.findAll();
+        Map<Integer, QuestionOption> optionMap = allOptions.stream()
+                .collect(Collectors.toMap(QuestionOption::getId, o -> o));
+
+        Map<Integer, List<ResponseAnswer>> answersByResponseId = allAnswers.stream()
+                .collect(Collectors.groupingBy(ra -> ra.getResponse().getId()));
+
+        // Cache questions per round so we can show unanswered questions too
+        Map<Integer, List<Question>> questionsByRound = new HashMap<>();
+
+        List<ParticipantResponseDto> result = new ArrayList<>();
+
+        for (Response response : responses) {
+            ParticipantResponseDto dto = new ParticipantResponseDto();
+            Participant participant = response.getParticipant();
+            dto.setParticipantId(participant.getId());
+            dto.setParticipantName(participant.getName());
+            dto.setTeamName(participant.getTeamName());
+            dto.setEmail(participant.getEmail());
+            dto.setRoundId(response.getRound().getId());
+            dto.setRoundName(response.getRound().getName());
+            dto.setRoundDisplayOrder(response.getRound().getDisplayOrder());
+            dto.setSubmittedAt(response.getSubmittedAt());
+
+            List<ResponseAnswer> responseAnswers = answersByResponseId.getOrDefault(response.getId(), new ArrayList<>());
+
+            // Group answers by question to merge multi-select into one AnswerDto
+            Map<Integer, List<ResponseAnswer>> byQuestion = responseAnswers.stream()
+                    .collect(Collectors.groupingBy(ra -> ra.getQuestion().getId()));
+
+            // Load all questions for this round (cached)
+            Integer rndId = response.getRound().getId();
+            List<Question> roundQuestions = questionsByRound.computeIfAbsent(rndId,
+                    id -> questionRepository.findByRoundIdOrderByDisplayOrder(id));
+
+            List<AnswerDto> answerDtos = new ArrayList<>();
+            for (Question question : roundQuestions) {
+                AnswerDto answerDto = new AnswerDto();
+                answerDto.setQuestionId(question.getId());
+                answerDto.setQuestionTitle(question.getTitle());
+                answerDto.setCorrectAnswerText(question.getCorrectAnswerText());
+
+                List<ResponseAnswer> qAnswers = byQuestion.getOrDefault(question.getId(), Collections.emptyList());
+
+                // Merge selected option texts for multi-select and collect point values
+                List<String> optionTexts = new ArrayList<>();
+                Integer totalPointValue = null;
+                for (ResponseAnswer ra : qAnswers) {
+                    QuestionOption selectedOption = ra.getSelectedOption();
+                    if (selectedOption != null) {
+                        QuestionOption option = optionMap.get(selectedOption.getId());
+                        if (option != null) {
+                            optionTexts.add(option.getOptionText());
+                            if (option.getPoints() != null) {
+                                totalPointValue = (totalPointValue != null ? totalPointValue : 0) + option.getPoints();
+                            }
+                        }
+                    }
+                    if (ra.getFreeFormValue() != null) {
+                        answerDto.setFreeFormValue(ra.getFreeFormValue());
+                    }
+                }
+                if (!optionTexts.isEmpty()) {
+                    answerDto.setSelectedOptionText(String.join(", ", optionTexts));
+                }
+                answerDto.setOptionPointValue(totalPointValue);
+
+                // Set points from score map
+                Integer pts = scoreMap.get(participant.getId() + ":" + question.getId());
+                answerDto.setPointsEarned(pts);
+
+                answerDtos.add(answerDto);
+            }
+
+            dto.setAnswers(answerDtos);
+
+            // Compute round total
+            int total = answerDtos.stream()
+                    .filter(a -> a.getPointsEarned() != null)
+                    .mapToInt(AnswerDto::getPointsEarned)
+                    .sum();
+            boolean hasAnyScores = answerDtos.stream().anyMatch(a -> a.getPointsEarned() != null);
+            dto.setRoundPointsTotal(hasAnyScores ? total : null);
+
+            result.add(dto);
+        }
+
+        result.sort(Comparator.comparingInt(r -> r.getRoundDisplayOrder() != null ? r.getRoundDisplayOrder() : 0));
+        return result;
+    }
+}

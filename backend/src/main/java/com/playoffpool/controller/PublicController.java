@@ -1,0 +1,129 @@
+package com.playoffpool.controller;
+
+import com.playoffpool.dto.LeaderboardDto;
+import com.playoffpool.dto.ParticipantResponseDto;
+import com.playoffpool.dto.QuestionDetailDto;
+import com.playoffpool.dto.QuestionDetailDto.OptionDetail;
+import com.playoffpool.dto.QuestionDetailDto.PickerInfo;
+import com.playoffpool.model.*;
+import com.playoffpool.repository.*;
+import com.playoffpool.service.AdminParticipantService;
+import com.playoffpool.service.LeaderboardService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api")
+public class PublicController {
+
+    private final SeasonRepository seasonRepository;
+    private final LeaderboardService leaderboardService;
+    private final AdminParticipantService adminParticipantService;
+    private final QuestionRepository questionRepository;
+    private final QuestionOptionRepository questionOptionRepository;
+    private final ResponseAnswerRepository responseAnswerRepository;
+    private final ParticipantRepository participantRepository;
+
+    public PublicController(SeasonRepository seasonRepository,
+                            LeaderboardService leaderboardService,
+                            AdminParticipantService adminParticipantService,
+                            QuestionRepository questionRepository,
+                            QuestionOptionRepository questionOptionRepository,
+                            ResponseAnswerRepository responseAnswerRepository,
+                            ParticipantRepository participantRepository) {
+        this.seasonRepository = seasonRepository;
+        this.leaderboardService = leaderboardService;
+        this.adminParticipantService = adminParticipantService;
+        this.questionRepository = questionRepository;
+        this.questionOptionRepository = questionOptionRepository;
+        this.responseAnswerRepository = responseAnswerRepository;
+        this.participantRepository = participantRepository;
+    }
+
+    @GetMapping("/seasons")
+    public List<Season> getSeasons() {
+        return seasonRepository.findAllByOrderByYearDesc();
+    }
+
+    @GetMapping("/leaderboard/{seasonId}")
+    public LeaderboardDto getLeaderboard(@PathVariable Integer seasonId) {
+        return leaderboardService.getLeaderboard(seasonId);
+    }
+
+    @GetMapping("/participants/{participantId}/responses")
+    public List<ParticipantResponseDto> getParticipantResponses(@PathVariable Integer participantId) {
+        List<ParticipantResponseDto> responses = adminParticipantService.getResponsesByParticipant(participantId);
+        for (ParticipantResponseDto r : responses) {
+            r.setEmail(null);
+        }
+        return responses;
+    }
+
+    @GetMapping("/questions/{questionId}")
+    public QuestionDetailDto getQuestionDetail(@PathVariable Integer questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        QuestionDetailDto dto = new QuestionDetailDto();
+        dto.setQuestionId(question.getId());
+        dto.setTitle(question.getTitle());
+        dto.setDescription(question.getDescription());
+        dto.setImageUrl(question.getImageUrl());
+        dto.setQuestionType(question.getQuestionType());
+        dto.setMaxWager(question.getMaxWager());
+        dto.setMaxSelections(question.getMaxSelections());
+        dto.setCorrectAnswerText(question.getCorrectAnswerText());
+        dto.setRoundId(question.getRound().getId());
+        dto.setRoundName(question.getRound().getName());
+
+        // Get options
+        List<QuestionOption> options = questionOptionRepository.findByQuestionIdOrderByDisplayOrder(question.getId());
+
+        // Get all response answers for this question, grouped by selected_option_id
+        List<ResponseAnswer> answers = responseAnswerRepository.findByQuestionId(questionId);
+        Map<Integer, List<ResponseAnswer>> answersByOption = answers.stream()
+                .filter(a -> a.getSelectedOption() != null)
+                .collect(Collectors.groupingBy(a -> a.getSelectedOption().getId()));
+
+        // Build participant lookup
+        Set<Integer> participantIds = answers.stream()
+                .map(a -> a.getResponse().getParticipant().getId())
+                .collect(Collectors.toSet());
+        Map<Integer, Participant> participantMap = new HashMap<>();
+        for (Integer pid : participantIds) {
+            participantRepository.findById(pid).ifPresent(p -> participantMap.put(p.getId(), p));
+        }
+
+        List<OptionDetail> optionDetails = new ArrayList<>();
+        for (QuestionOption opt : options) {
+            OptionDetail od = new OptionDetail();
+            od.setOptionId(opt.getId());
+            od.setOptionText(opt.getOptionText());
+            od.setSubtext(opt.getSubtext());
+            od.setPoints(opt.getPoints());
+            od.setCorrect(question.getCorrectAnswerText() != null
+                    && question.getCorrectAnswerText().equals(opt.getOptionText()));
+
+            List<ResponseAnswer> optAnswers = answersByOption.getOrDefault(opt.getId(), Collections.emptyList());
+            List<PickerInfo> pickers = new ArrayList<>();
+            for (ResponseAnswer ra : optAnswers) {
+                Participant p = participantMap.get(ra.getResponse().getParticipant().getId());
+                if (p != null) {
+                    PickerInfo pi = new PickerInfo();
+                    pi.setParticipantId(p.getId());
+                    pi.setName(p.getName());
+                    pi.setTeamName(p.getTeamName());
+                    pickers.add(pi);
+                }
+            }
+            pickers.sort(Comparator.comparing(PickerInfo::getTeamName, String.CASE_INSENSITIVE_ORDER));
+            od.setPickers(pickers);
+            optionDetails.add(od);
+        }
+
+        dto.setOptions(optionDetails);
+        return dto;
+    }
+}
