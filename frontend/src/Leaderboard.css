@@ -599,3 +599,135 @@
 .qp-bar-correct {
   background: #48bb78;
 }
+
+/* ===== Mobile: Leaderboard ===== */
+@media (max-width: 480px) {
+  .lb-header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .lb-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .lb-container {
+    padding: 0.5rem;
+  }
+
+  .lb-table-wrapper {
+    border-radius: 0;
+  }
+
+  .lb-table {
+    font-size: 0.75rem;
+  }
+
+  .lb-table th,
+  .lb-table td {
+    padding: 0.4rem 0.35rem;
+  }
+
+  .lb-table th {
+    font-size: 0.6rem;
+    letter-spacing: 0;
+  }
+
+  .lb-table th.col-rank,
+  .lb-table td.col-rank {
+    width: 28px;
+    padding: 0.4rem 0.2rem;
+  }
+
+  .lb-table td.col-total {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.3rem;
+  }
+
+  .lb-table th.col-total {
+    padding: 0.4rem 0.3rem;
+  }
+
+  /* Hide the trailing total on mobile since we have the leading one */
+  .lb-table th.col-total-end,
+  .lb-table td.col-total-end {
+    display: none;
+  }
+
+  /* Hide the Name column on mobile to save space */
+  .lb-table th.col-name-header,
+  .lb-table td.col-name {
+    display: none;
+  }
+
+  .lb-table td.col-team a {
+    font-size: 0.75rem;
+  }
+}
+
+/* ===== Mobile: Participant Detail ===== */
+@media (max-width: 480px) {
+  .pd-header {
+    padding: 1rem;
+  }
+
+  .pd-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .pd-container {
+    padding: 0.25rem;
+  }
+
+  .pd-round-card {
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+  }
+
+  .pd-round-header {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .pd-round-header h2 {
+    font-size: 0.9rem;
+  }
+
+  .pd-table {
+    font-size: 0.72rem;
+  }
+
+  .pd-table th,
+  .pd-table td {
+    padding: 0.35rem 0.3rem;
+  }
+
+  .pd-table th {
+    font-size: 0.6rem;
+    letter-spacing: 0;
+  }
+
+  .pd-overall-total {
+    margin: 0.25rem;
+    padding: 0.75rem 0.6rem;
+    border-radius: 4px;
+  }
+
+  .pd-overall-total span:last-child {
+    font-size: 1.2rem;
+  }
+}
+
+/* ===== Mobile: Question Page ===== */
+@media (max-width: 480px) {
+  .qp-option-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .qp-option-right {
+    align-self: flex-end;
+  }
+}

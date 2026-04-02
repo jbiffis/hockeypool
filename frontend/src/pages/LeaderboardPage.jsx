@@ -117,10 +117,13 @@ function LeaderboardPage() {
               <thead>
                 <tr>
                   <th className="col-rank">#</th>
+                  <th className={thClass('overallTotal', 'col-total')} onClick={() => handleSort('overallTotal')}>
+                    Total <span className="sort-icon">{sortIcon('overallTotal')}</span>
+                  </th>
                   <th className={thClass('teamName')} onClick={() => handleSort('teamName')}>
                     Team <span className="sort-icon">{sortIcon('teamName')}</span>
                   </th>
-                  <th className={thClass('name')} onClick={() => handleSort('name')}>
+                  <th className={thClass('name', 'col-name-header')} onClick={() => handleSort('name')}>
                     Name <span className="sort-icon">{sortIcon('name')}</span>
                   </th>
                   {data.rounds.map(r => (
@@ -133,7 +136,7 @@ function LeaderboardPage() {
                       {r.name} <span className="sort-icon">{r.scored ? sortIcon(`round_${r.id}`) : ''}</span>
                     </th>
                   ))}
-                  <th className={thClass('overallTotal', 'col-total')} onClick={() => handleSort('overallTotal')}>
+                  <th className={thClass('overallTotal', 'col-total col-total-end')} onClick={() => handleSort('overallTotal')}>
                     Total <span className="sort-icon">{sortIcon('overallTotal')}</span>
                   </th>
                 </tr>
@@ -142,6 +145,7 @@ function LeaderboardPage() {
                 {sortedEntries.map(entry => (
                   <tr key={entry.participantId}>
                     <td className="col-rank">{ranks[entry.participantId]}</td>
+                    <td className="col-total">{entry.overallTotal}</td>
                     <td className="col-team">
                       <Link to={`/standings/${seasonId}/participant/${entry.participantId}`}>
                         {entry.teamName}
@@ -160,7 +164,7 @@ function LeaderboardPage() {
                         <td key={r.id} className="col-unscored">&mdash;</td>
                       );
                     })}
-                    <td className="col-total">{entry.overallTotal}</td>
+                    <td className="col-total col-total-end">{entry.overallTotal}</td>
                   </tr>
                 ))}
               </tbody>
