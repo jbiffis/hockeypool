@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class LeaderboardService {
@@ -17,25 +16,26 @@ public class LeaderboardService {
     private final ParticipantRepository participantRepository;
     private final RoundRepository roundRepository;
     private final ParticipantScoreRepository participantScoreRepository;
+    private final DivisionRepository divisionRepository;
 
     public LeaderboardService(ParticipantRepository participantRepository,
                               RoundRepository roundRepository,
-                              ParticipantScoreRepository participantScoreRepository) {
+                              ParticipantScoreRepository participantScoreRepository,
+                              DivisionRepository divisionRepository) {
         this.participantRepository = participantRepository;
         this.roundRepository = roundRepository;
         this.participantScoreRepository = participantScoreRepository;
+        this.divisionRepository = divisionRepository;
     }
 
     @Transactional(readOnly = true)
-    public LeaderboardDto getLeaderboard(Integer seasonId) {
+    public LeaderboardDto getLeaderboard(Integer seasonId, Integer divisionId) {
         LeaderboardDto dto = new LeaderboardDto();
 
-        // Get all rounds for this season
         List<Round> allRounds = roundRepository.findBySeasonIdOrderByDisplayOrderAsc(seasonId);
-        List<Round> mainRounds = allRounds;
 
         List<RoundInfo> roundInfos = new ArrayList<>();
-        for (Round r : mainRounds) {
+        for (Round r : allRounds) {
             RoundInfo ri = new RoundInfo();
             ri.setId(r.getId());
             ri.setName(r.getName());
@@ -45,16 +45,20 @@ public class LeaderboardService {
         }
         dto.setRounds(roundInfos);
 
-        // Get participants
-        List<Participant> participants = participantRepository.findBySeasonId(seasonId);
+        List<Participant> participants;
+        if (divisionId != null) {
+            Division division = divisionRepository.findById(divisionId)
+                .orElseThrow(() -> new RuntimeException("Division not found"));
+            participants = new ArrayList<>(division.getParticipants());
+        } else {
+            participants = participantRepository.findBySeasonId(seasonId);
+        }
 
-        // Load all scores for each round
         Map<Integer, List<ParticipantScore>> scoresByRound = new HashMap<>();
-        for (Round r : mainRounds) {
+        for (Round r : allRounds) {
             scoresByRound.put(r.getId(), participantScoreRepository.findByRoundId(r.getId()));
         }
 
-        // Build per-participant score totals by round
         List<LeaderboardEntry> entries = new ArrayList<>();
         for (Participant p : participants) {
             LeaderboardEntry entry = new LeaderboardEntry();
@@ -65,7 +69,7 @@ public class LeaderboardService {
             Map<Integer, Integer> roundScores = new HashMap<>();
             int total = 0;
 
-            for (Round r : mainRounds) {
+            for (Round r : allRounds) {
                 List<ParticipantScore> scores = scoresByRound.getOrDefault(r.getId(), Collections.emptyList());
                 int roundTotal = scores.stream()
                         .filter(s -> s.getParticipant().getId().equals(p.getId()))

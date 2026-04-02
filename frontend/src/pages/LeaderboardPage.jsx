@@ -1,12 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSeasons, getLeaderboard } from '../api/leaderboard';
+import { getDivisions } from '../api/divisions';
 import '../Leaderboard.css';
 
 function LeaderboardPage() {
   const { seasonId } = useParams();
   const navigate = useNavigate();
   const [seasons, setSeasons] = useState([]);
+  const [divisions, setDivisions] = useState([]);
+  const [divisionId, setDivisionId] = useState(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState('overallTotal');
@@ -23,12 +26,18 @@ function LeaderboardPage() {
 
   useEffect(() => {
     if (!seasonId) return;
+    setDivisionId(null);
+    getDivisions(seasonId).then(res => setDivisions(res.data)).catch(() => setDivisions([]));
+  }, [seasonId]);
+
+  useEffect(() => {
+    if (!seasonId) return;
     setLoading(true);
-    getLeaderboard(seasonId).then(res => {
+    getLeaderboard(seasonId, divisionId).then(res => {
       setData(res.data);
       setLoading(false);
     });
-  }, [seasonId]);
+  }, [seasonId, divisionId]);
 
   function handleSort(key) {
     if (sortKey === key) {
@@ -93,6 +102,21 @@ function LeaderboardPage() {
       <div className="lb-header">
         <h1>Playoff Pool Standings</h1>
         <div className="lb-header-right">
+          {divisions.length > 0 && (
+            <>
+              <label>Division</label>
+              <select
+                className="lb-season-select"
+                value={divisionId || ''}
+                onChange={e => setDivisionId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">Overall</option>
+                {divisions.map(d => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </>
+          )}
           <label>Season</label>
           <select
             className="lb-season-select"

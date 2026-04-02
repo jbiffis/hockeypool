@@ -1,5 +1,6 @@
 package com.playoffpool.controller;
 
+import com.playoffpool.dto.DivisionDto;
 import com.playoffpool.dto.LeaderboardDto;
 import com.playoffpool.dto.ParticipantResponseDto;
 import com.playoffpool.dto.QuestionDetailDto;
@@ -7,6 +8,7 @@ import com.playoffpool.dto.QuestionDetailDto.OptionDetail;
 import com.playoffpool.dto.QuestionDetailDto.PickerInfo;
 import com.playoffpool.model.*;
 import com.playoffpool.repository.*;
+import com.playoffpool.service.AdminDivisionService;
 import com.playoffpool.service.AdminParticipantService;
 import com.playoffpool.service.LeaderboardService;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ public class PublicController {
     private final SeasonRepository seasonRepository;
     private final LeaderboardService leaderboardService;
     private final AdminParticipantService adminParticipantService;
+    private final AdminDivisionService adminDivisionService;
     private final QuestionRepository questionRepository;
     private final QuestionOptionRepository questionOptionRepository;
     private final ResponseAnswerRepository responseAnswerRepository;
@@ -29,6 +32,7 @@ public class PublicController {
     public PublicController(SeasonRepository seasonRepository,
                             LeaderboardService leaderboardService,
                             AdminParticipantService adminParticipantService,
+                            AdminDivisionService adminDivisionService,
                             QuestionRepository questionRepository,
                             QuestionOptionRepository questionOptionRepository,
                             ResponseAnswerRepository responseAnswerRepository,
@@ -36,6 +40,7 @@ public class PublicController {
         this.seasonRepository = seasonRepository;
         this.leaderboardService = leaderboardService;
         this.adminParticipantService = adminParticipantService;
+        this.adminDivisionService = adminDivisionService;
         this.questionRepository = questionRepository;
         this.questionOptionRepository = questionOptionRepository;
         this.responseAnswerRepository = responseAnswerRepository;
@@ -47,9 +52,17 @@ public class PublicController {
         return seasonRepository.findAllByOrderByYearDesc();
     }
 
+    @GetMapping("/divisions")
+    public List<DivisionDto> getDivisions(@RequestParam Integer seasonId) {
+        return adminDivisionService.getDivisionsForSeason(seasonId).stream()
+            .map(d -> { DivisionDto dto = new DivisionDto(); dto.setId(d.getId()); dto.setName(d.getName()); dto.setSeasonId(d.getSeason().getId()); return dto; })
+            .collect(java.util.stream.Collectors.toList());
+    }
+
     @GetMapping("/leaderboard/{seasonId}")
-    public LeaderboardDto getLeaderboard(@PathVariable Integer seasonId) {
-        return leaderboardService.getLeaderboard(seasonId);
+    public LeaderboardDto getLeaderboard(@PathVariable Integer seasonId,
+                                         @RequestParam(required = false) Integer divisionId) {
+        return leaderboardService.getLeaderboard(seasonId, divisionId);
     }
 
     @GetMapping("/participants/{participantId}/responses")

@@ -15,6 +15,9 @@ function AdminLayout() {
           <NavLink to="/admin/participants" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
             Participants
           </NavLink>
+          <NavLink to="/admin/divisions" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Divisions
+          </NavLink>
         </nav>
       </aside>
       <main className="admin-main">

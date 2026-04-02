@@ -9,6 +9,7 @@ import RoundDetailPage from './pages/RoundDetailPage';
 import QuestionDetailPage from './pages/QuestionDetailPage';
 import ParticipantsPage from './pages/ParticipantsPage';
 import ParticipantDetailPage from './pages/ParticipantDetailPage';
+import DivisionsPage from './pages/DivisionsPage';
 import ResponsesPage from './pages/ResponsesPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import PublicParticipantDetailPage from './pages/PublicParticipantDetailPage';
@@ -32,6 +33,7 @@ function App() {
         <Route path="rounds/:roundId/questions/:questionId" element={<QuestionDetailPage />} />
         <Route path="participants" element={<ParticipantsPage />} />
         <Route path="participants/:participantId" element={<ParticipantDetailPage />} />
+        <Route path="divisions" element={<DivisionsPage />} />
         <Route path="rounds/:roundId/responses" element={<ResponsesPage />} />
       </Route>
     </Routes>
