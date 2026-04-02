@@ -117,14 +117,11 @@ function LeaderboardPage() {
               <thead>
                 <tr>
                   <th className="col-rank">#</th>
-                  <th className={thClass('overallTotal', 'col-total')} onClick={() => handleSort('overallTotal')}>
-                    Total <span className="sort-icon">{sortIcon('overallTotal')}</span>
-                  </th>
                   <th className={thClass('teamName')} onClick={() => handleSort('teamName')}>
                     Team <span className="sort-icon">{sortIcon('teamName')}</span>
                   </th>
-                  <th className={thClass('name', 'col-name-header')} onClick={() => handleSort('name')}>
-                    Name <span className="sort-icon">{sortIcon('name')}</span>
+                  <th className={thClass('overallTotal', 'col-total')} onClick={() => handleSort('overallTotal')}>
+                    Total <span className="sort-icon">{sortIcon('overallTotal')}</span>
                   </th>
                   {data.rounds.map(r => (
                     <th
@@ -145,17 +142,13 @@ function LeaderboardPage() {
                 {sortedEntries.map(entry => (
                   <tr key={entry.participantId}>
                     <td className="col-rank">{ranks[entry.participantId]}</td>
-                    <td className="col-total">{entry.overallTotal}</td>
                     <td className="col-team">
                       <Link to={`/standings/${seasonId}/participant/${entry.participantId}`}>
                         {entry.teamName}
+                        <span className="col-player-name"> - {entry.name}</span>
                       </Link>
                     </td>
-                    <td className="col-name">
-                      <Link to={`/standings/${seasonId}/participant/${entry.participantId}`}>
-                        {entry.name}
-                      </Link>
-                    </td>
+                    <td className="col-total">{entry.overallTotal}</td>
                     {data.rounds.map(r => {
                       const score = entry.roundScores[r.id];
                       return score != null ? (

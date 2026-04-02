@@ -195,14 +195,10 @@
   text-decoration: underline;
 }
 
-.lb-table td.col-name a {
-  color: #2b6cb0;
-  text-decoration: none;
-}
-
-.lb-table td.col-name a:hover {
-  color: #1a4a8a;
-  text-decoration: underline;
+.col-player-name {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #666666;
 }
 
 .lb-table td.col-score {
@@ -656,14 +652,12 @@
     display: none;
   }
 
-  /* Hide the Name column on mobile to save space */
-  .lb-table th.col-name-header,
-  .lb-table td.col-name {
-    display: none;
-  }
-
   .lb-table td.col-team a {
     font-size: 0.75rem;
+  }
+
+  .col-player-name {
+    font-size: 0.65rem;
   }
 }
 
