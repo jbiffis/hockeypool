@@ -112,14 +112,14 @@ function DivisionsPage() {
       {/* Create new division */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ marginTop: 0, marginBottom: '0.75rem', fontSize: '1rem' }}>Create New Division</h2>
-        <form onSubmit={handleCreateDivision} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <form onSubmit={handleCreateDivision} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             className="form-input"
             type="text"
             placeholder="Division name"
             value={newDivisionName}
             onChange={e => setNewDivisionName(e.target.value)}
-            style={{ maxWidth: '280px' }}
+            style={{ flex: '1', minWidth: '0', maxWidth: '280px' }}
           />
           <button className="btn btn-primary" type="submit" disabled={saving || !newDivisionName.trim()}>
             Create
@@ -177,7 +177,7 @@ function DivisionsPage() {
 
               {/* Add participant row */}
               {addingTo === division.id ? (
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                <div>
                   <select
                     multiple
                     className="form-select"
@@ -185,13 +185,13 @@ function DivisionsPage() {
                     onChange={e => setSelectedParticipants(
                       Array.from(e.target.selectedOptions, o => Number(o.value))
                     )}
-                    style={{ flex: 1, maxWidth: '320px', minHeight: '7rem' }}
+                    style={{ width: '100%', minHeight: '8rem', marginBottom: '0.5rem' }}
                   >
                     {getUnassignedParticipants(division).map(p => (
                       <option key={p.id} value={p.id}>{p.teamName} — {p.name}</option>
                     ))}
                   </select>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => handleAddParticipants(division.id)}
