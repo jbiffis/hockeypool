@@ -15,7 +15,7 @@ function DivisionsPage() {
   const [participants, setParticipants] = useState([]);
   const [newDivisionName, setNewDivisionName] = useState('');
   const [addingTo, setAddingTo] = useState(null); // divisionId being assigned to
-  const [selectedParticipant, setSelectedParticipant] = useState('');
+  const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -58,17 +58,17 @@ function DivisionsPage() {
     }
   }
 
-  async function handleAddParticipant(divisionId) {
-    if (!selectedParticipant) return;
+  async function handleAddParticipants(divisionId) {
+    if (!selectedParticipants.length) return;
     setSaving(true);
     setError(null);
     try {
-      await addParticipantToDivision(divisionId, Number(selectedParticipant));
+      await Promise.all(selectedParticipants.map(id => addParticipantToDivision(divisionId, id)));
       setAddingTo(null);
-      setSelectedParticipant('');
+      setSelectedParticipants([]);
       loadDivisions();
     } catch {
-      setError('Failed to add participant');
+      setError('Failed to add participants');
     } finally {
       setSaving(false);
     }
@@ -177,36 +177,40 @@ function DivisionsPage() {
 
               {/* Add participant row */}
               {addingTo === division.id ? (
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                   <select
+                    multiple
                     className="form-select"
-                    value={selectedParticipant}
-                    onChange={e => setSelectedParticipant(e.target.value)}
-                    style={{ flex: 1, maxWidth: '300px' }}
+                    value={selectedParticipants.map(String)}
+                    onChange={e => setSelectedParticipants(
+                      Array.from(e.target.selectedOptions, o => Number(o.value))
+                    )}
+                    style={{ flex: 1, maxWidth: '320px', minHeight: '7rem' }}
                   >
-                    <option value="">Select participant…</option>
                     {getUnassignedParticipants(division).map(p => (
                       <option key={p.id} value={p.id}>{p.teamName} — {p.name}</option>
                     ))}
                   </select>
-                  <button
-                    className="btn btn-primary btn-sm"
-                    onClick={() => handleAddParticipant(division.id)}
-                    disabled={saving || !selectedParticipant}
-                  >
-                    Add
-                  </button>
-                  <button
-                    className="btn btn-sm"
-                    onClick={() => { setAddingTo(null); setSelectedParticipant(''); }}
-                  >
-                    Cancel
-                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => handleAddParticipants(division.id)}
+                      disabled={saving || !selectedParticipants.length}
+                    >
+                      Add{selectedParticipants.length > 1 ? ` (${selectedParticipants.length})` : ''}
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => { setAddingTo(null); setSelectedParticipants([]); }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button
                   className="btn btn-sm"
-                  onClick={() => { setAddingTo(division.id); setSelectedParticipant(''); }}
+                  onClick={() => { setAddingTo(division.id); setSelectedParticipants([]); }}
                 >
                   + Add Participant
                 </button>
