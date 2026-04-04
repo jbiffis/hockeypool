@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Test</title>
+  <style>
+    body { font-family: monospace; max-width: 700px; margin: 40px auto; padding: 0 1rem; background: #0d1117; color: #c9d1d9; }
+    h1 { color: #58a6ff; font-size: 1.2rem; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 1rem; margin: 1rem 0; }
+    .row { display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid #21262d; font-size: 0.85rem; }
+    .row:last-child { border-bottom: none; }
+    .label { color: #8b949e; }
+    .value { color: #e6edf3; }
+    .ok { color: #3fb950; }
+    .fail { color: #f85149; }
+    .pending { color: #d29922; }
+    button { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; padding: 0.4rem 0.9rem; cursor: pointer; font-family: monospace; font-size: 0.85rem; margin-right: 0.5rem; }
+    button:hover { background: #30363d; }
+    #api-result { font-size: 0.8rem; color: #8b949e; margin-top: 0.5rem; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Server Test Page</h1>
+
+  <div class="card">
+    <h1>Page Info</h1>
+    <div class="row"><span class="label">Time (local)</span><span class="value" id="time-local">—</span></div>
+    <div class="row"><span class="label">Time (UTC)</span><span class="value" id="time-utc">—</span></div>
+    <div class="row"><span class="label">URL</span><span class="value" id="page-url">—</span></div>
+    <div class="row"><span class="label">User Agent</span><span class="value" id="user-agent">—</span></div>
+  </div>
+
+  <div class="card">
+    <h1>API Health</h1>
+    <div class="row"><span class="label">/api/public/seasons</span><span class="value" id="api-status" class="pending">checking…</span></div>
+    <div class="row"><span class="label">Response time</span><span class="value" id="api-time">—</span></div>
+    <div id="api-result"></div>
+    <br>
+    <button onclick="checkApi()">Re-check API</button>
+  </div>
+
+  <div class="card">
+    <h1>Static Server</h1>
+    <div class="row"><span class="label">nginx serving this file</span><span class="value ok">✓ yes</span></div>
+    <div class="row"><span class="label">Page loaded at</span><span class="value" id="load-time">—</span></div>
+  </div>
+
+  <script>
+    const loadTime = new Date();
+
+    function update() {
+      const now = new Date();
+      document.getElementById('time-local').textContent = now.toLocaleString();
+      document.getElementById('time-utc').textContent = now.toUTCString();
+    }
+
+    document.getElementById('page-url').textContent = location.href;
+    document.getElementById('user-agent').textContent = navigator.userAgent;
+    document.getElementById('load-time').textContent = loadTime.toLocaleTimeString();
+    update();
+    setInterval(update, 1000);
+
+    async function checkApi() {
+      const el = document.getElementById('api-status');
+      const timeEl = document.getElementById('api-time');
+      const resultEl = document.getElementById('api-result');
+      el.textContent = 'checking…';
+      el.className = 'value pending';
+      timeEl.textContent = '—';
+      resultEl.textContent = '';
+
+      const start = performance.now();
+      try {
+        const res = await fetch('/api/public/seasons');
+        const ms = Math.round(performance.now() - start);
+        timeEl.textContent = ms + ' ms';
+        if (res.ok) {
+          const data = await res.json();
+          el.textContent = '✓ ' + res.status + ' OK';
+          el.className = 'value ok';
+          resultEl.textContent = JSON.stringify(data).slice(0, 200) + (JSON.stringify(data).length > 200 ? '…' : '');
+        } else {
+          el.textContent = '✗ HTTP ' + res.status;
+          el.className = 'value fail';
+        }
+      } catch (e) {
+        const ms = Math.round(performance.now() - start);
+        timeEl.textContent = ms + ' ms';
+        el.textContent = '✗ ' + e.message;
+        el.className = 'value fail';
+        resultEl.textContent = e.toString();
+      }
+    }
+
+    checkApi();
+  </script>
+</body>
+</html>
