@@ -186,29 +186,43 @@ function PoolFormPage() {
 
   if (step === 'email') {
     return (
-      <div className="pool-card pool-card-centered">
-        <h1>Playoff Pool</h1>
-        <p>Enter your email to get started</p>
-        <p className="pool-email-note">
-          Make sure to use the same email each time so your picks are recorded correctly.
-        </p>
-        {globalError && <div className="pool-global-error">{globalError}</div>}
-        <form onSubmit={handleEmailSubmit}>
-          <div className="pool-input-group">
-            <label htmlFor="email">Email address</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
-          <button type="submit" className="pool-btn" disabled={loading}>
-            {loading ? 'Loading...' : 'Continue'}
-          </button>
-        </form>
+      <div className="pool-landing">
+        <div className="pool-landing-bg" aria-hidden="true">
+          <div className="pool-landing-glow pool-landing-glow-1" />
+          <div className="pool-landing-glow pool-landing-glow-2" />
+          <div className="pool-landing-ice-lines" />
+        </div>
+
+        <div className="pool-landing-hero">
+          <div className="pool-landing-puck">🏒</div>
+          <h1 className="pool-landing-title">Playoff Pool</h1>
+          <p className="pool-landing-tagline">Make your picks. Track your score. Win bragging rights.</p>
+        </div>
+
+        <div className="pool-landing-card">
+          <p className="pool-landing-prompt">Enter your email to begin</p>
+          {globalError && <div className="pool-global-error">{globalError}</div>}
+          <form onSubmit={handleEmailSubmit}>
+            <div className="pool-landing-input-wrap">
+              <span className="pool-landing-input-icon">✉</span>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                autoFocus
+              />
+            </div>
+            <button type="submit" className="pool-landing-btn" disabled={loading}>
+              {loading ? 'Loading…' : 'Enter the Pool →'}
+            </button>
+          </form>
+          <p className="pool-landing-note">
+            Use the same email each time so your picks are saved correctly.
+          </p>
+        </div>
       </div>
     );
   }

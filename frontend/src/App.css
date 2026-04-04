@@ -783,6 +783,234 @@ h3 {
   padding: 2rem;
 }
 
+/* ===== Pool Landing (email entry) ===== */
+.pool-landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #06091a;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glowing orbs */
+.pool-landing-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pool-landing-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+}
+
+.pool-landing-glow-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #1a73e8 0%, transparent 70%);
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pool-glow-pulse 5s ease-in-out infinite;
+}
+
+.pool-landing-glow-2 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, #6c3aff 0%, transparent 70%);
+  bottom: 0;
+  right: -80px;
+  animation: pool-glow-pulse 5s ease-in-out infinite reverse;
+}
+
+@keyframes pool-glow-pulse {
+  0%, 100% { opacity: 0.25; transform: translateX(-50%) scale(1); }
+  50%       { opacity: 0.45; transform: translateX(-50%) scale(1.12); }
+}
+
+.pool-landing-glow-2 { animation: pool-glow-pulse-2 6s ease-in-out infinite; }
+
+@keyframes pool-glow-pulse-2 {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 0.4; }
+}
+
+/* Subtle ice-rink grid lines */
+.pool-landing-ice-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Hero */
+.pool-landing-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.pool-landing-puck {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 0 24px rgba(26, 115, 232, 0.7));
+  animation: pool-float 3.5s ease-in-out infinite;
+  display: block;
+}
+
+@keyframes pool-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+.pool-landing-title {
+  font-size: 3.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -1.5px !important;
+  margin: 0 0 0.6rem !important;
+  background: linear-gradient(135deg, #ffffff 0%, #a8c8ff 60%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none !important;
+  line-height: 1.1;
+}
+
+.pool-landing-tagline {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 1rem;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* Card */
+.pool-landing-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.pool-landing-prompt {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 1.25rem;
+}
+
+/* Input */
+.pool-landing-input-wrap {
+  position: relative;
+  margin-bottom: 0.875rem;
+}
+
+.pool-landing-input-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 1rem;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.pool-landing-input-wrap input {
+  width: 100%;
+  padding: 0.85rem 0.9rem 0.85rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.pool-landing-input-wrap input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.pool-landing-input-wrap input:focus {
+  outline: none;
+  border-color: #4d9fff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(77, 159, 255, 0.22);
+}
+
+/* Button */
+.pool-landing-btn {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(135deg, #1a73e8 0%, #6c3aff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 18px rgba(26, 115, 232, 0.45);
+  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.pool-landing-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(26, 115, 232, 0.55);
+}
+
+.pool-landing-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.pool-landing-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Fine print */
+.pool-landing-note {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.78rem;
+  text-align: center;
+  margin: 1rem 0 0;
+  line-height: 1.5;
+}
+
+/* Pool landing responsive */
+@media (max-width: 480px) {
+  .pool-landing-title {
+    font-size: 2.5rem !important;
+  }
+  .pool-landing-puck {
+    font-size: 3rem;
+  }
+  .pool-landing-card {
+    padding: 1.5rem;
+  }
+}
+
 /* ===== Mobile Admin ===== */
 @media (max-width: 768px) {
   .admin-layout {
