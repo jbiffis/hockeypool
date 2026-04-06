@@ -87,7 +87,7 @@ function PublicParticipantDetailPage() {
                       return (
                         <tr key={i}>
                           <td>
-                            <Link to={`/standings/${seasonId}/question/${a.questionId}`}
+                            <Link to={`/standings/${seasonId}/question/${a.questionId}?from=${participantId}`}
                                   style={{ color: '#2b6cb0', textDecoration: 'none' }}>
                               {a.questionTitle}
                             </Link>

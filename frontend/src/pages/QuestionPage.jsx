@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { getQuestionDetail } from '../api/leaderboard';
 import '../Leaderboard.css';
 
 function QuestionPage() {
   const { seasonId, questionId } = useParams();
+  const [searchParams] = useSearchParams();
+  const fromParticipantId = searchParams.get('from') ? parseInt(searchParams.get('from'), 10) : null;
   const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +27,11 @@ function QuestionPage() {
     <div className="pd-page">
       <div className="pd-header">
         <div className="pd-header-top">
-          <Link to={`/standings/${seasonId}`} className="pd-back">&larr; Back to Standings</Link>
+          {fromParticipantId ? (
+            <Link to={`/standings/${seasonId}/participant/${fromParticipantId}`} className="pd-back">&larr; Back to Participant</Link>
+          ) : (
+            <Link to={`/standings/${seasonId}`} className="pd-back">&larr; Back to Standings</Link>
+          )}
         </div>
         {question ? (
           <>
@@ -70,11 +76,15 @@ function QuestionPage() {
                 const pct = totalPickers > 0
                   ? Math.round((opt.pickers.length / totalPickers) * 100)
                   : 0;
+                const fromPicker = fromParticipantId != null
+                  ? opt.pickers.find(p => p.participantId === fromParticipantId)
+                  : null;
+                const isFromPick = fromPicker != null;
 
                 return (
                   <div
                     key={opt.optionId}
-                    className={`qp-option ${opt.correct ? 'qp-option-correct' : ''}`}
+                    className={`qp-option ${opt.correct ? 'qp-option-correct' : ''} ${isFromPick ? 'qp-option-from-pick' : ''}`}
                   >
                     <div className="qp-option-main">
                       <div className="qp-option-left">
@@ -85,6 +95,9 @@ function QuestionPage() {
                         )}
                       </div>
                       <div className="qp-option-right">
+                        {isFromPick && (
+                          <span className="qp-their-pick">{fromPicker.teamName}'s pick</span>
+                        )}
                         {opt.points != null && (
                           <span className="qp-option-points">{opt.points} pts</span>
                         )}
