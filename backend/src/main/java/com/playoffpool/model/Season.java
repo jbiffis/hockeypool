@@ -20,6 +20,9 @@ public class Season {
     @Column(length = 20)
     private String status = "active";
 
+    @Column(name = "signup_content", columnDefinition = "TEXT")
+    private String signupContent;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -37,6 +40,9 @@ public class Season {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getSignupContent() { return signupContent; }
+    public void setSignupContent(String signupContent) { this.signupContent = signupContent; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

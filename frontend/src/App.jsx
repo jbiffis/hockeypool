@@ -14,6 +14,7 @@ import ResponsesPage from './pages/ResponsesPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import PublicParticipantDetailPage from './pages/PublicParticipantDetailPage';
 import QuestionPage from './pages/QuestionPage';
+import SignupPage from './pages/SignupPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/pool/season/:seasonId" element={<PoolFormPage />} />
       <Route path="/pool/season/:seasonId/round/:roundId" element={<PoolFormPage />} />
       <Route path="/pool/round/:roundId" element={<PoolFormPage />} />
+      <Route path="/season/:seasonId/signup" element={<SignupPage />} />
       <Route path="/standings/:seasonId" element={<LeaderboardPage />} />
       <Route path="/standings/:seasonId/participant/:participantId" element={<PublicParticipantDetailPage />} />
       <Route path="/standings/:seasonId/question/:questionId" element={<QuestionPage />} />
