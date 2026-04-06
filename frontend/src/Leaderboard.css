@@ -486,6 +486,27 @@
   background: #f0fff4;
 }
 
+.qp-option-from-pick {
+  border-left-color: #5a67d8;
+  background: #ebf4ff;
+}
+
+.qp-option-correct.qp-option-from-pick {
+  border-left-color: #38a169;
+  background: #f0fff4;
+}
+
+.qp-their-pick {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5a67d8;
+  background: #e8eeff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .qp-option-main {
   display: flex;
   align-items: center;
