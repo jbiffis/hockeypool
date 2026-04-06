@@ -22,10 +22,9 @@ public class Participant {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Season season;
 
-    @Column(nullable = false)
     private String name;
 
-    @Column(name = "team_name", nullable = false)
+    @Column(name = "team_name")
     private String teamName;
 
     private String division;

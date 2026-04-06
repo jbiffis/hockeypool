@@ -9,6 +9,7 @@ public class SeasonDto {
     private String name;
     private Integer year;
     private String status;
+    private String signupContent;
     private LocalDateTime createdAt;
 
     public SeasonDto() {}
@@ -19,6 +20,7 @@ public class SeasonDto {
         dto.setName(s.getName());
         dto.setYear(s.getYear());
         dto.setStatus(s.getStatus());
+        dto.setSignupContent(s.getSignupContent());
         dto.setCreatedAt(s.getCreatedAt());
         return dto;
     }
@@ -34,6 +36,9 @@ public class SeasonDto {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getSignupContent() { return signupContent; }
+    public void setSignupContent(String signupContent) { this.signupContent = signupContent; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

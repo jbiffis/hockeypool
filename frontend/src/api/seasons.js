@@ -4,6 +4,14 @@ export function getSeasons() {
   return api.get('/admin/seasons');
 }
 
+export function getSeasonSignup(seasonId) {
+  return api.get(`/seasons/${seasonId}/signup`);
+}
+
+export function submitSignup(seasonId, email) {
+  return api.post(`/seasons/${seasonId}/signup`, { email });
+}
+
 export function getSeason(id) {
   return api.get(`/admin/seasons/${id}`);
 }

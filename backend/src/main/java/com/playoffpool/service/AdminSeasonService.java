@@ -43,6 +43,7 @@ public class AdminSeasonService {
         season.setName(dto.getName());
         season.setYear(dto.getYear());
         season.setStatus(dto.getStatus() != null ? dto.getStatus() : "archived");
+        season.setSignupContent(dto.getSignupContent());
         season.setCreatedAt(LocalDateTime.now());
         if ("active".equals(season.getStatus())) {
             archiveAllSeasons();
@@ -59,6 +60,7 @@ public class AdminSeasonService {
             archiveAllSeasons();
         }
         season.setStatus(dto.getStatus());
+        season.setSignupContent(dto.getSignupContent());
         return seasonRepository.save(season);
     }
 

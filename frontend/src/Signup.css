@@ -1,0 +1,361 @@
+/* ===== Signup Page Layout ===== */
+#root:has(.su-page) {
+  width: 100%;
+  max-width: 100%;
+  border-inline: none;
+  text-align: left;
+}
+
+.su-page {
+  min-height: 100vh;
+  background: #f4f4f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1a1a1a;
+}
+
+/* ===== Header ===== */
+.su-header {
+  background: #0d0d0d;
+  padding: 3.5rem 2rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.su-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e53e3e 0%, #dd6b20 50%, #d69e2e 100%);
+}
+
+.su-header-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.su-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #718096;
+  margin-bottom: 0.75rem;
+}
+
+.su-season-name {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.05;
+}
+
+/* ===== Main Content ===== */
+.su-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+
+/* ===== Markdown Content ===== */
+.su-content {
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid #e2e2dc;
+}
+
+.su-content h1,
+.su-content h2,
+.su-content h3,
+.su-content h4 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0d0d0d;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+}
+
+.su-content h1 { font-size: 1.9rem; }
+.su-content h2 { font-size: 1.45rem; }
+.su-content h3 { font-size: 1.15rem; }
+
+.su-content h1:first-child,
+.su-content h2:first-child,
+.su-content h3:first-child {
+  margin-top: 0;
+}
+
+.su-content p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #333;
+  margin: 0 0 1.1em;
+}
+
+.su-content strong {
+  font-weight: 700;
+  color: #0d0d0d;
+}
+
+.su-content em {
+  font-style: italic;
+}
+
+.su-content ul,
+.su-content ol {
+  padding-left: 1.5rem;
+  margin: 0 0 1.1em;
+}
+
+.su-content li {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 0.3em;
+}
+
+.su-content a {
+  color: #c53030;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.su-content a:hover {
+  color: #9b2c2c;
+}
+
+.su-content blockquote {
+  border-left: 3px solid #0d0d0d;
+  margin: 1.5em 0;
+  padding: 0.5em 0 0.5em 1.25em;
+  color: #555;
+  font-style: italic;
+}
+
+.su-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1em 0;
+  display: block;
+}
+
+.su-content hr {
+  border: none;
+  border-top: 1px solid #e2e2dc;
+  margin: 2em 0;
+}
+
+.su-content code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.875em;
+  background: #e8e8e2;
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+
+.su-content pre {
+  background: #1a1a1a;
+  color: #e2e8f0;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.su-content pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.su-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.95rem;
+}
+
+.su-content th {
+  background: #0d0d0d;
+  color: #fff;
+  font-weight: 700;
+  text-align: left;
+  padding: 0.6em 0.85em;
+}
+
+.su-content td {
+  padding: 0.55em 0.85em;
+  border-bottom: 1px solid #e2e2dc;
+  color: #333;
+}
+
+.su-content tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===== Signup Form ===== */
+.su-form-section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 2.5rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e8e8e2;
+}
+
+.su-form-heading {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0d0d0d;
+  margin-bottom: 1.25rem;
+}
+
+.su-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.su-field-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.su-email-input {
+  flex: 1;
+  height: 3rem;
+  padding: 0 1rem;
+  font-size: 0.95rem;
+  border: 1.5px solid #d4d4cc;
+  border-radius: 6px;
+  outline: none;
+  background: #fafaf8;
+  color: #0d0d0d;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.su-email-input:focus {
+  border-color: #0d0d0d;
+  background: #fff;
+}
+
+.su-email-input::placeholder {
+  color: #a0a09a;
+}
+
+.su-submit-btn {
+  height: 3rem;
+  padding: 0 1.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #0d0d0d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.su-submit-btn:hover:not(:disabled) {
+  background: #2d2d2d;
+}
+
+.su-submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.su-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.su-field-error {
+  margin: 0.65rem 0 0;
+  font-size: 0.875rem;
+  color: #c53030;
+  font-weight: 500;
+}
+
+/* ===== Success State ===== */
+.su-success {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.su-success-icon {
+  width: 3rem;
+  height: 3rem;
+  background: #0d0d0d;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 auto 1.25rem;
+}
+
+.su-success-heading {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0d0d0d;
+  margin-bottom: 0.5rem;
+}
+
+.su-success-body {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===== Loading / Not found ===== */
+.su-loading,
+.su-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  font-size: 1rem;
+  color: #718096;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 560px) {
+  .su-header {
+    padding: 2.5rem 1.25rem 2rem;
+  }
+
+  .su-main {
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .su-form-section {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .su-field-row {
+    flex-direction: column;
+  }
+
+  .su-submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

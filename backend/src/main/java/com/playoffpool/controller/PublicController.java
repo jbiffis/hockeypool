@@ -6,11 +6,14 @@ import com.playoffpool.dto.ParticipantResponseDto;
 import com.playoffpool.dto.QuestionDetailDto;
 import com.playoffpool.dto.QuestionDetailDto.OptionDetail;
 import com.playoffpool.dto.QuestionDetailDto.PickerInfo;
+import com.playoffpool.dto.SeasonDto;
 import com.playoffpool.model.*;
 import com.playoffpool.repository.*;
 import com.playoffpool.service.AdminDivisionService;
 import com.playoffpool.service.AdminParticipantService;
 import com.playoffpool.service.LeaderboardService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -50,6 +53,36 @@ public class PublicController {
     @GetMapping("/seasons")
     public List<Season> getSeasons() {
         return seasonRepository.findAllByOrderByYearDesc();
+    }
+
+    @GetMapping("/seasons/{seasonId}/signup")
+    public ResponseEntity<?> getSignupPage(@PathVariable Integer seasonId) {
+        return seasonRepository.findById(seasonId)
+                .<ResponseEntity<?>>map(s -> ResponseEntity.ok(SeasonDto.fromEntity(s)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/seasons/{seasonId}/signup")
+    public ResponseEntity<?> submitSignup(@PathVariable Integer seasonId,
+                                          @RequestBody java.util.Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "Email is required"));
+        }
+        Season season = seasonRepository.findById(seasonId).orElse(null);
+        if (season == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (participantRepository.findByEmailAndSeasonId(email.trim().toLowerCase(), seasonId).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("error", "This email is already registered for this season"));
+        }
+        Participant p = new Participant();
+        p.setEmail(email.trim().toLowerCase());
+        p.setSeason(season);
+        p.setCreatedAt(java.time.LocalDateTime.now());
+        participantRepository.save(p);
+        return ResponseEntity.status(HttpStatus.CREATED).body(java.util.Map.of("message", "Signed up successfully"));
     }
 
     @GetMapping("/divisions")

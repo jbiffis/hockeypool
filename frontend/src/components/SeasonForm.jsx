@@ -5,6 +5,7 @@ function SeasonForm({ season, onSubmit, onCancel }) {
     name: '',
     year: new Date().getFullYear(),
     status: 'archived',
+    signupContent: '',
   });
 
   useEffect(() => {
@@ -13,6 +14,7 @@ function SeasonForm({ season, onSubmit, onCancel }) {
         name: season.name || '',
         year: season.year || new Date().getFullYear(),
         status: season.status || 'archived',
+        signupContent: season.signupContent || '',
       });
     }
   }, [season]);
@@ -45,6 +47,18 @@ function SeasonForm({ season, onSubmit, onCancel }) {
             <option value="archived">Archived</option>
           </select>
         </div>
+      </div>
+      <div className="form-group" style={{ marginTop: '1rem' }}>
+        <label htmlFor="signupContent">Signup Page Content <span style={{ fontWeight: 400, color: '#718096', fontSize: '0.85em' }}>(Markdown)</span></label>
+        <textarea
+          id="signupContent"
+          name="signupContent"
+          value={form.signupContent}
+          onChange={handleChange}
+          rows={10}
+          placeholder="Write the signup page content in Markdown. Supports headings, bold, lists, images, etc."
+          style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
+        />
       </div>
       <div className="form-actions">
         <button type="submit" className="btn btn-primary">{season ? 'Update' : 'Create'}</button>
