@@ -32,36 +32,48 @@ function OptionForm({ option, onSubmit, onCancel }) {
   }
 
   return (
-    <form className="inline-form" onSubmit={handleSubmit}>
-      <input
-        name="optionText"
-        type="text"
-        placeholder="Option text"
-        value={form.optionText}
-        onChange={handleChange}
-        required
-      />
-      <input
-        name="subtext"
-        type="text"
-        placeholder="Subtext (optional)"
-        value={form.subtext}
-        onChange={handleChange}
-      />
-      <input
-        name="displayOrder"
-        type="number"
-        placeholder="Order"
-        value={form.displayOrder}
-        onChange={handleChange}
-        style={{ width: '80px' }}
-      />
-      <button type="submit" className="btn btn-primary btn-sm">
-        {option ? 'Update' : 'Add'}
-      </button>
-      <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel}>
-        Cancel
-      </button>
+    <form className="option-form-stacked" onSubmit={handleSubmit}>
+      <div className="option-form-fields">
+        <div className="option-form-field">
+          <label>Option text</label>
+          <input
+            name="optionText"
+            type="text"
+            placeholder="Option text"
+            value={form.optionText}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="option-form-field">
+          <label>Subtext</label>
+          <input
+            name="subtext"
+            type="text"
+            placeholder="Subtext (optional)"
+            value={form.subtext}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="option-form-field option-form-field-short">
+          <label>Order</label>
+          <input
+            name="displayOrder"
+            type="number"
+            placeholder="Order"
+            value={form.displayOrder}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+      <div className="option-form-actions">
+        <button type="submit" className="btn btn-primary btn-sm">
+          {option ? 'Update' : 'Add'}
+        </button>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

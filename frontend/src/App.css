@@ -406,24 +406,106 @@ a:hover {
   margin-top: 1.25rem;
 }
 
-/* ===== Inline Form ===== */
-.inline-form {
+/* ===== Option Card List ===== */
+.option-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-card {
+  background: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+}
+
+.option-card-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.option-card-order {
+  font-weight: 600;
+  color: #5f6368;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.option-card-text {
+  font-size: 0.95rem;
+  color: #333;
+  word-break: break-word;
+}
+
+.option-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.option-card-points {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.inline-form input[type="text"],
-.inline-form input[type="number"] {
+.option-card-points label {
+  font-size: 0.8rem;
+  color: #5f6368;
+  font-weight: 600;
+}
+
+/* ===== Stacked Option Form ===== */
+.option-form-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.option-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.option-form-field label {
+  font-size: 0.8rem;
+  color: #5f6368;
+  font-weight: 600;
+}
+
+.option-form-field input {
   padding: 0.4rem 0.6rem;
   border: 1px solid #dadce0;
   border-radius: 4px;
   font-size: 0.875rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.inline-form input:focus {
+.option-form-field-short input {
+  max-width: 100px;
+}
+
+.option-form-field input:focus {
   outline: none;
   border-color: #1a73e8;
+}
+
+.option-form-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* ===== Points Cell ===== */

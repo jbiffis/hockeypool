@@ -124,32 +124,25 @@ function QuestionDetailPage() {
           )}
         </div>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Option Text</th>
-              <th>Points</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {options.map(opt => (
-              editingOptionId === opt.id ? (
-                <tr key={opt.id}>
-                  <td colSpan={4}>
-                    <OptionForm
-                      option={opt}
-                      onSubmit={(data) => handleUpdateOption(opt.id, data)}
-                      onCancel={() => setEditingOptionId(null)}
-                    />
-                  </td>
-                </tr>
-              ) : (
-                <tr key={opt.id}>
-                  <td>{opt.displayOrder}</td>
-                  <td>{opt.optionText}</td>
-                  <td>
+        <div className="option-card-list">
+          {options.map(opt => (
+            editingOptionId === opt.id ? (
+              <div key={opt.id} className="option-card">
+                <OptionForm
+                  option={opt}
+                  onSubmit={(data) => handleUpdateOption(opt.id, data)}
+                  onCancel={() => setEditingOptionId(null)}
+                />
+              </div>
+            ) : (
+              <div key={opt.id} className="option-card">
+                <div className="option-card-header">
+                  <span className="option-card-order">#{opt.displayOrder}</span>
+                  <span className="option-card-text">{opt.optionText}</span>
+                </div>
+                <div className="option-card-body">
+                  <div className="option-card-points">
+                    <label>Points</label>
                     <div className="points-cell">
                       <input
                         type="number"
@@ -161,19 +154,19 @@ function QuestionDetailPage() {
                         Save
                       </button>
                     </div>
-                  </td>
-                  <td className="actions">
+                  </div>
+                  <div className="actions">
                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingOptionId(opt.id)}>Edit</button>
                     <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(opt.id)}>Delete</button>
-                  </td>
-                </tr>
-              )
-            ))}
-            {options.length === 0 && (
-              <tr><td colSpan={4} className="empty-message">No options yet.</td></tr>
-            )}
-          </tbody>
-        </table>
+                  </div>
+                </div>
+              </div>
+            )
+          ))}
+          {options.length === 0 && (
+            <p className="empty-message">No options yet.</p>
+          )}
+        </div>
 
         {showOptionForm && (
           <div className="form-card">
