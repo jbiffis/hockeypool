@@ -5,6 +5,7 @@ function OptionForm({ option, onSubmit, onCancel }) {
     optionText: '',
     subtext: '',
     displayOrder: 0,
+    points: '',
   });
 
   useEffect(() => {
@@ -13,6 +14,7 @@ function OptionForm({ option, onSubmit, onCancel }) {
         optionText: option.optionText || '',
         subtext: option.subtext || '',
         displayOrder: option.displayOrder ?? 0,
+        points: option.points ?? '',
       });
     }
   }, [option]);
@@ -27,6 +29,7 @@ function OptionForm({ option, onSubmit, onCancel }) {
     onSubmit({
       ...form,
       displayOrder: Number(form.displayOrder),
+      points: form.points !== '' ? Number(form.points) : null,
       subtext: form.subtext || null,
     });
   }
@@ -55,15 +58,27 @@ function OptionForm({ option, onSubmit, onCancel }) {
             onChange={handleChange}
           />
         </div>
-        <div className="option-form-field option-form-field-short">
-          <label>Order</label>
-          <input
-            name="displayOrder"
-            type="number"
-            placeholder="Order"
-            value={form.displayOrder}
-            onChange={handleChange}
-          />
+        <div className="option-form-row">
+          <div className="option-form-field option-form-field-short">
+            <label>Order</label>
+            <input
+              name="displayOrder"
+              type="number"
+              placeholder="Order"
+              value={form.displayOrder}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="option-form-field option-form-field-short">
+            <label>Points</label>
+            <input
+              name="points"
+              type="number"
+              placeholder="Points"
+              value={form.points}
+              onChange={handleChange}
+            />
+          </div>
         </div>
       </div>
       <div className="option-form-actions">
