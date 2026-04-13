@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getQuestion, updateQuestion, getQuestions } from '../api/questions';
-import { getOptions, createOption, updateOption, deleteOption, updateOptionPoints } from '../api/options';
+import { getOptions, createOption, updateOption, deleteOption } from '../api/options';
 import QuestionForm from '../components/QuestionForm';
 import OptionForm from '../components/OptionForm';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -14,7 +14,6 @@ function QuestionDetailPage() {
   const [options, setOptions] = useState([]);
   const [showOptionForm, setShowOptionForm] = useState(false);
   const [editingOptionId, setEditingOptionId] = useState(null);
-  const [pointsValues, setPointsValues] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [error, setError] = useState(null);
 
@@ -32,10 +31,6 @@ function QuestionDetailPage() {
       setQuestion(questionRes.data);
       setAllQuestions(questionsRes.data);
       setOptions(optionsRes.data);
-      // Initialize points values
-      const pts = {};
-      optionsRes.data.forEach(o => { pts[o.id] = o.points ?? ''; });
-      setPointsValues(pts);
     } catch (err) {
       setError('Failed to load question data');
     }
@@ -78,20 +73,6 @@ function QuestionDetailPage() {
     } catch (err) {
       setError('Failed to delete option');
     }
-  }
-
-  async function handleSavePoints(optionId) {
-    try {
-      const points = pointsValues[optionId] !== '' ? Number(pointsValues[optionId]) : null;
-      await updateOptionPoints(questionId, optionId, points);
-      fetchData();
-    } catch (err) {
-      setError('Failed to update points');
-    }
-  }
-
-  function handlePointsChange(optionId, value) {
-    setPointsValues(prev => ({ ...prev, [optionId]: value }));
   }
 
   if (!question) return <p>Loading...</p>;
@@ -139,22 +120,11 @@ function QuestionDetailPage() {
                 <div className="option-card-header">
                   <span className="option-card-order">#{opt.displayOrder}</span>
                   <span className="option-card-text">{opt.optionText}</span>
+                  {opt.points != null && (
+                    <span className="option-card-points-badge">{opt.points} pts</span>
+                  )}
                 </div>
                 <div className="option-card-body">
-                  <div className="option-card-points">
-                    <label>Points</label>
-                    <div className="points-cell">
-                      <input
-                        type="number"
-                        value={pointsValues[opt.id] ?? ''}
-                        onChange={(e) => handlePointsChange(opt.id, e.target.value)}
-                        style={{ width: '70px' }}
-                      />
-                      <button className="btn btn-primary btn-sm" onClick={() => handleSavePoints(opt.id)}>
-                        Save
-                      </button>
-                    </div>
-                  </div>
                   <div className="actions">
                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingOptionId(opt.id)}>Edit</button>
                     <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(opt.id)}>Delete</button>
