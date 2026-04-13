@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.bean.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -37,14 +37,14 @@ class PublicControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean private SeasonRepository seasonRepository;
-    @MockBean private LeaderboardService leaderboardService;
-    @MockBean private AdminParticipantService adminParticipantService;
-    @MockBean private AdminDivisionService adminDivisionService;
-    @MockBean private QuestionRepository questionRepository;
-    @MockBean private QuestionOptionRepository questionOptionRepository;
-    @MockBean private ResponseAnswerRepository responseAnswerRepository;
-    @MockBean private ParticipantRepository participantRepository;
+    @MockitoBean private SeasonRepository seasonRepository;
+    @MockitoBean private LeaderboardService leaderboardService;
+    @MockitoBean private AdminParticipantService adminParticipantService;
+    @MockitoBean private AdminDivisionService adminDivisionService;
+    @MockitoBean private QuestionRepository questionRepository;
+    @MockitoBean private QuestionOptionRepository questionOptionRepository;
+    @MockitoBean private ResponseAnswerRepository responseAnswerRepository;
+    @MockitoBean private ParticipantRepository participantRepository;
 
     private Season season;
 
