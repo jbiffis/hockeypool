@@ -252,7 +252,6 @@ class PoolFormServiceTest {
 
         when(participantRepository.findById(1)).thenReturn(Optional.of(participant));
         when(roundRepository.findBySeasonIdAndStatus(1, "open")).thenReturn(List.of(openRound));
-        when(responseRepository.findByParticipantIdAndRoundId(1, 1)).thenReturn(Optional.empty());
 
         SubmitPicksDto dto = new SubmitPicksDto();
         dto.setParticipantId(1);
