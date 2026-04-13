@@ -49,7 +49,19 @@ function SeasonForm({ season, onSubmit, onCancel }) {
         </div>
       </div>
       <div className="form-group" style={{ marginTop: '1rem' }}>
-        <label htmlFor="signupContent">Signup Page Content <span style={{ fontWeight: 400, color: '#718096', fontSize: '0.85em' }}>(Markdown)</span></label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <label htmlFor="signupContent">Signup Page Content <span style={{ fontWeight: 400, color: '#718096', fontSize: '0.85em' }}>(Markdown)</span></label>
+          {season && (
+            <a
+              href={`/season/${season.id}/signup`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: '0.85em', fontWeight: 500 }}
+            >
+              View Signup Page
+            </a>
+          )}
+        </div>
         <textarea
           id="signupContent"
           name="signupContent"
