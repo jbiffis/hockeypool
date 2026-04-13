@@ -1,6 +1,8 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import './App.css';
+import { useAuth } from './context/AuthContext';
 import PoolFormPage from './pages/PoolFormPage';
+import LoginPage from './pages/LoginPage';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import SeasonsPage from './pages/SeasonsPage';
@@ -16,6 +18,13 @@ import PublicParticipantDetailPage from './pages/PublicParticipantDetailPage';
 import QuestionPage from './pages/QuestionPage';
 import SignupPage from './pages/SignupPage';
 
+function ProtectedRoute() {
+  const { authenticated, loading } = useAuth();
+  if (loading) return null;
+  if (!authenticated) return <Navigate to="/admin/login" replace />;
+  return <Outlet />;
+}
+
 function App() {
   return (
     <Routes>
@@ -27,16 +36,19 @@ function App() {
       <Route path="/standings/:seasonId" element={<LeaderboardPage />} />
       <Route path="/standings/:seasonId/participant/:participantId" element={<PublicParticipantDetailPage />} />
       <Route path="/standings/:seasonId/question/:questionId" element={<QuestionPage />} />
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-        <Route path="seasons" element={<SeasonsPage />} />
-        <Route path="rounds" element={<RoundsPage />} />
-        <Route path="rounds/:roundId" element={<RoundDetailPage />} />
-        <Route path="rounds/:roundId/questions/:questionId" element={<QuestionDetailPage />} />
-        <Route path="participants" element={<ParticipantsPage />} />
-        <Route path="participants/:participantId" element={<ParticipantDetailPage />} />
-        <Route path="divisions" element={<DivisionsPage />} />
-        <Route path="rounds/:roundId/responses" element={<ResponsesPage />} />
+      <Route path="/admin/login" element={<LoginPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="seasons" element={<SeasonsPage />} />
+          <Route path="rounds" element={<RoundsPage />} />
+          <Route path="rounds/:roundId" element={<RoundDetailPage />} />
+          <Route path="rounds/:roundId/questions/:questionId" element={<QuestionDetailPage />} />
+          <Route path="participants" element={<ParticipantsPage />} />
+          <Route path="participants/:participantId" element={<ParticipantDetailPage />} />
+          <Route path="divisions" element={<DivisionsPage />} />
+          <Route path="rounds/:roundId/responses" element={<ResponsesPage />} />
+        </Route>
       </Route>
     </Routes>
   );

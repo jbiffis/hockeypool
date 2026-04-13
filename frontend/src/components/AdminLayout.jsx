@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   function handleNavClick() {
     setSidebarOpen(false);
+  }
+
+  async function handleLogout() {
+    await logout();
+    navigate('/admin/login');
   }
 
   return (
@@ -44,6 +51,15 @@ function AdminLayout() {
             Divisions
           </NavLink>
         </nav>
+        <div style={{ marginTop: 'auto', padding: '1.25rem' }}>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={handleLogout}
+            style={{ width: '100%' }}
+          >
+            Log Out
+          </button>
+        </div>
       </aside>
 
       <main className="admin-main">
