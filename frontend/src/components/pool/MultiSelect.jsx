@@ -15,7 +15,7 @@ function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
     <Stack gap="xs">
       {maxSelections != null && (
         <Text size="sm" c="dimmed">
-          Select {value.length} of {maxSelections}
+          Select {maxSelections}
         </Text>
       )}
       {options.map((opt) => {
