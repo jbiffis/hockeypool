@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getParticipants, updateParticipantPaid } from '../api/participants';
+import { getParticipants, updateParticipant, updateParticipantPaid } from '../api/participants';
 import { getSeasons } from '../api/seasons';
 import { Title, Table, Select, Group, Alert, Anchor, Badge } from '@mantine/core';
+import ParticipantEditModal from '../components/ParticipantEditModal';
 
 function ParticipantsPage() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ function ParticipantsPage() {
   const [seasons, setSeasons] = useState([]);
   const [selectedSeasonId, setSelectedSeasonId] = useState(null);
   const [error, setError] = useState(null);
+  const [editingParticipant, setEditingParticipant] = useState(null);
 
   useEffect(() => {
     getSeasons().then(res => {
@@ -60,7 +62,7 @@ function ParticipantsPage() {
                 </Anchor>
               </Table.Td>
               <Table.Td>{p.teamName}</Table.Td>
-              <Table.Td><Anchor href={`mailto:${p.email}`}>{p.email}</Anchor></Table.Td>
+              <Table.Td><Anchor component="button" onClick={() => setEditingParticipant(p)}>{p.email}</Anchor></Table.Td>
               <Table.Td>{p.division}</Table.Td>
               <Table.Td>
                 <Badge
@@ -86,6 +88,21 @@ function ParticipantsPage() {
           )}
         </Table.Tbody>
       </Table>
+
+      <ParticipantEditModal
+        participant={editingParticipant}
+        opened={editingParticipant != null}
+        onClose={() => setEditingParticipant(null)}
+        onSave={async (id, data) => {
+          try {
+            const res = await updateParticipant(id, data);
+            setParticipants(prev => prev.map(x => x.id === id ? { ...x, ...res.data } : x));
+            setEditingParticipant(null);
+          } catch {
+            setError('Failed to update participant');
+          }
+        }}
+      />
     </div>
   );
 }

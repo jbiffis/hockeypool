@@ -26,6 +26,12 @@ public class AdminParticipantController {
         return adminParticipantService.getAllParticipants();
     }
 
+    @PutMapping("/participants/{id}")
+    public Participant updateParticipant(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        return adminParticipantService.updateParticipant(id,
+                body.get("name"), body.get("email"), body.get("teamName"), body.get("division"));
+    }
+
     @PatchMapping("/participants/{id}/paid")
     public Participant updatePaidStatus(@PathVariable Integer id, @RequestBody Map<String, Boolean> body) {
         return adminParticipantService.updatePaidStatus(id, body.get("paid"));

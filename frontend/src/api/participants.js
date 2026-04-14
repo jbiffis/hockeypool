@@ -6,6 +6,10 @@ export function getParticipants(seasonId) {
   return api.get('/admin/participants', { params });
 }
 
+export function updateParticipant(id, data) {
+  return api.put(`/admin/participants/${id}`, data);
+}
+
 export function updateParticipantPaid(id, paid) {
   return api.patch(`/admin/participants/${id}/paid`, { paid });
 }

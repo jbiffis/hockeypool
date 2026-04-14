@@ -18,8 +18,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.http.MediaType;
 
@@ -69,6 +71,26 @@ class AdminParticipantControllerTest {
         mockMvc.perform(get("/api/admin/participants").param("seasonId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void updateParticipant_updatesFields() throws Exception {
+        participant.setName("Updated Player");
+        participant.setEmail("updated@example.com");
+        participant.setTeamName("New Team");
+        participant.setDivision("East");
+        when(adminParticipantService.updateParticipant(eq(1),
+                eq("Updated Player"), eq("updated@example.com"), eq("New Team"), eq("East")))
+                .thenReturn(participant);
+
+        mockMvc.perform(put("/api/admin/participants/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Updated Player\",\"email\":\"updated@example.com\",\"teamName\":\"New Team\",\"division\":\"East\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Player"))
+                .andExpect(jsonPath("$.email").value("updated@example.com"))
+                .andExpect(jsonPath("$.teamName").value("New Team"))
+                .andExpect(jsonPath("$.division").value("East"));
     }
 
     @Test

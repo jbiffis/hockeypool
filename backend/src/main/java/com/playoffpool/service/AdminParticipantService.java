@@ -43,6 +43,17 @@ public class AdminParticipantService {
     }
 
     @Transactional
+    public Participant updateParticipant(Integer id, String name, String email, String teamName, String division) {
+        Participant participant = participantRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Participant not found"));
+        participant.setName(name);
+        participant.setEmail(email);
+        participant.setTeamName(teamName);
+        participant.setDivision(division);
+        return participantRepository.save(participant);
+    }
+
+    @Transactional
     public Participant updatePaidStatus(Integer id, Boolean paid) {
         Participant participant = participantRepository.findById(id)
                 .orElseThrow(() -> new java.util.NoSuchElementException("Participant not found"));
