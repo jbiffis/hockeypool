@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getParticipants, updateParticipant, updateParticipantPaid } from '../api/participants';
 import { getSeasons } from '../api/seasons';
-import { Title, Table, Select, Group, Alert, Anchor, Badge } from '@mantine/core';
+import { Title, Table, Select, Group, Alert, Anchor, Badge, Text } from '@mantine/core';
 import ParticipantEditModal from '../components/ParticipantEditModal';
 
 function ParticipantsPage() {
@@ -32,7 +32,10 @@ function ParticipantsPage() {
   return (
     <div>
       <Group justify="space-between" mb="md">
-        <Title order={1}>Participants</Title>
+        <Group gap="sm" align="baseline">
+          <Title order={1}>Participants</Title>
+          {participants.length > 0 && <Text c="dimmed" size="lg">({participants.length})</Text>}
+        </Group>
         <Select
           value={selectedSeasonId != null ? String(selectedSeasonId) : null}
           onChange={(val) => setSelectedSeasonId(val ? Number(val) : null)}
