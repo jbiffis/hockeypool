@@ -10,24 +10,27 @@ QID=57
 COOKIE="${ADMIN_COOKIE:?Set ADMIN_COOKIE to your JSESSIONID value}"
 
 # 2025-26 NHL Playoff Teams (16 teams)
-# Eastern Conference
+# Eastern Conference - Atlantic: BUF (y), TBL (x), MTL (x), BOS (x), OTT (x)
+# Eastern Conference - Metropolitan: CAR (z), PIT (x), PHI (x)
+# Western Conference - Central: COL (*), DAL (x), MIN (x), UTA (x)
+# Western Conference - Pacific: VGK (x), EDM (x), ANA (x), LAK (x)
 teams=(
-  "Washington Capitals|WSH|1"
-  "Toronto Maple Leafs|TOR|2"
-  "Tampa Bay Lightning|TBL|3"
-  "Florida Panthers|FLA|4"
-  "Carolina Hurricanes|CAR|5"
-  "New Jersey Devils|NJD|6"
-  "Ottawa Senators|OTT|7"
-  "Montreal Canadiens|MTL|8"
-  "Winnipeg Jets|WPG|9"
+  "Buffalo Sabres|BUF|1"
+  "Tampa Bay Lightning|TBL|2"
+  "Montreal Canadiens|MTL|3"
+  "Boston Bruins|BOS|4"
+  "Ottawa Senators|OTT|5"
+  "Carolina Hurricanes|CAR|6"
+  "Pittsburgh Penguins|PIT|7"
+  "Philadelphia Flyers|PHI|8"
+  "Colorado Avalanche|COL|9"
   "Dallas Stars|DAL|10"
-  "Vegas Golden Knights|VGK|11"
-  "Minnesota Wild|MIN|12"
-  "Colorado Avalanche|COL|13"
+  "Minnesota Wild|MIN|11"
+  "Utah Hockey Club|UTA|12"
+  "Vegas Golden Knights|VGK|13"
   "Edmonton Oilers|EDM|14"
-  "Los Angeles Kings|LAK|15"
-  "Vancouver Canucks|VAN|16"
+  "Anaheim Ducks|ANA|15"
+  "Los Angeles Kings|LAK|16"
 )
 
 for entry in "${teams[@]}"; do
