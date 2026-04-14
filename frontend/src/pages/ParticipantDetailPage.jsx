@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getParticipantResponses } from '../api/participants';
+import { Title, Table, Button, Group, Alert, Card, Text, Badge } from '@mantine/core';
 
 function ParticipantDetailPage() {
   const { participantId } = useParams();
@@ -8,17 +9,11 @@ function ParticipantDetailPage() {
   const [responses, setResponses] = useState([]);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [participantId]);
+  useEffect(() => { fetchData(); }, [participantId]);
 
   async function fetchData() {
-    try {
-      const res = await getParticipantResponses(participantId);
-      setResponses(res.data);
-    } catch (err) {
-      setError('Failed to load responses');
-    }
+    try { setResponses((await getParticipantResponses(participantId)).data); }
+    catch { setError('Failed to load responses'); }
   }
 
   const participant = responses.length > 0 ? responses[0] : null;
@@ -27,77 +22,65 @@ function ParticipantDetailPage() {
 
   return (
     <div>
-      <button className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/participants')}>
-        &larr; Back to Participants
-      </button>
+      <Button variant="subtle" size="compact-sm" onClick={() => navigate('/admin/participants')} mb="sm">
+        ← Back to Participants
+      </Button>
 
-      <h1>{participant ? `${participant.participantName} - ${participant.teamName}` : 'Loading...'}</h1>
-      {participant && <p className="text-muted">{participant.email}</p>}
+      <Title order={1} mb="xs">
+        {participant ? `${participant.participantName} - ${participant.teamName}` : 'Loading...'}
+      </Title>
+      {participant && <Text c="dimmed" mb="sm">{participant.email}</Text>}
       {hasAnyScores && (
-        <div style={{ background: '#d2e3fc', color: '#1967d2', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', fontWeight: 700, fontSize: '1.1rem' }}>
-          Overall Total: {overallTotal} pts
-        </div>
+        <Badge size="lg" variant="light" color="blue" mb="md">Overall Total: {overallTotal} pts</Badge>
       )}
 
-      {error && <div className="error-message">{error}</div>}
-
-      {responses.length === 0 && !error && (
-        <p className="empty-message">No responses found for this participant.</p>
-      )}
+      {error && <Alert color="red" mb="md">{error}</Alert>}
+      {responses.length === 0 && !error && <Text c="dimmed">No responses found for this participant.</Text>}
 
       {responses.map((r) => (
-        <div key={r.roundId} className="form-card" style={{ marginBottom: '1.5rem' }}>
-          <div className="page-header">
-            <h2>{r.roundName}</h2>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {r.roundPointsTotal != null && (
-                <strong>{r.roundPointsTotal} pts</strong>
-              )}
-              <span className="text-muted" style={{ fontSize: '0.85rem' }}>
-                Submitted {r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '--'}
-              </span>
-            </div>
-          </div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Question</th>
-                <th>Correct Answer</th>
-                <th>Response</th>
-                <th>Point Value</th>
-                <th>Points Scored</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(r.answers || []).map((a, i) => (
-                <tr key={i}>
-                  <td>{a.questionTitle}</td>
-                  <td style={{ color: '#999' }}>{a.correctAnswerText ?? 'N/A'}</td>
-                  <td style={
-                    a.correctAnswerText != null && a.selectedOptionText === a.correctAnswerText
-                      ? { color: '#137333', fontWeight: 500 }
-                      : a.correctAnswerText != null && a.selectedOptionText && a.selectedOptionText !== a.correctAnswerText
-                      ? { color: '#d93025' }
-                      : {}
-                  }>
-                    {a.selectedOptionText || a.freeFormValue || '--'}
-                  </td>
-                  <td>{a.optionPointValue ?? '--'}</td>
-                  <td>{a.pointsEarned ?? '--'}</td>
-                </tr>
-              ))}
-              {(!r.answers || r.answers.length === 0) && (
-                <tr><td colSpan={5} className="empty-message">No answers.</td></tr>
-              )}
-            </tbody>
-            <tfoot>
-              <tr style={{ fontWeight: 'bold' }}>
-                <td colSpan={4} style={{ textAlign: 'right' }}>Round Total</td>
-                <td>{r.roundPointsTotal ?? '--'}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+        <Card key={r.roundId} withBorder mb="md" padding="md">
+          <Group justify="space-between" mb="sm">
+            <Title order={3}>{r.roundName}</Title>
+            <Group>
+              {r.roundPointsTotal != null && <Badge variant="light">{r.roundPointsTotal} pts</Badge>}
+              <Text size="xs" c="dimmed">Submitted {r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '--'}</Text>
+            </Group>
+          </Group>
+          <Table striped>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Question</Table.Th>
+                <Table.Th>Correct Answer</Table.Th>
+                <Table.Th>Response</Table.Th>
+                <Table.Th>Point Value</Table.Th>
+                <Table.Th>Points Scored</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {(r.answers || []).map((a, i) => {
+                const isCorrect = a.correctAnswerText != null && a.selectedOptionText === a.correctAnswerText;
+                const isWrong = a.correctAnswerText != null && a.selectedOptionText && a.selectedOptionText !== a.correctAnswerText;
+                return (
+                  <Table.Tr key={i}>
+                    <Table.Td>{a.questionTitle}</Table.Td>
+                    <Table.Td c="dimmed">{a.correctAnswerText ?? 'N/A'}</Table.Td>
+                    <Table.Td c={isCorrect ? 'green' : isWrong ? 'red' : undefined} fw={isCorrect ? 500 : undefined}>
+                      {a.selectedOptionText || a.freeFormValue || '--'}
+                    </Table.Td>
+                    <Table.Td>{a.optionPointValue ?? '--'}</Table.Td>
+                    <Table.Td>{a.pointsEarned ?? '--'}</Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+            <Table.Tfoot>
+              <Table.Tr fw={700}>
+                <Table.Td colSpan={4} ta="right">Round Total</Table.Td>
+                <Table.Td>{r.roundPointsTotal ?? '--'}</Table.Td>
+              </Table.Tr>
+            </Table.Tfoot>
+          </Table>
+        </Card>
       ))}
     </div>
   );

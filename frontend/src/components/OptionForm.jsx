@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TextInput, NumberInput, Group, Button, Stack } from '@mantine/core';
 
 function OptionForm({ option, onSubmit, onCancel }) {
   const [form, setForm] = useState({
@@ -21,11 +22,6 @@ function OptionForm({ option, onSubmit, onCancel }) {
     }
   }, [option]);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  }
-
   function handleSubmit(e) {
     e.preventDefault();
     onSubmit({
@@ -38,70 +34,20 @@ function OptionForm({ option, onSubmit, onCancel }) {
   }
 
   return (
-    <form className="option-form-stacked" onSubmit={handleSubmit}>
-      <div className="option-form-fields">
-        <div className="option-form-field">
-          <label>Option text</label>
-          <input
-            name="optionText"
-            type="text"
-            placeholder="Option text"
-            value={form.optionText}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="option-form-field">
-          <label>Subtext</label>
-          <input
-            name="subtext"
-            type="text"
-            placeholder="Subtext (optional)"
-            value={form.subtext}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="option-form-field">
-          <label>Image URL</label>
-          <input
-            name="imageUrl"
-            type="url"
-            placeholder="https://example.com/image.png (optional)"
-            value={form.imageUrl}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="option-form-row">
-          <div className="option-form-field option-form-field-short">
-            <label>Order</label>
-            <input
-              name="displayOrder"
-              type="number"
-              placeholder="Order"
-              value={form.displayOrder}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="option-form-field option-form-field-short">
-            <label>Points</label>
-            <input
-              name="points"
-              type="number"
-              placeholder="Points"
-              value={form.points}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="option-form-actions">
-        <button type="submit" className="btn btn-primary btn-sm">
-          {option ? 'Update' : 'Add'}
-        </button>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel}>
-          Cancel
-        </button>
-      </div>
+    <form onSubmit={handleSubmit}>
+      <Stack gap="sm">
+        <TextInput label="Option text" value={form.optionText} onChange={(e) => setForm(p => ({ ...p, optionText: e.target.value }))} required />
+        <TextInput label="Subtext" value={form.subtext} onChange={(e) => setForm(p => ({ ...p, subtext: e.target.value }))} placeholder="Optional" />
+        <TextInput label="Image URL" value={form.imageUrl} onChange={(e) => setForm(p => ({ ...p, imageUrl: e.target.value }))} placeholder="https://example.com/image.png (optional)" />
+        <Group grow>
+          <NumberInput label="Order" value={form.displayOrder} onChange={(val) => setForm(p => ({ ...p, displayOrder: val || 0 }))} />
+          <NumberInput label="Points" value={form.points} onChange={(val) => setForm(p => ({ ...p, points: val ?? '' }))} />
+        </Group>
+        <Group>
+          <Button type="submit" size="sm">{option ? 'Update' : 'Add'}</Button>
+          <Button variant="default" size="sm" onClick={onCancel}>Cancel</Button>
+        </Group>
+      </Stack>
     </form>
   );
 }

@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
+import { TextInput, Textarea, Select, NumberInput, Checkbox, Group, Button, Stack } from '@mantine/core';
 
-const QUESTION_TYPES = ['multi_select', 'free_form', 'jeopardy', 'number_of_games', 'text_box'];
+const QUESTION_TYPES = [
+  { value: 'multi_select', label: 'Multi Select' },
+  { value: 'free_form', label: 'Free Form' },
+  { value: 'jeopardy', label: 'Jeopardy' },
+  { value: 'number_of_games', label: 'Number of Games' },
+  { value: 'text_box', label: 'Text Box' },
+];
 
 function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
   const [form, setForm] = useState({
@@ -28,18 +35,10 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
         maxWager: question.maxWager ?? '',
         maxSelections: question.maxSelections ?? '',
         points: question.points ?? '',
-        parentQuestionId: question.parentQuestionId ?? '',
+        parentQuestionId: question.parentQuestionId != null ? String(question.parentQuestionId) : '',
       });
     }
   }, [question]);
-
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -58,90 +57,60 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
     onSubmit(data);
   }
 
-  // Filter out current question from parent dropdown
   const parentOptions = (allQuestions || []).filter(q => !question || q.id !== question.id);
+  const isTextBox = form.questionType === 'text_box';
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="title">Title</label>
-        <input id="title" name="title" type="text" value={form.title} onChange={handleChange} required />
-      </div>
+    <form onSubmit={handleSubmit}>
+      <Stack gap="sm">
+        <TextInput label="Title" value={form.title} onChange={(e) => setForm(p => ({ ...p, title: e.target.value }))} required />
+        <Textarea label="Description" value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} minRows={2} />
 
-      <div className="form-group">
-        <label htmlFor="description">Description</label>
-        <textarea id="description" name="description" value={form.description} onChange={handleChange} rows={3} />
-      </div>
+        {!isTextBox && (
+          <TextInput label="Image URL" value={form.imageUrl} onChange={(e) => setForm(p => ({ ...p, imageUrl: e.target.value }))} />
+        )}
 
-      {form.questionType !== 'text_box' && (
-        <div className="form-group">
-          <label htmlFor="imageUrl">Image URL</label>
-          <input id="imageUrl" name="imageUrl" type="text" value={form.imageUrl} onChange={handleChange} />
-        </div>
-      )}
+        <Group grow>
+          <Select
+            label="Question Type"
+            value={form.questionType}
+            onChange={(val) => setForm(p => ({ ...p, questionType: val }))}
+            data={QUESTION_TYPES}
+          />
+          <NumberInput label="Display Order" value={form.displayOrder} onChange={(val) => setForm(p => ({ ...p, displayOrder: val || 0 }))} />
+        </Group>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="questionType">Question Type</label>
-          <select id="questionType" name="questionType" value={form.questionType} onChange={handleChange}>
-            {QUESTION_TYPES.map(t => (
-              <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
-            ))}
-          </select>
-        </div>
+        {(form.questionType === 'free_form' || form.questionType === 'number_of_games') && (
+          <NumberInput label="Points" value={form.points} onChange={(val) => setForm(p => ({ ...p, points: val ?? '' }))} placeholder="Points value" />
+        )}
 
-        <div className="form-group">
-          <label htmlFor="displayOrder">Display Order</label>
-          <input id="displayOrder" name="displayOrder" type="number" value={form.displayOrder} onChange={handleChange} />
-        </div>
-      </div>
+        {form.questionType === 'jeopardy' && (
+          <NumberInput label="Max Wager" value={form.maxWager} onChange={(val) => setForm(p => ({ ...p, maxWager: val ?? '' }))} />
+        )}
 
-      {(form.questionType === 'free_form' || form.questionType === 'number_of_games') && (
-        <div className="form-group">
-          <label htmlFor="points">Points</label>
-          <input id="points" name="points" type="number" value={form.points} onChange={handleChange} placeholder="Points value" />
-        </div>
-      )}
+        {form.questionType === 'multi_select' && (
+          <NumberInput label="Max Selections" value={form.maxSelections} onChange={(val) => setForm(p => ({ ...p, maxSelections: val ?? '' }))} placeholder="Unlimited" min={1} />
+        )}
 
-      {form.questionType === 'jeopardy' && (
-        <div className="form-group">
-          <label htmlFor="maxWager">Max Wager</label>
-          <input id="maxWager" name="maxWager" type="number" value={form.maxWager} onChange={handleChange} />
-        </div>
-      )}
+        {!isTextBox && (
+          <>
+            <Select
+              label="Parent Question"
+              placeholder="-- None --"
+              value={form.parentQuestionId || null}
+              onChange={(val) => setForm(p => ({ ...p, parentQuestionId: val || '' }))}
+              data={parentOptions.map(q => ({ value: String(q.id), label: q.title }))}
+              clearable
+            />
+            <Checkbox label="Mandatory" checked={form.isMandatory} onChange={(e) => setForm(p => ({ ...p, isMandatory: e.currentTarget.checked }))} />
+          </>
+        )}
 
-      {form.questionType === 'multi_select' && (
-        <div className="form-group">
-          <label htmlFor="maxSelections">Max Selections</label>
-          <input id="maxSelections" name="maxSelections" type="number" min="1" value={form.maxSelections} onChange={handleChange} placeholder="Unlimited" />
-        </div>
-      )}
-
-      {form.questionType !== 'text_box' && (
-        <>
-          <div className="form-group">
-            <label htmlFor="parentQuestionId">Parent Question</label>
-            <select id="parentQuestionId" name="parentQuestionId" value={form.parentQuestionId} onChange={handleChange}>
-              <option value="">-- None --</option>
-              {parentOptions.map(q => (
-                <option key={q.id} value={q.id}>{q.title}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group form-checkbox">
-            <label>
-              <input type="checkbox" name="isMandatory" checked={form.isMandatory} onChange={handleChange} />
-              Mandatory
-            </label>
-          </div>
-        </>
-      )}
-
-      <div className="form-actions">
-        <button type="submit" className="btn btn-primary">{question ? 'Update Question' : 'Create Question'}</button>
-        <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-      </div>
+        <Group>
+          <Button type="submit">{question ? 'Update Question' : 'Create Question'}</Button>
+          <Button variant="default" onClick={onCancel}>Cancel</Button>
+        </Group>
+      </Stack>
     </form>
   );
 }

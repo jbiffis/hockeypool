@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRound, getResponsesByRound } from '../api/rounds';
+import { Title, Table, Button, Alert, Card, Group, Text, Anchor } from '@mantine/core';
 
 function ResponsesPage() {
   const { roundId } = useParams();
@@ -10,89 +11,82 @@ function ResponsesPage() {
   const [expandedId, setExpandedId] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [roundId]);
+  useEffect(() => { fetchData(); }, [roundId]);
 
   async function fetchData() {
     try {
-      const [roundRes, responsesRes] = await Promise.all([
-        getRound(roundId),
-        getResponsesByRound(roundId),
-      ]);
+      const [roundRes, responsesRes] = await Promise.all([getRound(roundId), getResponsesByRound(roundId)]);
       setRound(roundRes.data);
       setResponses(responsesRes.data);
-    } catch (err) {
-      setError('Failed to load responses');
-    }
+    } catch { setError('Failed to load responses'); }
   }
 
   return (
     <div>
-      <button className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/rounds')}>
-        &larr; Back to Rounds
-      </button>
+      <Button variant="subtle" size="compact-sm" onClick={() => navigate('/admin/rounds')} mb="sm">
+        ← Back to Rounds
+      </Button>
 
-      <h1>Responses: {round?.name || 'Loading...'}</h1>
-      <p className="text-muted">{responses.length} submissions</p>
+      <Title order={1} mb="xs">Responses: {round?.name || 'Loading...'}</Title>
+      <Text c="dimmed" mb="md">{responses.length} submissions</Text>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <Alert color="red" mb="md">{error}</Alert>}
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Participant</th>
-            <th>Team Name</th>
-            <th>Submitted</th>
-            <th>Answers</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table striped highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Participant</Table.Th>
+            <Table.Th>Team Name</Table.Th>
+            <Table.Th>Submitted</Table.Th>
+            <Table.Th>Answers</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
           {responses.map((r) => (
-            <tr key={r.participantId} className="response-row" onClick={() => setExpandedId(expandedId === r.participantId ? null : r.participantId)}>
-              <td>
-                <a className="link" onClick={(e) => { e.stopPropagation(); navigate(`/admin/participants/${r.participantId}`); }}>
+            <Table.Tr key={r.participantId} style={{ cursor: 'pointer' }} onClick={() => setExpandedId(expandedId === r.participantId ? null : r.participantId)}>
+              <Table.Td>
+                <Anchor component="button" onClick={(e) => { e.stopPropagation(); navigate(`/admin/participants/${r.participantId}`); }}>
                   {r.participantName}
-                </a>
-              </td>
-              <td>{r.teamName}</td>
-              <td>{r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '--'}</td>
-              <td>{r.answers?.length || 0} answers</td>
-            </tr>
+                </Anchor>
+              </Table.Td>
+              <Table.Td>{r.teamName}</Table.Td>
+              <Table.Td>{r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '--'}</Table.Td>
+              <Table.Td>{r.answers?.length || 0} answers</Table.Td>
+            </Table.Tr>
           ))}
           {responses.length === 0 && (
-            <tr><td colSpan={4} className="empty-message">No responses yet.</td></tr>
+            <Table.Tr><Table.Td colSpan={4} ta="center" c="dimmed">No responses yet.</Table.Td></Table.Tr>
           )}
-        </tbody>
-      </table>
+        </Table.Tbody>
+      </Table>
 
       {expandedId && responses.filter(r => r.participantId === expandedId).map(r => (
-        <div key={r.participantId} className="form-card" style={{ marginTop: '1rem' }}>
-          <div className="page-header">
-            <h3>{r.participantName} - {r.teamName}</h3>
-            {r.roundPointsTotal != null && <strong>{r.roundPointsTotal} pts</strong>}
-          </div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Question</th>
-                <th>Answer</th>
-                <th>Point Value</th>
-                <th>Points Scored</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Card key={r.participantId} withBorder mt="md" padding="md">
+          <Group justify="space-between" mb="sm">
+            <Title order={3}>{r.participantName} - {r.teamName}</Title>
+            {r.roundPointsTotal != null && <Text fw={700}>{r.roundPointsTotal} pts</Text>}
+          </Group>
+          <Table striped>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Question</Table.Th>
+                <Table.Th>Answer</Table.Th>
+                <Table.Th>Point Value</Table.Th>
+                <Table.Th>Points Scored</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
               {(r.answers || []).map((a, i) => (
-                <tr key={i}>
-                  <td>{a.questionTitle}</td>
-                  <td>{a.selectedOptionText || '--'}</td>
-                  <td>{a.optionPointValue ?? '--'}</td>
-                  <td>{a.pointsEarned ?? '--'}</td>
-                </tr>
+                <Table.Tr key={i}>
+                  <Table.Td>{a.questionTitle}</Table.Td>
+                  <Table.Td>{a.selectedOptionText || '--'}</Table.Td>
+                  <Table.Td>{a.optionPointValue ?? '--'}</Table.Td>
+                  <Table.Td>{a.pointsEarned ?? '--'}</Table.Td>
+                </Table.Tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </Table.Tbody>
+          </Table>
+        </Card>
       ))}
     </div>
   );

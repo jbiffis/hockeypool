@@ -1,12 +1,16 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Container, Title, Text, Button, Stack } from '@mantine/core';
 
 function HomePage() {
+  const navigate = useNavigate();
   return (
-    <div className="home-page">
-      <h1>Playoff Pool</h1>
-      <p>Hockey playoff pool app</p>
-      <Link to="/admin" className="btn btn-primary">Go to Admin</Link>
-    </div>
+    <Container size="xs" mt={120} ta="center">
+      <Stack>
+        <Title order={1}>Playoff Pool</Title>
+        <Text c="dimmed">Hockey playoff pool app</Text>
+        <Button onClick={() => navigate('/admin')}>Go to Admin</Button>
+      </Stack>
+    </Container>
   );
 }
 

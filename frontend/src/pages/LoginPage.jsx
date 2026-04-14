@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Container, Title, PasswordInput, Button, Alert, Stack } from '@mantine/core';
 
 function LoginPage() {
   const [password, setPassword] = useState('');
@@ -24,26 +25,24 @@ function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 360, margin: '120px auto', padding: '0 1rem' }}>
-      <h1>Admin Login</h1>
+    <Container size="xs" mt={120}>
+      <Title order={1} mb="lg">Admin Login</Title>
       <form onSubmit={handleSubmit}>
-        {error && <div className="error-message">{error}</div>}
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
+        <Stack>
+          {error && <Alert color="red">{error}</Alert>}
+          <PasswordInput
+            label="Password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
             autoFocus
           />
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? 'Logging in\u2026' : 'Log In'}
-        </button>
+          <Button type="submit" loading={submitting}>
+            Log In
+          </Button>
+        </Stack>
       </form>
-    </div>
+    </Container>
   );
 }
 

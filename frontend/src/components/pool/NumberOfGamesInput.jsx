@@ -1,21 +1,15 @@
-const GAME_OPTIONS = [4, 5, 6, 7];
+import { SegmentedControl } from '@mantine/core';
 
-function NumberOfGamesInput({ value, onChange, name }) {
+const GAME_OPTIONS = ['4', '5', '6', '7'];
+
+function NumberOfGamesInput({ value, onChange }) {
   return (
-    <div>
-      {GAME_OPTIONS.map((num) => (
-        <div className="pool-option-row" key={num}>
-          <input
-            type="radio"
-            id={`${name}-${num}`}
-            name={name}
-            checked={value === String(num)}
-            onChange={() => onChange(String(num))}
-          />
-          <label htmlFor={`${name}-${num}`}>{num}</label>
-        </div>
-      ))}
-    </div>
+    <SegmentedControl
+      value={value || ''}
+      onChange={onChange}
+      data={GAME_OPTIONS}
+      fullWidth
+    />
   );
 }
 

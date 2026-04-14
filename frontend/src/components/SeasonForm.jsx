@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TextInput, NumberInput, Select, Textarea, Group, Button, Stack, Anchor } from '@mantine/core';
 
 function SeasonForm({ season, onSubmit, onCancel }) {
   const [form, setForm] = useState({
@@ -19,63 +20,47 @@ function SeasonForm({ season, onSubmit, onCancel }) {
     }
   }, [season]);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  }
-
   function handleSubmit(e) {
     e.preventDefault();
     onSubmit({ ...form, year: Number(form.year) });
   }
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="name">Name</label>
-          <input id="name" name="name" type="text" value={form.name} onChange={handleChange} required placeholder="e.g. 2024/2025" />
-        </div>
-        <div className="form-group">
-          <label htmlFor="year">Year</label>
-          <input id="year" name="year" type="number" value={form.year} onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label htmlFor="status">Status</label>
-          <select id="status" name="status" value={form.status} onChange={handleChange}>
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-      </div>
-      <div className="form-group" style={{ marginTop: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <label htmlFor="signupContent">Signup Page Content <span style={{ fontWeight: 400, color: '#718096', fontSize: '0.85em' }}>(Markdown)</span></label>
-          {season && (
-            <a
-              href={`/season/${season.id}/signup`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: '0.85em', fontWeight: 500 }}
-            >
-              View Signup Page
-            </a>
-          )}
-        </div>
-        <textarea
-          id="signupContent"
-          name="signupContent"
-          value={form.signupContent}
-          onChange={handleChange}
-          rows={10}
-          placeholder="Write the signup page content in Markdown. Supports headings, bold, lists, images, etc."
-          style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
-        />
-      </div>
-      <div className="form-actions">
-        <button type="submit" className="btn btn-primary">{season ? 'Update' : 'Create'}</button>
-        <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-      </div>
+    <form onSubmit={handleSubmit}>
+      <Stack gap="sm">
+        <Group grow>
+          <TextInput label="Name" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} required placeholder="e.g. 2024/2025" />
+          <NumberInput label="Year" value={form.year} onChange={(val) => setForm(p => ({ ...p, year: val }))} required />
+          <Select
+            label="Status"
+            value={form.status}
+            onChange={(val) => setForm(p => ({ ...p, status: val }))}
+            data={[
+              { value: 'active', label: 'Active' },
+              { value: 'archived', label: 'Archived' },
+            ]}
+          />
+        </Group>
+        <Group gap="xs" align="flex-end">
+          <Textarea
+            label="Signup Page Content (Markdown)"
+            value={form.signupContent}
+            onChange={(e) => setForm(p => ({ ...p, signupContent: e.target.value }))}
+            minRows={8}
+            placeholder="Write the signup page content in Markdown."
+            style={{ flex: 1, fontFamily: 'monospace' }}
+          />
+        </Group>
+        {season && (
+          <Anchor href={`/season/${season.id}/signup`} target="_blank" size="sm">
+            View Signup Page
+          </Anchor>
+        )}
+        <Group>
+          <Button type="submit">{season ? 'Update' : 'Create'}</Button>
+          <Button variant="default" onClick={onCancel}>Cancel</Button>
+        </Group>
+      </Stack>
     </form>
   );
 }

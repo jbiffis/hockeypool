@@ -1,16 +1,14 @@
-function ConfirmDialog({ isOpen, message, onConfirm, onCancel }) {
-  if (!isOpen) return null;
+import { Modal, Text, Group, Button } from '@mantine/core';
 
+function ConfirmDialog({ isOpen, message, onConfirm, onCancel }) {
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <p>{message || 'Are you sure?'}</p>
-        <div className="modal-actions">
-          <button className="btn btn-danger" onClick={onConfirm}>Confirm</button>
-          <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-        </div>
-      </div>
-    </div>
+    <Modal opened={isOpen} onClose={onCancel} title="Confirm" centered size="sm">
+      <Text mb="lg">{message || 'Are you sure?'}</Text>
+      <Group justify="flex-end">
+        <Button variant="default" onClick={onCancel}>Cancel</Button>
+        <Button color="red" onClick={onConfirm}>Confirm</Button>
+      </Group>
+    </Modal>
   );
 }
 

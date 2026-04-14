@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { getQuestionDetail } from '../api/leaderboard';
-import '../Leaderboard.css';
+import { Container, Title, Text, Card, Group, Badge, Image, Progress, Anchor, Alert, Center, Stack } from '@mantine/core';
 
 function QuestionPage() {
   const { seasonId, questionId } = useParams();
@@ -19,114 +19,79 @@ function QuestionPage() {
   }, [questionId]);
 
   const isDynamic = question && question.correctAnswerText == null;
-  const totalPickers = question
-    ? question.options.reduce((sum, o) => sum + o.pickers.length, 0)
-    : 0;
+  const totalPickers = question ? question.options.reduce((sum, o) => sum + o.pickers.length, 0) : 0;
 
   return (
-    <div className="pd-page">
-      <div className="pd-header">
-        <div className="pd-header-top">
-          {fromParticipantId ? (
-            <Link to={`/standings/${seasonId}/participant/${fromParticipantId}`} className="pd-back">&larr; Back to Participant</Link>
-          ) : (
-            <Link to={`/standings/${seasonId}`} className="pd-back">&larr; Back to Standings</Link>
-          )}
-        </div>
-        {question ? (
-          <>
-            <h1>{question.title}</h1>
-            <div className="pd-team">{question.roundName}</div>
-          </>
+    <Container size="sm" py="xl">
+      <Group mb="md">
+        {fromParticipantId ? (
+          <Anchor component={Link} to={`/standings/${seasonId}/participant/${fromParticipantId}`} size="sm">← Back to Participant</Anchor>
         ) : (
-          <h1>{loading ? 'Loading...' : 'Question'}</h1>
+          <Anchor component={Link} to={`/standings/${seasonId}`} size="sm">← Back to Standings</Anchor>
         )}
-      </div>
+      </Group>
 
-      <div className="pd-container">
-        {error && <div className="error-message">{error}</div>}
+      {question && (
+        <>
+          <Title order={1} mb="xs">{question.title}</Title>
+          <Text c="dimmed" mb="lg">{question.roundName}</Text>
+        </>
+      )}
 
-        {loading ? (
-          <div className="lb-loading">Loading question...</div>
-        ) : question && (
-          <>
-            {question.description && (
-              <div className="qp-description">{question.description}</div>
-            )}
+      {error && <Alert color="red" mb="md">{error}</Alert>}
 
-            {question.imageUrl && (
-              <img src={question.imageUrl} alt="" className="qp-image" />
-            )}
+      {loading ? (
+        <Center py="xl"><Text c="dimmed">Loading question...</Text></Center>
+      ) : question && (
+        <Stack gap="md">
+          {question.description && <Text c="dimmed">{question.description}</Text>}
+          {question.imageUrl && <Image src={question.imageUrl} alt="" radius="md" maw={500} />}
 
-            {!isDynamic && question.correctAnswerText && (
-              <div className="qp-correct-banner">
-                <span className="qp-correct-label">Correct Answer</span>
-                <span className="qp-correct-value">{question.correctAnswerText}</span>
-              </div>
-            )}
+          {!isDynamic && question.correctAnswerText && (
+            <Card withBorder bg="green.0" padding="sm">
+              <Group>
+                <Text size="sm" fw={500}>Correct Answer</Text>
+                <Text size="sm" fw={700}>{question.correctAnswerText}</Text>
+              </Group>
+            </Card>
+          )}
 
-            {isDynamic && (
-              <div className="qp-dynamic-banner">
-                Variable scoring — points depend on player performance
-              </div>
-            )}
+          {isDynamic && (
+            <Card withBorder bg="gray.0" padding="sm">
+              <Text size="sm" c="dimmed">Variable scoring — points depend on player performance</Text>
+            </Card>
+          )}
 
-            <div className="qp-options">
-              {question.options.map(opt => {
-                const pct = totalPickers > 0
-                  ? Math.round((opt.pickers.length / totalPickers) * 100)
-                  : 0;
-                const fromPicker = fromParticipantId != null
-                  ? opt.pickers.find(p => p.participantId === fromParticipantId)
-                  : null;
-                const isFromPick = fromPicker != null;
+          {question.options.map(opt => {
+            const pct = totalPickers > 0 ? Math.round((opt.pickers.length / totalPickers) * 100) : 0;
+            const fromPicker = fromParticipantId != null ? opt.pickers.find(p => p.participantId === fromParticipantId) : null;
 
-                return (
-                  <div
-                    key={opt.optionId}
-                    className={`qp-option ${opt.correct ? 'qp-option-correct' : ''} ${isFromPick ? 'qp-option-from-pick' : ''}`}
-                  >
-                    <div className="qp-option-main">
-                      <div className="qp-option-left">
-                        {opt.correct && <span className="qp-check">&#10003;</span>}
-                        <span className="qp-option-text">{opt.optionText}</span>
-                        {opt.subtext && (
-                          <span className="qp-option-subtext">{opt.subtext}</span>
-                        )}
-                        {opt.imageUrl && (
-                          <img src={opt.imageUrl} alt="" className="qp-option-image" />
-                        )}
-                      </div>
-                      <div className="qp-option-right">
-                        {isFromPick && (
-                          <span className="qp-their-pick">{fromPicker.teamName}'s pick</span>
-                        )}
-                        {opt.points != null && (
-                          <span className="qp-option-points">{opt.points} pts</span>
-                        )}
-                        <span className="qp-option-count" data-tooltip={
-                          opt.pickers.length > 0
-                            ? opt.pickers.map(p => `${p.teamName} (${p.name})`).join('\n')
-                            : 'No one picked this'
-                        }>
-                          {opt.pickers.length} {opt.pickers.length === 1 ? 'pick' : 'picks'}
-                        </span>
-                      </div>
+            return (
+              <Card key={opt.optionId} withBorder padding="sm" radius="md"
+                style={opt.correct ? { borderColor: 'var(--mantine-color-green-5)' } : fromPicker ? { borderColor: 'var(--mantine-color-blue-4)' } : undefined}
+              >
+                <Group justify="space-between" wrap="nowrap" mb={4}>
+                  <Group gap="xs">
+                    {opt.correct && <Text c="green" fw={700}>✓</Text>}
+                    <div>
+                      <Text size="sm" fw={500}>{opt.optionText}</Text>
+                      {opt.subtext && <Text size="xs" c="dimmed">{opt.subtext}</Text>}
                     </div>
-                    <div className="qp-option-bar-track">
-                      <div
-                        className={`qp-option-bar-fill ${opt.correct ? 'qp-bar-correct' : ''}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+                    {opt.imageUrl && <Image src={opt.imageUrl} alt="" w={40} h={40} radius="sm" fit="contain" />}
+                  </Group>
+                  <Group gap="xs" wrap="nowrap">
+                    {fromPicker && <Badge size="xs" variant="light">{fromPicker.teamName}'s pick</Badge>}
+                    {opt.points != null && <Badge variant="light" color="blue" size="sm">{opt.points} pts</Badge>}
+                    <Text size="xs" c="dimmed">{opt.pickers.length} {opt.pickers.length === 1 ? 'pick' : 'picks'}</Text>
+                  </Group>
+                </Group>
+                <Progress value={pct} size="sm" color={opt.correct ? 'green' : 'blue'} />
+              </Card>
+            );
+          })}
+        </Stack>
+      )}
+    </Container>
   );
 }
 

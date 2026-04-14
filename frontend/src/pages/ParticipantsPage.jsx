@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getParticipants } from '../api/participants';
 import { getSeasons } from '../api/seasons';
+import { Title, Table, Select, Group, Alert, Anchor } from '@mantine/core';
 
 function ParticipantsPage() {
   const navigate = useNavigate();
@@ -19,65 +20,56 @@ function ParticipantsPage() {
     }).catch(() => setError('Failed to load seasons'));
   }, []);
 
-  useEffect(() => {
-    if (selectedSeasonId) fetchParticipants();
-  }, [selectedSeasonId]);
+  useEffect(() => { if (selectedSeasonId) fetchParticipants(); }, [selectedSeasonId]);
 
   async function fetchParticipants() {
-    try {
-      const res = await getParticipants(selectedSeasonId);
-      setParticipants(res.data);
-    } catch (err) {
-      setError('Failed to load participants');
-    }
+    try { setParticipants((await getParticipants(selectedSeasonId)).data); }
+    catch { setError('Failed to load participants'); }
   }
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Participants</h1>
-        <select
-          value={selectedSeasonId || ''}
-          onChange={(e) => setSelectedSeasonId(Number(e.target.value))}
-          className="form-select"
-        >
-          {seasons.map(s => (
-            <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </select>
-      </div>
+      <Group justify="space-between" mb="md">
+        <Title order={1}>Participants</Title>
+        <Select
+          value={selectedSeasonId != null ? String(selectedSeasonId) : null}
+          onChange={(val) => setSelectedSeasonId(val ? Number(val) : null)}
+          data={seasons.map(s => ({ value: String(s.id), label: s.name }))}
+          style={{ minWidth: 180 }}
+        />
+      </Group>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <Alert color="red" mb="md">{error}</Alert>}
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Team Name</th>
-            <th>Email</th>
-            <th>Division</th>
-            <th>Paid</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table striped highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Name</Table.Th>
+            <Table.Th>Team Name</Table.Th>
+            <Table.Th>Email</Table.Th>
+            <Table.Th>Division</Table.Th>
+            <Table.Th>Paid</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
           {participants.map(p => (
-            <tr key={p.id}>
-              <td>
-                <a className="link" onClick={() => navigate(`/admin/participants/${p.id}`)}>
+            <Table.Tr key={p.id}>
+              <Table.Td>
+                <Anchor component="button" onClick={() => navigate(`/admin/participants/${p.id}`)}>
                   {p.name}
-                </a>
-              </td>
-              <td>{p.teamName}</td>
-              <td>{p.email}</td>
-              <td>{p.division}</td>
-              <td>{p.paid ? 'Yes' : 'No'}</td>
-            </tr>
+                </Anchor>
+              </Table.Td>
+              <Table.Td>{p.teamName}</Table.Td>
+              <Table.Td>{p.email}</Table.Td>
+              <Table.Td>{p.division}</Table.Td>
+              <Table.Td>{p.paid ? 'Yes' : 'No'}</Table.Td>
+            </Table.Tr>
           ))}
           {participants.length === 0 && (
-            <tr><td colSpan={5} className="empty-message">No participants yet.</td></tr>
+            <Table.Tr><Table.Td colSpan={5} ta="center" c="dimmed">No participants yet.</Table.Td></Table.Tr>
           )}
-        </tbody>
-      </table>
+        </Table.Tbody>
+      </Table>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { lookupParticipant, registerParticipant, getPoolForm, submitPicks } from '../api/pool';
 import QuestionCard from '../components/pool/QuestionCard';
+import { Container, Title, TextInput, Button, Card, Alert, Stack, Text, Divider } from '@mantine/core';
 
 function PoolFormPage() {
   const { roundId, seasonId } = useParams();
@@ -48,13 +49,8 @@ function PoolFormPage() {
       const res = await registerParticipant(email.trim(), name.trim(), teamName.trim(), seasonId ? Number(seasonId) : undefined);
       setParticipant(res.data);
       const formRes = await getPoolForm(res.data.id, roundId, seasonId ? Number(seasonId) : undefined);
-      if (formRes.data.alreadySubmitted) {
-        setForm(formRes.data);
-        setStep('already');
-      } else {
-        setForm(formRes.data);
-        setStep('questions');
-      }
+      if (formRes.data.alreadySubmitted) { setForm(formRes.data); setStep('already'); }
+      else { setForm(formRes.data); setStep('questions'); }
     } catch (err) {
       setGlobalError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -67,13 +63,8 @@ function PoolFormPage() {
     setLoading(true);
     try {
       const formRes = await getPoolForm(participant.id, roundId, seasonId ? Number(seasonId) : undefined);
-      if (formRes.data.alreadySubmitted) {
-        setForm(formRes.data);
-        setStep('already');
-      } else {
-        setForm(formRes.data);
-        setStep('questions');
-      }
+      if (formRes.data.alreadySubmitted) { setForm(formRes.data); setStep('already'); }
+      else { setForm(formRes.data); setStep('questions'); }
     } catch (err) {
       setGlobalError(err.response?.data?.message || 'Failed to load form. Please try again.');
     } finally {
@@ -83,11 +74,7 @@ function PoolFormPage() {
 
   const handleAnswerChange = (questionId, answerUpdate) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answerUpdate }));
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next[questionId];
-      return next;
-    });
+    setErrors((prev) => { const next = { ...prev }; delete next[questionId]; return next; });
   };
 
   const validate = () => {
@@ -97,38 +84,24 @@ function PoolFormPage() {
       const a = answers[q.id];
       if (q.isMandatory) {
         if (q.questionType === 'multi_select') {
-          if (!a || !a.selectedOptionIds || a.selectedOptionIds.length === 0) {
-            newErrors[q.id] = 'Please select at least one option.';
-          }
+          if (!a || !a.selectedOptionIds || a.selectedOptionIds.length === 0) newErrors[q.id] = 'Please select at least one option.';
         } else if (q.questionType === 'free_form' || q.questionType === 'number_of_games') {
-          if (!a || !a.freeFormValue || !a.freeFormValue.trim()) {
-            newErrors[q.id] = 'This question is required.';
-          }
+          if (!a || !a.freeFormValue || !a.freeFormValue.trim()) newErrors[q.id] = 'This question is required.';
         } else if (q.questionType === 'jeopardy') {
-          if (!a || !a.selectedOptionId) {
-            newErrors[q.id] = 'Please select an answer.';
-          } else if (!a.freeFormValue || !a.freeFormValue.toString().trim()) {
-            newErrors[q.id] = 'Please enter a wager amount.';
-          } else {
+          if (!a || !a.selectedOptionId) newErrors[q.id] = 'Please select an answer.';
+          else if (!a.freeFormValue || !a.freeFormValue.toString().trim()) newErrors[q.id] = 'Please enter a wager amount.';
+          else {
             const wager = Number(a.freeFormValue);
-            if (isNaN(wager) || wager < 1 || wager > q.maxWager) {
-              newErrors[q.id] = `Wager must be between 1 and ${q.maxWager}.`;
-            }
+            if (isNaN(wager) || wager < 1 || wager > q.maxWager) newErrors[q.id] = `Wager must be between 1 and ${q.maxWager}.`;
           }
         }
       }
-      // Validate max selections
       if (q.questionType === 'multi_select' && q.maxSelections != null && a && a.selectedOptionIds) {
-        if (a.selectedOptionIds.length > q.maxSelections) {
-          newErrors[q.id] = `You can select at most ${q.maxSelections} option${q.maxSelections === 1 ? '' : 's'}.`;
-        }
+        if (a.selectedOptionIds.length > q.maxSelections) newErrors[q.id] = `You can select at most ${q.maxSelections} option${q.maxSelections === 1 ? '' : 's'}.`;
       }
-      // Validate jeopardy wager even if not mandatory, if partially filled
       if (q.questionType === 'jeopardy' && a && a.freeFormValue) {
         const wager = Number(a.freeFormValue);
-        if (isNaN(wager) || wager < 1 || wager > q.maxWager) {
-          newErrors[q.id] = `Wager must be between 1 and ${q.maxWager}.`;
-        }
+        if (isNaN(wager) || wager < 1 || wager > q.maxWager) newErrors[q.id] = `Wager must be between 1 and ${q.maxWager}.`;
       }
     }
     return newErrors;
@@ -146,19 +119,13 @@ function PoolFormPage() {
       }
       return;
     }
-
     setLoading(true);
     try {
       const answersArray = form.questions
         .filter((q) => answers[q.id])
         .map((q) => {
           const a = answers[q.id];
-          return {
-            questionId: q.id,
-            selectedOptionId: a.selectedOptionId || null,
-            selectedOptionIds: a.selectedOptionIds || null,
-            freeFormValue: a.freeFormValue || null,
-          };
+          return { questionId: q.id, selectedOptionId: a.selectedOptionId || null, selectedOptionIds: a.selectedOptionIds || null, freeFormValue: a.freeFormValue || null };
         });
       await submitPicks(participant.id, answersArray);
       setStep('submitted');
@@ -171,166 +138,107 @@ function PoolFormPage() {
 
   const formatDeadline = (dateStr) => {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleString(undefined, {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
+    return new Date(dateStr).toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   };
-
-  // ---- RENDER ----
 
   if (step === 'email') {
     return (
-      <div className="pool-card pool-card-centered">
-        <h1>Playoff Pool</h1>
-        <p>Enter your email to get started</p>
-        <p className="pool-email-note">
-          Make sure to use the same email each time so your picks are recorded correctly.
-        </p>
-        {globalError && <div className="pool-global-error">{globalError}</div>}
-        <form onSubmit={handleEmailSubmit}>
-          <div className="pool-input-group">
-            <label htmlFor="email">Email address</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
-          <button type="submit" className="pool-btn" disabled={loading}>
-            {loading ? 'Loading...' : 'Continue'}
-          </button>
-        </form>
-      </div>
+      <Container size="xs" mt={80}>
+        <Card withBorder padding="xl" radius="md">
+          <Title order={1} ta="center" mb="sm">Playoff Pool</Title>
+          <Text ta="center" c="dimmed" mb="md">Enter your email to get started</Text>
+          <Text ta="center" size="xs" c="dimmed" mb="lg">Make sure to use the same email each time so your picks are recorded correctly.</Text>
+          {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
+          <form onSubmit={handleEmailSubmit}>
+            <Stack>
+              <TextInput label="Email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+              <Button type="submit" loading={loading} fullWidth>Continue</Button>
+            </Stack>
+          </form>
+        </Card>
+      </Container>
     );
   }
 
   if (step === 'identify') {
     if (isNew) {
       return (
-        <div className="pool-card pool-card-centered">
-          <h1>Welcome!</h1>
-          <p>Let&apos;s set up your profile</p>
-          {globalError && <div className="pool-global-error">{globalError}</div>}
-          <form onSubmit={handleRegister}>
-            <div className="pool-input-group">
-              <label htmlFor="name">Your name</label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-            <div className="pool-input-group">
-              <label htmlFor="teamName">Team name</label>
-              <input
-                id="teamName"
-                type="text"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="pool-btn" disabled={loading}>
-              {loading ? 'Loading...' : 'Register & Continue'}
-            </button>
-          </form>
-        </div>
+        <Container size="xs" mt={80}>
+          <Card withBorder padding="xl" radius="md">
+            <Title order={1} ta="center" mb="sm">Welcome!</Title>
+            <Text ta="center" c="dimmed" mb="lg">Let&apos;s set up your profile</Text>
+            {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
+            <form onSubmit={handleRegister}>
+              <Stack>
+                <TextInput label="Your name" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+                <TextInput label="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} required />
+                <Button type="submit" loading={loading} fullWidth>Register & Continue</Button>
+              </Stack>
+            </form>
+          </Card>
+        </Container>
       );
     }
-
-    // Returning user
     return (
-      <div className="pool-card pool-card-centered">
-        <h1>Welcome back, {participant.name}!</h1>
-        <div className="pool-welcome-back">
-          <div className="team-display">Your team: {participant.teamName}</div>
-        </div>
-        {globalError && <div className="pool-global-error">{globalError}</div>}
-        <button className="pool-btn" onClick={handleContinue} disabled={loading}>
-          {loading ? 'Loading...' : 'Continue to picks'}
-        </button>
-      </div>
+      <Container size="xs" mt={80}>
+        <Card withBorder padding="xl" radius="md" ta="center">
+          <Title order={1} mb="sm">Welcome back, {participant.name}!</Title>
+          <Text c="dimmed" mb="lg">Your team: {participant.teamName}</Text>
+          {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
+          <Button loading={loading} fullWidth onClick={handleContinue}>Continue to picks</Button>
+        </Card>
+      </Container>
     );
   }
 
   if (step === 'already') {
     return (
-      <div className="pool-card pool-card-centered pool-already-submitted">
-        <h1>Already Submitted</h1>
-        <p>You&apos;ve already submitted your picks for this round.</p>
-      </div>
+      <Container size="xs" mt={80}>
+        <Card withBorder padding="xl" radius="md" ta="center">
+          <Title order={1} mb="sm">Already Submitted</Title>
+          <Text c="dimmed">You&apos;ve already submitted your picks for this round.</Text>
+        </Card>
+      </Container>
     );
   }
 
   if (step === 'questions' && form) {
     let currentRoundId = null;
-
     return (
-      <div className="pool-container">
-        <div className="pool-header">
-          <h1>{form.roundName || 'Playoff Pool'}</h1>
-          {form.deadline && (
-            <p className="pool-deadline">Picks are due by {formatDeadline(form.deadline)}</p>
-          )}
-        </div>
-
-        {globalError && <div className="pool-global-error">{globalError}</div>}
-
-        {form.questions.map((q) => {
-          let sectionHeader = null;
-          if (q.roundId && q.roundId !== currentRoundId) {
-            currentRoundId = q.roundId;
-            sectionHeader = (
-              <div className="pool-section-divider" key={`section-${q.roundId}`}>
-                {q.roundName || `Round ${q.roundId}`}
+      <Container size="sm" mt="md" mb="xl">
+        <Title order={1} ta="center" mb="xs">{form.roundName || 'Playoff Pool'}</Title>
+        {form.deadline && <Text ta="center" c="dimmed" mb="lg">Picks are due by {formatDeadline(form.deadline)}</Text>}
+        {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
+        <Stack gap="md">
+          {form.questions.map((q) => {
+            let sectionHeader = null;
+            if (q.roundId && q.roundId !== currentRoundId) {
+              currentRoundId = q.roundId;
+              sectionHeader = <Divider label={q.roundName || `Round ${q.roundId}`} labelPosition="center" key={`section-${q.roundId}`} />;
+            }
+            return (
+              <div key={q.id}>
+                {sectionHeader}
+                <QuestionCard question={q} answer={answers[q.id]} error={errors[q.id] || null} onChange={(update) => handleAnswerChange(q.id, update)} />
               </div>
             );
-          }
-
-          return (
-            <div key={q.id}>
-              {sectionHeader}
-              <QuestionCard
-                question={q}
-                answer={answers[q.id]}
-                error={errors[q.id] || null}
-                onChange={(update) => handleAnswerChange(q.id, update)}
-              />
-            </div>
-          );
-        })}
-
-        <div style={{ textAlign: 'center' }}>
-          <button
-            className="pool-btn pool-btn-submit"
-            onClick={handleSubmitPicks}
-            disabled={loading}
-          >
-            {loading ? 'Submitting...' : 'Submit Picks'}
-          </button>
-        </div>
-      </div>
+          })}
+        </Stack>
+        <Button fullWidth mt="lg" size="lg" loading={loading} onClick={handleSubmitPicks}>
+          Submit Picks
+        </Button>
+      </Container>
     );
   }
 
   if (step === 'submitted') {
     return (
-      <div className="pool-card pool-card-centered pool-success">
-        <h1>Your picks have been submitted!</h1>
-        <p>Thank you, {participant.name}! Good luck!</p>
-      </div>
+      <Container size="xs" mt={80}>
+        <Card withBorder padding="xl" radius="md" ta="center">
+          <Title order={1} mb="sm">Your picks have been submitted!</Title>
+          <Text c="dimmed">Thank you, {participant.name}! Good luck!</Text>
+        </Card>
+      </Container>
     );
   }
 

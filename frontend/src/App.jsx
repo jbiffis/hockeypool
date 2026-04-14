@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import './App.css';
 import { useAuth } from './context/AuthContext';
 import PoolFormPage from './pages/PoolFormPage';
 import LoginPage from './pages/LoginPage';

@@ -1,15 +1,20 @@
-import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { AppShell, Burger, Group, NavLink, Text, Button, Stack } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-  const { logout } = useAuth();
+const NAV_ITEMS = [
+  { label: 'Dashboard', path: '/admin' },
+  { label: 'Rounds', path: '/admin/rounds' },
+  { label: 'Participants', path: '/admin/participants' },
+  { label: 'Divisions', path: '/admin/divisions' },
+];
 
-  function handleNavClick() {
-    setSidebarOpen(false);
-  }
+function AdminLayout() {
+  const [opened, { toggle, close }] = useDisclosure();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { logout } = useAuth();
 
   async function handleLogout() {
     await logout();
@@ -17,55 +22,42 @@ function AdminLayout() {
   }
 
   return (
-    <div className="admin-layout">
-      {/* Mobile header bar */}
-      <div className="admin-mobile-header">
-        <button
-          className="admin-hamburger"
-          onClick={() => setSidebarOpen(o => !o)}
-          aria-label="Toggle menu"
-        >
-          <span /><span /><span />
-        </button>
-        <span className="admin-mobile-title">Playoff Pool</span>
-      </div>
+    <AppShell
+      header={{ height: 60 }}
+      navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%" px="md">
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Text fw={700} size="lg">Playoff Pool</Text>
+        </Group>
+      </AppShell.Header>
 
-      {/* Sidebar backdrop */}
-      {sidebarOpen && (
-        <div className="admin-sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
-      )}
-
-      <aside className={`admin-sidebar${sidebarOpen ? ' sidebar-open' : ''}`}>
-        <h2 className="sidebar-title">Playoff Pool</h2>
-        <nav className="sidebar-nav">
-          <NavLink to="/admin" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} onClick={handleNavClick}>
-            Dashboard
-          </NavLink>
-          <NavLink to="/admin/rounds" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} onClick={handleNavClick}>
-            Rounds
-          </NavLink>
-          <NavLink to="/admin/participants" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} onClick={handleNavClick}>
-            Participants
-          </NavLink>
-          <NavLink to="/admin/divisions" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} onClick={handleNavClick}>
-            Divisions
-          </NavLink>
-        </nav>
-        <div style={{ marginTop: 'auto', padding: '1.25rem' }}>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={handleLogout}
-            style={{ width: '100%' }}
-          >
+      <AppShell.Navbar p="md">
+        <Stack justify="space-between" h="100%">
+          <Stack gap={4}>
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.path}
+                label={item.label}
+                active={item.path === '/admin'
+                  ? location.pathname === '/admin'
+                  : location.pathname.startsWith(item.path)}
+                onClick={() => { navigate(item.path); close(); }}
+              />
+            ))}
+          </Stack>
+          <Button variant="subtle" color="gray" onClick={handleLogout} fullWidth>
             Log Out
-          </button>
-        </div>
-      </aside>
+          </Button>
+        </Stack>
+      </AppShell.Navbar>
 
-      <main className="admin-main">
+      <AppShell.Main>
         <Outlet />
-      </main>
-    </div>
+      </AppShell.Main>
+    </AppShell>
   );
 }
 

@@ -1,3 +1,4 @@
+import { Card, Text, Image, Alert } from '@mantine/core';
 import MultiSelect from './MultiSelect';
 import FreeFormInput from './FreeFormInput';
 import JeopardyInput from './JeopardyInput';
@@ -49,21 +50,29 @@ function QuestionCard({ question, answer = {}, error, onChange }) {
       case 'text_box':
         return null;
       default:
-        return <p>Unknown question type: {questionType}</p>;
+        return <Text c="red" size="sm">Unknown question type: {questionType}</Text>;
     }
   };
 
+  const isTextBox = questionType === 'text_box';
+
   return (
-    <div className={`pool-question-card${questionType === 'text_box' ? ' pool-text-box' : ''}`} id={`question-${id}`}>
-      <div className="pool-question-title">
+    <Card
+      id={`question-${id}`}
+      withBorder
+      padding="md"
+      radius="md"
+      bg={isTextBox ? 'gray.0' : undefined}
+    >
+      <Text fw={600} size="md" mb={description || imageUrl ? 4 : 'sm'}>
         {title}
-        {isMandatory && questionType !== 'text_box' && <span className="pool-required">*</span>}
-      </div>
-      {description && <div className="pool-question-desc">{description}</div>}
-      {imageUrl && <img className="pool-question-image" src={imageUrl} alt={title} />}
+        {isMandatory && !isTextBox && <Text span c="red" ml={4}>*</Text>}
+      </Text>
+      {description && <Text size="sm" c="dimmed" mb="sm">{description}</Text>}
+      {imageUrl && <Image src={imageUrl} alt={title} radius="sm" maw={400} mb="sm" />}
       {renderInput()}
-      {error && <div className="pool-field-error">{error}</div>}
-    </div>
+      {error && <Alert color="red" mt="xs">{error}</Alert>}
+    </Card>
   );
 }
 

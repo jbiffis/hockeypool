@@ -1,17 +1,26 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { MantineProvider, createTheme } from '@mantine/core'
 import { AuthProvider } from './context/AuthContext'
-import './index.css'
+import '@mantine/core/styles.css'
 import App from './App.jsx'
+
+const theme = createTheme({
+  primaryColor: 'blue',
+  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  defaultRadius: 'md',
+});
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <MantineProvider theme={theme} defaultColorScheme="light">
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </MantineProvider>
   </StrictMode>,
 )
 

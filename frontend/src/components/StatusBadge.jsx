@@ -1,14 +1,20 @@
+import { Badge } from '@mantine/core';
+
+const colorMap = {
+  draft: 'gray',
+  open: 'green',
+  closed: 'yellow',
+  scored: 'blue',
+  active: 'green',
+  archived: 'gray',
+};
+
 function StatusBadge({ status }) {
-  const colorMap = {
-    draft: 'badge-gray',
-    open: 'badge-green',
-    closed: 'badge-yellow',
-    scored: 'badge-blue',
-  };
-
-  const className = `status-badge ${colorMap[status] || 'badge-gray'}`;
-
-  return <span className={className}>{status}</span>;
+  return (
+    <Badge color={colorMap[status] || 'gray'} variant="light">
+      {status}
+    </Badge>
+  );
 }
 
 export default StatusBadge;
