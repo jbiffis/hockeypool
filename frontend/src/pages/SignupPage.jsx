@@ -66,7 +66,7 @@ function SignupPage() {
           <SimpleGrid cols={2} mb="xl">
             <Card withBorder padding="lg" radius="md" ta="center">
               <Text size="2rem" fw={700}>{season.participantCount}</Text>
-              <Text size="sm" c="dimmed">Participants</Text>
+              <Text size="sm" c="dimmed">Participants Registered</Text>
             </Card>
             <Card withBorder padding="lg" radius="md" ta="center">
               <Text size="2rem" fw={700}>${season.participantCount * 20}</Text>
