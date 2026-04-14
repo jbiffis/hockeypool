@@ -235,11 +235,13 @@ class AdminQuestionServiceTest {
         dto.setDisplayOrder(2);
         dto.setPoints(5);
         dto.setSubtext("A subtext");
+        dto.setImageUrl("https://example.com/logo.png");
 
         QuestionOptionDto result = service.createOption(1, dto);
 
         assertEquals("Option B", result.getOptionText());
         assertEquals(5, result.getPoints());
+        assertEquals("https://example.com/logo.png", result.getImageUrl());
     }
 
     @Test
@@ -257,11 +259,13 @@ class AdminQuestionServiceTest {
         dto.setOptionText("New Text");
         dto.setDisplayOrder(2);
         dto.setPoints(20);
+        dto.setImageUrl("https://example.com/updated.png");
 
         QuestionOptionDto result = service.updateOption(1, dto);
 
         assertEquals("New Text", result.getOptionText());
         assertEquals(20, result.getPoints());
+        assertEquals("https://example.com/updated.png", result.getImageUrl());
     }
 
     @Test

@@ -461,6 +461,16 @@ a:hover {
   white-space: nowrap;
 }
 
+.option-card-image {
+  display: block;
+  max-width: 100px;
+  max-height: 60px;
+  border-radius: 4px;
+  margin-top: 6px;
+  margin-left: 2rem;
+  object-fit: contain;
+}
+
 /* ===== Stacked Option Form ===== */
 .option-form-stacked {
   display: flex;
@@ -788,6 +798,15 @@ h3 {
 .pool-option-disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.pool-option-image {
+  display: block;
+  max-width: 120px;
+  max-height: 80px;
+  border-radius: 4px;
+  margin-top: 4px;
+  object-fit: contain;
 }
 
 .pool-selection-hint {

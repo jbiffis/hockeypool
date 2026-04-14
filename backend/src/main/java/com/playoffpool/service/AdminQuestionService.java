@@ -124,6 +124,7 @@ public class AdminQuestionService {
         option.setDisplayOrder(dto.getDisplayOrder());
         option.setPoints(dto.getPoints());
         option.setSubtext(dto.getSubtext());
+        option.setImageUrl(dto.getImageUrl());
 
         QuestionOption saved = questionOptionRepository.save(option);
         return QuestionOptionDto.fromEntity(saved);
@@ -137,6 +138,7 @@ public class AdminQuestionService {
         option.setDisplayOrder(dto.getDisplayOrder());
         option.setPoints(dto.getPoints());
         option.setSubtext(dto.getSubtext());
+        option.setImageUrl(dto.getImageUrl());
 
         QuestionOption saved = questionOptionRepository.save(option);
         return QuestionOptionDto.fromEntity(saved);

@@ -10,7 +10,10 @@ function SingleSelect({ options, value, onChange, name }) {
             checked={value === opt.id}
             onChange={() => onChange(opt.id)}
           />
-          <label htmlFor={`${name}-${opt.id}`}>{opt.optionText}</label>
+          <label htmlFor={`${name}-${opt.id}`}>
+            <span>{opt.optionText}</span>
+            {opt.imageUrl && <img src={opt.imageUrl} alt="" className="pool-option-image" />}
+          </label>
         </div>
       ))}
     </div>

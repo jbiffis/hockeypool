@@ -124,6 +124,9 @@ function QuestionDetailPage() {
                     <span className="option-card-points-badge">{opt.points} pts</span>
                   )}
                 </div>
+                {opt.imageUrl && (
+                  <img src={opt.imageUrl} alt="" className="option-card-image" />
+                )}
                 <div className="option-card-body">
                   <div className="actions">
                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingOptionId(opt.id)}>Edit</button>

@@ -541,6 +541,15 @@
   color: #718096;
 }
 
+.qp-option-image {
+  display: block;
+  max-width: 120px;
+  max-height: 80px;
+  border-radius: 4px;
+  margin-top: 6px;
+  object-fit: contain;
+}
+
 .qp-option-right {
   display: flex;
   align-items: center;
