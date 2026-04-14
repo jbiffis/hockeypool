@@ -43,6 +43,14 @@ public class AdminParticipantService {
     }
 
     @Transactional
+    public Participant updatePaidStatus(Integer id, Boolean paid) {
+        Participant participant = participantRepository.findById(id)
+                .orElseThrow(() -> new java.util.NoSuchElementException("Participant not found"));
+        participant.setPaid(paid);
+        return participantRepository.save(participant);
+    }
+
+    @Transactional
     public void deleteParticipant(Integer id) {
         // Delete scores
         participantScoreRepository.deleteAll(participantScoreRepository.findByParticipantId(id));

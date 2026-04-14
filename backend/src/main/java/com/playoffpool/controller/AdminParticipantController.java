@@ -6,6 +6,7 @@ import com.playoffpool.service.AdminParticipantService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -23,6 +24,11 @@ public class AdminParticipantController {
             return adminParticipantService.getParticipantsBySeason(seasonId);
         }
         return adminParticipantService.getAllParticipants();
+    }
+
+    @PatchMapping("/participants/{id}/paid")
+    public Participant updatePaidStatus(@PathVariable Integer id, @RequestBody Map<String, Boolean> body) {
+        return adminParticipantService.updatePaidStatus(id, body.get("paid"));
     }
 
     @GetMapping("/rounds/{roundId}/responses")

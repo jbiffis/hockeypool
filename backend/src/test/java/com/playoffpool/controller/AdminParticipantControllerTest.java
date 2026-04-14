@@ -16,9 +16,12 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.http.MediaType;
 
 @WebMvcTest(AdminParticipantController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -66,6 +69,19 @@ class AdminParticipantControllerTest {
         mockMvc.perform(get("/api/admin/participants").param("seasonId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void updatePaidStatus_setsParticipantPaid() throws Exception {
+        participant.setPaid(true);
+        when(adminParticipantService.updatePaidStatus(eq(1), eq(true))).thenReturn(participant);
+
+        mockMvc.perform(patch("/api/admin/participants/1/paid")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"paid\": true}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.paid").value(true));
     }
 
     @Test

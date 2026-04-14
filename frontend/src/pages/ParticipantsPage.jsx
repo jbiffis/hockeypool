@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getParticipants } from '../api/participants';
+import { getParticipants, updateParticipantPaid } from '../api/participants';
 import { getSeasons } from '../api/seasons';
-import { Title, Table, Select, Group, Alert, Anchor } from '@mantine/core';
+import { Title, Table, Select, Group, Alert, Anchor, Badge } from '@mantine/core';
 
 function ParticipantsPage() {
   const navigate = useNavigate();
@@ -60,9 +60,25 @@ function ParticipantsPage() {
                 </Anchor>
               </Table.Td>
               <Table.Td>{p.teamName}</Table.Td>
-              <Table.Td>{p.email}</Table.Td>
+              <Table.Td><Anchor href={`mailto:${p.email}`}>{p.email}</Anchor></Table.Td>
               <Table.Td>{p.division}</Table.Td>
-              <Table.Td>{p.paid ? 'Yes' : 'No'}</Table.Td>
+              <Table.Td>
+                <Badge
+                  color={p.paid ? 'green' : 'red'}
+                  variant="filled"
+                  style={{ cursor: 'pointer' }}
+                  onClick={async () => {
+                    try {
+                      const res = await updateParticipantPaid(p.id, !p.paid);
+                      setParticipants(prev => prev.map(x => x.id === p.id ? { ...x, paid: res.data.paid } : x));
+                    } catch {
+                      setError('Failed to update paid status');
+                    }
+                  }}
+                >
+                  {p.paid ? 'Paid' : 'Unpaid'}
+                </Badge>
+              </Table.Td>
             </Table.Tr>
           ))}
           {participants.length === 0 && (
