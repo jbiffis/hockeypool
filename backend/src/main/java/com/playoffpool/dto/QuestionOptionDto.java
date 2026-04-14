@@ -10,6 +10,7 @@ public class QuestionOptionDto {
     private Integer displayOrder;
     private Integer points;
     private String subtext;
+    private String imageUrl;
 
     public QuestionOptionDto() {
     }
@@ -22,6 +23,7 @@ public class QuestionOptionDto {
         dto.setDisplayOrder(o.getDisplayOrder());
         dto.setPoints(o.getPoints());
         dto.setSubtext(o.getSubtext());
+        dto.setImageUrl(o.getImageUrl());
         return dto;
     }
 
@@ -71,5 +73,13 @@ public class QuestionOptionDto {
 
     public void setSubtext(String subtext) {
         this.subtext = subtext;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

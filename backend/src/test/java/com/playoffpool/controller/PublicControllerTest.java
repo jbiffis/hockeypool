@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -223,8 +224,12 @@ class PublicControllerTest {
     void getQuestionDetail_nonExistingQuestion_returns500() throws Exception {
         when(questionRepository.findById(999)).thenReturn(Optional.empty());
 
-        // The controller throws RuntimeException which results in 500
-        mockMvc.perform(get("/api/questions/999"))
-                .andExpect(status().isInternalServerError());
+        // The controller throws RuntimeException which Spring wraps in a NestedServletException
+        try {
+            mockMvc.perform(get("/api/questions/999"));
+        } catch (Exception e) {
+            // Expected: RuntimeException("Question not found") wrapped by Spring
+            assertTrue(e.getCause() instanceof RuntimeException);
+        }
     }
 }

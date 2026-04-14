@@ -148,6 +148,7 @@ public class PublicController {
             od.setOptionId(opt.getId());
             od.setOptionText(opt.getOptionText());
             od.setSubtext(opt.getSubtext());
+            od.setImageUrl(opt.getImageUrl());
             od.setPoints(opt.getPoints());
             od.setCorrect(question.getCorrectAnswerText() != null
                     && question.getCorrectAnswerText().equals(opt.getOptionText()));

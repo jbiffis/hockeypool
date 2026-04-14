@@ -25,6 +25,9 @@ public class QuestionOption {
     @Column(columnDefinition = "TEXT")
     private String subtext;
 
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
     public QuestionOption() {
     }
 
@@ -74,5 +77,13 @@ public class QuestionOption {
 
     public void setSubtext(String subtext) {
         this.subtext = subtext;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

@@ -55,6 +55,7 @@ public class QuestionDetailDto {
         private Integer optionId;
         private String optionText;
         private String subtext;
+        private String imageUrl;
         private Integer points;
         private boolean isCorrect;
         private List<PickerInfo> pickers;
@@ -69,6 +70,9 @@ public class QuestionDetailDto {
 
         public String getSubtext() { return subtext; }
         public void setSubtext(String subtext) { this.subtext = subtext; }
+
+        public String getImageUrl() { return imageUrl; }
+        public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
         public Integer getPoints() { return points; }
         public void setPoints(Integer points) { this.points = points; }

@@ -93,6 +93,9 @@ function QuestionPage() {
                         {opt.subtext && (
                           <span className="qp-option-subtext">{opt.subtext}</span>
                         )}
+                        {opt.imageUrl && (
+                          <img src={opt.imageUrl} alt="" className="qp-option-image" />
+                        )}
                       </div>
                       <div className="qp-option-right">
                         {isFromPick && (

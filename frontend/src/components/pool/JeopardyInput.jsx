@@ -13,6 +13,7 @@ function JeopardyInput({ options, selectedOptionId, wagerValue = '', maxWager, o
           <label htmlFor={`${name}-${opt.id}`}>
             <span>{opt.optionText}</span>
             {opt.subtext && <span className="pool-option-subtext">{opt.subtext}</span>}
+            {opt.imageUrl && <img src={opt.imageUrl} alt="" className="pool-option-image" />}
           </label>
         </div>
       ))}

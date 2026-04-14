@@ -31,6 +31,7 @@ function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
             <label htmlFor={`${name}-${opt.id}`} className={disabled ? 'pool-option-disabled' : ''}>
               <span>{opt.optionText}</span>
               {opt.subtext && <span className="pool-option-subtext">{opt.subtext}</span>}
+              {opt.imageUrl && <img src={opt.imageUrl} alt="" className="pool-option-image" />}
             </label>
           </div>
         );

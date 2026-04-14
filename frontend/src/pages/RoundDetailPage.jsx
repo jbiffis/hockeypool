@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRound, updateRound, updateRoundStatus, getRounds } from '../api/rounds';
 import { getQuestions, createQuestion, deleteQuestion } from '../api/questions';
+import { getOptions } from '../api/options';
 import RoundForm from '../components/RoundForm';
 import QuestionForm from '../components/QuestionForm';
 import StatusBadge from '../components/StatusBadge';
 import ConfirmDialog from '../components/ConfirmDialog';
+import PreviewModal from '../components/PreviewModal';
 
 const STATUS_FORWARD = { draft: 'open', open: 'closed', closed: 'scored' };
 const STATUS_BACKWARD = { scored: 'closed', closed: 'open', open: 'draft' };
@@ -18,6 +20,8 @@ function RoundDetailPage() {
   const [questions, setQuestions] = useState([]);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewQuestions, setPreviewQuestions] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -68,6 +72,21 @@ function RoundDetailPage() {
     }
   }
 
+  async function handlePreview() {
+    try {
+      const withOptions = await Promise.all(
+        questions.map(async (q) => {
+          const optRes = await getOptions(q.id);
+          return { ...q, options: optRes.data };
+        })
+      );
+      setPreviewQuestions(withOptions);
+      setShowPreview(true);
+    } catch (err) {
+      setError('Failed to load preview');
+    }
+  }
+
   if (!round) return <p>Loading...</p>;
 
   return (
@@ -114,9 +133,14 @@ function RoundDetailPage() {
       <div className="section">
         <div className="page-header">
           <h2>Questions</h2>
-          {!showQuestionForm && (
-            <button className="btn btn-primary" onClick={() => setShowQuestionForm(true)}>Add Question</button>
-          )}
+          <div className="actions">
+            {!showQuestionForm && (
+              <button className="btn btn-primary" onClick={() => setShowQuestionForm(true)}>Add Question</button>
+            )}
+            {questions.length > 0 && (
+              <button className="btn btn-secondary" onClick={handlePreview}>Preview</button>
+            )}
+          </div>
         </div>
 
         {showQuestionForm && (
@@ -177,6 +201,13 @@ function RoundDetailPage() {
         message="Are you sure you want to delete this question?"
         onConfirm={() => handleDeleteQuestion(confirmDelete)}
         onCancel={() => setConfirmDelete(null)}
+      />
+
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        questions={previewQuestions}
+        roundName={round.name}
       />
     </div>
   );

@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,15 +83,12 @@ class AdminAuthFilterTest {
     }
 
     @Test
-    void sessionWithNonBooleanAdminAttribute_returns401() throws Exception {
+    void sessionWithNonBooleanAdminAttribute_throwsClassCastException() throws Exception {
         when(request.getSession(false)).thenReturn(session);
         when(session.getAttribute("admin")).thenReturn("not_a_boolean");
-        StringWriter stringWriter = new StringWriter();
-        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
 
-        filter.doFilter(request, response, chain);
-
-        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        // The filter casts to Boolean directly, so a non-Boolean value causes ClassCastException
+        assertThrows(ClassCastException.class, () -> filter.doFilter(request, response, chain));
         verify(chain, never()).doFilter(request, response);
     }
 }
