@@ -15,8 +15,12 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
+// Unregister any previously installed service worker and clear caches
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-  })
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((r) => r.unregister());
+  });
+  caches.keys().then((names) => {
+    names.forEach((name) => caches.delete(name));
+  });
 }
