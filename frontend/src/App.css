@@ -628,6 +628,34 @@ a:hover {
   font-size: 0.9rem;
 }
 
+/* ===== Reorder Controls ===== */
+.reorder-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reorder-btn {
+  background: none;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 2px 5px;
+  line-height: 1;
+  color: #5f6368;
+}
+
+.reorder-btn:hover:not(:disabled) {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+.reorder-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 /* ===== Headings ===== */
 h1 {
   font-size: 1.75rem;

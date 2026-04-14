@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRound, updateRound, updateRoundStatus, getRounds } from '../api/rounds';
-import { getQuestions, createQuestion, deleteQuestion } from '../api/questions';
+import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '../api/questions';
 import { getOptions } from '../api/options';
 import RoundForm from '../components/RoundForm';
 import QuestionForm from '../components/QuestionForm';
@@ -52,6 +52,11 @@ function RoundDetailPage() {
     }
   }
 
+  function getNextDisplayOrder() {
+    if (questions.length === 0) return 1;
+    return Math.max(...questions.map(q => q.displayOrder ?? 0)) + 1;
+  }
+
   async function handleCreateQuestion(data) {
     try {
       await createQuestion(roundId, data);
@@ -59,6 +64,24 @@ function RoundDetailPage() {
       fetchData();
     } catch (err) {
       setError('Failed to create question');
+    }
+  }
+
+  async function handleMoveQuestion(index, direction) {
+    const swapIndex = index + direction;
+    if (swapIndex < 0 || swapIndex >= questions.length) return;
+
+    const a = questions[index];
+    const b = questions[swapIndex];
+
+    try {
+      await Promise.all([
+        updateQuestion(roundId, a.id, { ...a, displayOrder: b.displayOrder }),
+        updateQuestion(roundId, b.id, { ...b, displayOrder: a.displayOrder }),
+      ]);
+      fetchData();
+    } catch (err) {
+      setError('Failed to reorder questions');
     }
   }
 
@@ -147,7 +170,7 @@ function RoundDetailPage() {
           <div className="form-card">
             <h3>New Question</h3>
             <QuestionForm
-              question={null}
+              question={{ displayOrder: getNextDisplayOrder() }}
               allQuestions={questions}
               onSubmit={handleCreateQuestion}
               onCancel={() => setShowQuestionForm(false)}
@@ -158,7 +181,7 @@ function RoundDetailPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>Order</th>
+              <th style={{ width: '80px' }}>Order</th>
               <th>Title</th>
               <th>Type</th>
               <th>Mandatory</th>
@@ -166,9 +189,25 @@ function RoundDetailPage() {
             </tr>
           </thead>
           <tbody>
-            {questions.map(q => (
+            {questions.map((q, idx) => (
               <tr key={q.id}>
-                <td>{q.displayOrder}</td>
+                <td>
+                  <div className="reorder-controls">
+                    <button
+                      className="reorder-btn"
+                      disabled={idx === 0}
+                      onClick={() => handleMoveQuestion(idx, -1)}
+                      title="Move up"
+                    >&#9650;</button>
+                    <span>{q.displayOrder}</span>
+                    <button
+                      className="reorder-btn"
+                      disabled={idx === questions.length - 1}
+                      onClick={() => handleMoveQuestion(idx, 1)}
+                      title="Move down"
+                    >&#9660;</button>
+                  </div>
+                </td>
                 <td>
                   <a className="link" onClick={() => navigate(`/admin/rounds/${roundId}/questions/${q.id}`)}>
                     {q.title}
