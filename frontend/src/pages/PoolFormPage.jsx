@@ -100,7 +100,7 @@ function PoolFormPage() {
           if (!a || !a.selectedOptionIds || a.selectedOptionIds.length === 0) {
             newErrors[q.id] = 'Please select at least one option.';
           }
-        } else if (q.questionType === 'free_form') {
+        } else if (q.questionType === 'free_form' || q.questionType === 'number_of_games') {
           if (!a || !a.freeFormValue || !a.freeFormValue.trim()) {
             newErrors[q.id] = 'This question is required.';
           }

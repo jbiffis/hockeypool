@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const QUESTION_TYPES = ['multi_select', 'free_form', 'jeopardy'];
+const QUESTION_TYPES = ['multi_select', 'free_form', 'jeopardy', 'number_of_games'];
 
 function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
   const [form, setForm] = useState({
@@ -12,6 +12,7 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
     displayOrder: 0,
     maxWager: '',
     maxSelections: '',
+    points: '',
     parentQuestionId: '',
   });
 
@@ -26,6 +27,7 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
         displayOrder: question.displayOrder ?? 0,
         maxWager: question.maxWager ?? '',
         maxSelections: question.maxSelections ?? '',
+        points: question.points ?? '',
         parentQuestionId: question.parentQuestionId ?? '',
       });
     }
@@ -41,11 +43,13 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
 
   function handleSubmit(e) {
     e.preventDefault();
+    const showPoints = form.questionType === 'free_form' || form.questionType === 'number_of_games';
     const data = {
       ...form,
       displayOrder: Number(form.displayOrder),
       maxWager: form.questionType === 'jeopardy' && form.maxWager !== '' ? Number(form.maxWager) : null,
       maxSelections: form.questionType === 'multi_select' && form.maxSelections !== '' ? Number(form.maxSelections) : null,
+      points: showPoints && form.points !== '' ? Number(form.points) : null,
       parentQuestionId: form.parentQuestionId ? Number(form.parentQuestionId) : null,
     };
     onSubmit(data);
@@ -86,6 +90,13 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
           <input id="displayOrder" name="displayOrder" type="number" value={form.displayOrder} onChange={handleChange} />
         </div>
       </div>
+
+      {(form.questionType === 'free_form' || form.questionType === 'number_of_games') && (
+        <div className="form-group">
+          <label htmlFor="points">Points</label>
+          <input id="points" name="points" type="number" value={form.points} onChange={handleChange} placeholder="Points value" />
+        </div>
+      )}
 
       {form.questionType === 'jeopardy' && (
         <div className="form-group">

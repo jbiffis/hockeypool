@@ -39,6 +39,9 @@ public class Question {
     @Column(name = "max_selections")
     private Integer maxSelections;
 
+    @Column
+    private Integer points;
+
     @Column(name = "correct_answer_text", length = 500)
     private String correctAnswerText;
 
@@ -130,6 +133,14 @@ public class Question {
 
     public void setMaxSelections(Integer maxSelections) {
         this.maxSelections = maxSelections;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 
     public String getCorrectAnswerText() {

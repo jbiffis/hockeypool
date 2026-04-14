@@ -111,6 +111,47 @@ class AdminQuestionServiceTest {
     }
 
     @Test
+    void createQuestion_freeFormWithPoints_persistsPoints() {
+        when(roundRepository.findById(1)).thenReturn(Optional.of(round));
+        when(questionRepository.save(any(Question.class))).thenAnswer(inv -> {
+            Question q = inv.getArgument(0);
+            q.setId(3);
+            return q;
+        });
+
+        QuestionDto dto = new QuestionDto();
+        dto.setTitle("Free Form Q");
+        dto.setQuestionType("free_form");
+        dto.setDisplayOrder(1);
+        dto.setPoints(10);
+
+        QuestionDto result = service.createQuestion(1, dto);
+
+        assertEquals(10, result.getPoints());
+    }
+
+    @Test
+    void createQuestion_numberOfGamesType() {
+        when(roundRepository.findById(1)).thenReturn(Optional.of(round));
+        when(questionRepository.save(any(Question.class))).thenAnswer(inv -> {
+            Question q = inv.getArgument(0);
+            q.setId(4);
+            return q;
+        });
+
+        QuestionDto dto = new QuestionDto();
+        dto.setTitle("How many games?");
+        dto.setQuestionType("number_of_games");
+        dto.setDisplayOrder(1);
+        dto.setPoints(5);
+
+        QuestionDto result = service.createQuestion(1, dto);
+
+        assertEquals("number_of_games", result.getQuestionType());
+        assertEquals(5, result.getPoints());
+    }
+
+    @Test
     void createQuestion_withParentQuestion_setsParent() {
         Question parent = new Question();
         parent.setId(10);

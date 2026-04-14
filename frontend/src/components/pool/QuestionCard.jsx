@@ -1,6 +1,7 @@
 import MultiSelect from './MultiSelect';
 import FreeFormInput from './FreeFormInput';
 import JeopardyInput from './JeopardyInput';
+import NumberOfGamesInput from './NumberOfGamesInput';
 
 function QuestionCard({ question, answer = {}, error, onChange }) {
   const { id, title, description, imageUrl, questionType, isMandatory, maxWager, maxSelections, options = [] } = question;
@@ -34,6 +35,14 @@ function QuestionCard({ question, answer = {}, error, onChange }) {
             maxWager={maxWager}
             onOptionChange={(optionId) => onChange({ ...answer, selectedOptionId: optionId })}
             onWagerChange={(val) => onChange({ ...answer, freeFormValue: val })}
+            name={name}
+          />
+        );
+      case 'number_of_games':
+        return (
+          <NumberOfGamesInput
+            value={answer.freeFormValue || ''}
+            onChange={(val) => onChange({ freeFormValue: val })}
             name={name}
           />
         );

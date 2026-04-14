@@ -62,6 +62,7 @@ public class AdminQuestionService {
         question.setDisplayOrder(dto.getDisplayOrder());
         question.setMaxWager(dto.getMaxWager());
         question.setMaxSelections(dto.getMaxSelections());
+        question.setPoints(dto.getPoints());
         question.setCreatedAt(LocalDateTime.now());
 
         if (dto.getParentQuestionId() != null) {
@@ -86,6 +87,7 @@ public class AdminQuestionService {
         question.setDisplayOrder(dto.getDisplayOrder());
         question.setMaxWager(dto.getMaxWager());
         question.setMaxSelections(dto.getMaxSelections());
+        question.setPoints(dto.getPoints());
 
         if (dto.getParentQuestionId() != null) {
             Question parent = questionRepository.findById(dto.getParentQuestionId())

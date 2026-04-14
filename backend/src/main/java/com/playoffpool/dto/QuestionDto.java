@@ -16,6 +16,7 @@ public class QuestionDto {
     private Integer displayOrder;
     private Integer maxWager;
     private Integer maxSelections;
+    private Integer points;
     private Integer parentQuestionId;
     private LocalDateTime createdAt;
 
@@ -34,6 +35,7 @@ public class QuestionDto {
         dto.setDisplayOrder(q.getDisplayOrder());
         dto.setMaxWager(q.getMaxWager());
         dto.setMaxSelections(q.getMaxSelections());
+        dto.setPoints(q.getPoints());
         dto.setParentQuestionId(q.getParentQuestion() != null ? q.getParentQuestion().getId() : null);
         dto.setCreatedAt(q.getCreatedAt());
         return dto;
@@ -117,6 +119,14 @@ public class QuestionDto {
 
     public void setMaxSelections(Integer maxSelections) {
         this.maxSelections = maxSelections;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 
     public Integer getParentQuestionId() {

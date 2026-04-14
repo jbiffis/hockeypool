@@ -223,7 +223,7 @@ public class PoolFormService {
                     if (answer.getSelectedOptionIds() == null || answer.getSelectedOptionIds().isEmpty()) {
                         throw new IllegalArgumentException("Mandatory question '" + q.getTitle() + "' must be answered");
                     }
-                } else if ("free_form".equals(type)) {
+                } else if ("free_form".equals(type) || "number_of_games".equals(type)) {
                     if (answer.getFreeFormValue() == null || answer.getFreeFormValue().trim().isEmpty()) {
                         throw new IllegalArgumentException("Mandatory question '" + q.getTitle() + "' must be answered");
                     }
@@ -331,7 +331,7 @@ public class PoolFormService {
                             responseAnswers.add(ra);
                         }
                     }
-                } else if ("free_form".equals(type)) {
+                } else if ("free_form".equals(type) || "number_of_games".equals(type)) {
                     ResponseAnswer ra = new ResponseAnswer();
                     ra.setResponse(response);
                     ra.setQuestion(q);

@@ -451,4 +451,61 @@ class PoolFormServiceTest {
 
         assertThrows(NoSuchElementException.class, () -> service.submitPicks(dto));
     }
+
+    @Test
+    void submitPicks_numberOfGames_savesAsFreeForm() {
+        Question nogQ = new Question();
+        nogQ.setId(5);
+        nogQ.setRound(openRound);
+        nogQ.setTitle("Number of games");
+        nogQ.setQuestionType("number_of_games");
+        nogQ.setIsMandatory(true);
+        nogQ.setDisplayOrder(1);
+
+        when(participantRepository.findById(1)).thenReturn(Optional.of(participant));
+        when(roundRepository.findBySeasonIdAndStatus(1, "open")).thenReturn(List.of(openRound));
+        when(responseRepository.findByParticipantIdAndRoundId(1, 1)).thenReturn(Optional.empty());
+        when(questionRepository.findByRoundIdOrderByDisplayOrder(1)).thenReturn(List.of(nogQ));
+        when(roundRepository.findByDisplayWithRoundId(1)).thenReturn(Collections.emptyList());
+        when(responseRepository.save(any(Response.class))).thenAnswer(inv -> {
+            Response r = inv.getArgument(0);
+            r.setId(1);
+            return r;
+        });
+        when(responseAnswerRepository.saveAll(any())).thenReturn(Collections.emptyList());
+
+        PickAnswerDto answer = new PickAnswerDto();
+        answer.setQuestionId(5);
+        answer.setFreeFormValue("6");
+
+        SubmitPicksDto dto = new SubmitPicksDto();
+        dto.setParticipantId(1);
+        dto.setAnswers(List.of(answer));
+
+        assertDoesNotThrow(() -> service.submitPicks(dto));
+        verify(responseRepository).save(any(Response.class));
+    }
+
+    @Test
+    void submitPicks_mandatoryNumberOfGames_unanswered_throwsException() {
+        Question nogQ = new Question();
+        nogQ.setId(5);
+        nogQ.setRound(openRound);
+        nogQ.setTitle("Number of games");
+        nogQ.setQuestionType("number_of_games");
+        nogQ.setIsMandatory(true);
+        nogQ.setDisplayOrder(1);
+
+        when(participantRepository.findById(1)).thenReturn(Optional.of(participant));
+        when(roundRepository.findBySeasonIdAndStatus(1, "open")).thenReturn(List.of(openRound));
+        when(responseRepository.findByParticipantIdAndRoundId(1, 1)).thenReturn(Optional.empty());
+        when(questionRepository.findByRoundIdOrderByDisplayOrder(1)).thenReturn(List.of(nogQ));
+        when(roundRepository.findByDisplayWithRoundId(1)).thenReturn(Collections.emptyList());
+
+        SubmitPicksDto dto = new SubmitPicksDto();
+        dto.setParticipantId(1);
+        dto.setAnswers(Collections.emptyList());
+
+        assertThrows(IllegalArgumentException.class, () -> service.submitPicks(dto));
+    }
 }
