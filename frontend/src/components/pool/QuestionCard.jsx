@@ -46,16 +46,18 @@ function QuestionCard({ question, answer = {}, error, onChange }) {
             name={name}
           />
         );
+      case 'text_box':
+        return null;
       default:
         return <p>Unknown question type: {questionType}</p>;
     }
   };
 
   return (
-    <div className="pool-question-card" id={`question-${id}`}>
+    <div className={`pool-question-card${questionType === 'text_box' ? ' pool-text-box' : ''}`} id={`question-${id}`}>
       <div className="pool-question-title">
         {title}
-        {isMandatory && <span className="pool-required">*</span>}
+        {isMandatory && questionType !== 'text_box' && <span className="pool-required">*</span>}
       </div>
       {description && <div className="pool-question-desc">{description}</div>}
       {imageUrl && <img className="pool-question-image" src={imageUrl} alt={title} />}

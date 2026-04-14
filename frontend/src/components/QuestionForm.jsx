@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const QUESTION_TYPES = ['multi_select', 'free_form', 'jeopardy', 'number_of_games'];
+const QUESTION_TYPES = ['multi_select', 'free_form', 'jeopardy', 'number_of_games', 'text_box'];
 
 function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
   const [form, setForm] = useState({
@@ -43,14 +43,17 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
 
   function handleSubmit(e) {
     e.preventDefault();
+    const isTextBox = form.questionType === 'text_box';
     const showPoints = form.questionType === 'free_form' || form.questionType === 'number_of_games';
     const data = {
       ...form,
       displayOrder: Number(form.displayOrder),
+      imageUrl: isTextBox ? null : (form.imageUrl || null),
+      isMandatory: isTextBox ? false : form.isMandatory,
       maxWager: form.questionType === 'jeopardy' && form.maxWager !== '' ? Number(form.maxWager) : null,
       maxSelections: form.questionType === 'multi_select' && form.maxSelections !== '' ? Number(form.maxSelections) : null,
       points: showPoints && form.points !== '' ? Number(form.points) : null,
-      parentQuestionId: form.parentQuestionId ? Number(form.parentQuestionId) : null,
+      parentQuestionId: isTextBox ? null : (form.parentQuestionId ? Number(form.parentQuestionId) : null),
     };
     onSubmit(data);
   }
@@ -70,10 +73,12 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
         <textarea id="description" name="description" value={form.description} onChange={handleChange} rows={3} />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="imageUrl">Image URL</label>
-        <input id="imageUrl" name="imageUrl" type="text" value={form.imageUrl} onChange={handleChange} />
-      </div>
+      {form.questionType !== 'text_box' && (
+        <div className="form-group">
+          <label htmlFor="imageUrl">Image URL</label>
+          <input id="imageUrl" name="imageUrl" type="text" value={form.imageUrl} onChange={handleChange} />
+        </div>
+      )}
 
       <div className="form-row">
         <div className="form-group">
@@ -112,22 +117,26 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
         </div>
       )}
 
-      <div className="form-group">
-        <label htmlFor="parentQuestionId">Parent Question</label>
-        <select id="parentQuestionId" name="parentQuestionId" value={form.parentQuestionId} onChange={handleChange}>
-          <option value="">-- None --</option>
-          {parentOptions.map(q => (
-            <option key={q.id} value={q.id}>{q.title}</option>
-          ))}
-        </select>
-      </div>
+      {form.questionType !== 'text_box' && (
+        <>
+          <div className="form-group">
+            <label htmlFor="parentQuestionId">Parent Question</label>
+            <select id="parentQuestionId" name="parentQuestionId" value={form.parentQuestionId} onChange={handleChange}>
+              <option value="">-- None --</option>
+              {parentOptions.map(q => (
+                <option key={q.id} value={q.id}>{q.title}</option>
+              ))}
+            </select>
+          </div>
 
-      <div className="form-group form-checkbox">
-        <label>
-          <input type="checkbox" name="isMandatory" checked={form.isMandatory} onChange={handleChange} />
-          Mandatory
-        </label>
-      </div>
+          <div className="form-group form-checkbox">
+            <label>
+              <input type="checkbox" name="isMandatory" checked={form.isMandatory} onChange={handleChange} />
+              Mandatory
+            </label>
+          </div>
+        </>
+      )}
 
       <div className="form-actions">
         <button type="submit" className="btn btn-primary">{question ? 'Update Question' : 'Create Question'}</button>

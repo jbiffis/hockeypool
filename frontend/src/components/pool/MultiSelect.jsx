@@ -33,6 +33,9 @@ function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
               {opt.subtext && <span className="pool-option-subtext">{opt.subtext}</span>}
               {opt.imageUrl && <img src={opt.imageUrl} alt="" className="pool-option-image" />}
             </label>
+            {opt.points != null && (
+              <span className="pool-option-points">{opt.points} pts</span>
+            )}
           </div>
         );
       })}

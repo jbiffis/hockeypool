@@ -814,6 +814,19 @@ h3 {
   margin-left: 0.25rem;
 }
 
+.pool-text-box {
+  background: #f8f9fa;
+  border-color: #e8eaed;
+}
+
+.pool-text-box .pool-question-title {
+  font-size: 1rem;
+}
+
+.pool-text-box .pool-question-desc {
+  margin-bottom: 0;
+}
+
 .pool-question-desc {
   color: #5f6368;
   font-size: 0.9rem;
@@ -849,6 +862,20 @@ h3 {
 .pool-option-row label {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.pool-option-points {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a73e8;
+  background: #e8f0fe;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pool-option-subtext {
