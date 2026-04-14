@@ -5,6 +5,7 @@ import { getOptions, createOption, updateOption, deleteOption } from '../api/opt
 import QuestionForm from '../components/QuestionForm';
 import OptionForm from '../components/OptionForm';
 import ConfirmDialog from '../components/ConfirmDialog';
+import PreviewModal from '../components/PreviewModal';
 
 function QuestionDetailPage() {
   const { roundId, questionId } = useParams();
@@ -15,6 +16,7 @@ function QuestionDetailPage() {
   const [showOptionForm, setShowOptionForm] = useState(false);
   const [editingOptionId, setEditingOptionId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -83,7 +85,12 @@ function QuestionDetailPage() {
         &larr; Back to Round
       </button>
 
-      <h1>Question: {question.title}</h1>
+      <div className="page-header">
+        <h1>Question: {question.title}</h1>
+        {options.length > 0 && (
+          <button className="btn btn-secondary" onClick={() => setShowPreview(true)}>Preview</button>
+        )}
+      </div>
 
       {error && <div className="error-message">{error}</div>}
 
@@ -158,6 +165,13 @@ function QuestionDetailPage() {
         message="Are you sure you want to delete this option?"
         onConfirm={() => handleDeleteOption(confirmDelete)}
         onCancel={() => setConfirmDelete(null)}
+      />
+
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        questions={[{ ...question, options }]}
+        roundName={question.roundId ? `Question Preview` : 'Preview'}
       />
     </div>
   );
