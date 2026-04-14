@@ -115,7 +115,7 @@ function LeaderboardPage() {
       ) : !data || data.entries.length === 0 ? (
         <Center py="xl"><Text c="dimmed">No participants found for this season.</Text></Center>
       ) : (
-        <ScrollArea onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
+        <ScrollArea h="calc(100vh - 180px)" onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
           <Table striped highlightOnHover stickyHeader tabularNums miw={700}>
             <Table.Thead style={scrolled ? { boxShadow: 'var(--mantine-shadow-sm)' } : undefined}>
               <Table.Tr>
