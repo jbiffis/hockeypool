@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRound, updateRound, updateRoundStatus, getRounds } from '../api/rounds';
 import { getQuestions, createQuestion, updateQuestion, deleteQuestion } from '../api/questions';
@@ -23,6 +23,9 @@ function RoundDetailPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewQuestions, setPreviewQuestions] = useState([]);
   const [error, setError] = useState(null);
+
+  const dragItem = useRef(null);
+  const dragOverItem = useRef(null);
 
   useEffect(() => {
     fetchData();
@@ -67,21 +70,34 @@ function RoundDetailPage() {
     }
   }
 
-  async function handleMoveQuestion(index, direction) {
-    const swapIndex = index + direction;
-    if (swapIndex < 0 || swapIndex >= questions.length) return;
+  async function handleDragEnd() {
+    const fromIdx = dragItem.current;
+    const toIdx = dragOverItem.current;
+    dragItem.current = null;
+    dragOverItem.current = null;
 
-    const a = questions[index];
-    const b = questions[swapIndex];
+    if (fromIdx === null || toIdx === null || fromIdx === toIdx) return;
 
+    // Reorder locally first for instant feedback
+    const reordered = [...questions];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Assign sequential display orders
+    const updates = reordered.map((q, i) => ({ ...q, displayOrder: i + 1 }));
+    setQuestions(updates);
+
+    // Persist only the ones whose order actually changed
     try {
-      await Promise.all([
-        updateQuestion(roundId, a.id, { ...a, displayOrder: b.displayOrder }),
-        updateQuestion(roundId, b.id, { ...b, displayOrder: a.displayOrder }),
-      ]);
+      await Promise.all(
+        updates
+          .filter((q, i) => q.displayOrder !== questions.find(oq => oq.id === q.id)?.displayOrder)
+          .map(q => updateQuestion(roundId, q.id, { ...q }))
+      );
       fetchData();
     } catch (err) {
       setError('Failed to reorder questions');
+      fetchData();
     }
   }
 
@@ -181,7 +197,7 @@ function RoundDetailPage() {
         <table className="table">
           <thead>
             <tr>
-              <th style={{ width: '80px' }}>Order</th>
+              <th style={{ width: '30px' }}></th>
               <th>Title</th>
               <th>Type</th>
               <th>Mandatory</th>
@@ -190,24 +206,16 @@ function RoundDetailPage() {
           </thead>
           <tbody>
             {questions.map((q, idx) => (
-              <tr key={q.id}>
-                <td>
-                  <div className="reorder-controls">
-                    <button
-                      className="reorder-btn"
-                      disabled={idx === 0}
-                      onClick={() => handleMoveQuestion(idx, -1)}
-                      title="Move up"
-                    >&#9650;</button>
-                    <span>{q.displayOrder}</span>
-                    <button
-                      className="reorder-btn"
-                      disabled={idx === questions.length - 1}
-                      onClick={() => handleMoveQuestion(idx, 1)}
-                      title="Move down"
-                    >&#9660;</button>
-                  </div>
-                </td>
+              <tr
+                key={q.id}
+                draggable
+                onDragStart={() => { dragItem.current = idx; }}
+                onDragEnter={() => { dragOverItem.current = idx; }}
+                onDragOver={(e) => e.preventDefault()}
+                onDragEnd={handleDragEnd}
+                className="draggable-row"
+              >
+                <td className="drag-handle" title="Drag to reorder">&#9776;</td>
                 <td>
                   <a className="link" onClick={() => navigate(`/admin/rounds/${roundId}/questions/${q.id}`)}>
                     {q.title}
