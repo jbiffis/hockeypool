@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getSeasonSignup, submitSignup } from '../api/seasons';
-import { Container, Title, TextInput, Button, Card, Alert, Stack, Text, Divider, Box } from '@mantine/core';
+import { Container, Title, TextInput, Button, Card, Alert, Stack, Text, Divider, Box, Group, SimpleGrid } from '@mantine/core';
 
 function SignupPage() {
   const { seasonId } = useParams();
@@ -25,6 +25,7 @@ function SignupPage() {
     setStatus(null);
     try {
       await submitSignup(seasonId, email);
+      setSeason(prev => ({ ...prev, participantCount: (prev.participantCount || 0) + 1 }));
       setStatus('success');
     } catch (err) {
       if (err.response?.status === 409) setStatus('duplicate');
@@ -59,6 +60,19 @@ function SignupPage() {
             </Box>
             <Divider mb="xl" />
           </>
+        )}
+
+        {season.participantCount != null && (
+          <SimpleGrid cols={2} mb="xl">
+            <Card withBorder padding="lg" radius="md" ta="center">
+              <Text size="2rem" fw={700}>{season.participantCount}</Text>
+              <Text size="sm" c="dimmed">Participants</Text>
+            </Card>
+            <Card withBorder padding="lg" radius="md" ta="center">
+              <Text size="2rem" fw={700}>${season.participantCount * 20}</Text>
+              <Text size="sm" c="dimmed">Prize Pot</Text>
+            </Card>
+          </SimpleGrid>
         )}
 
         <Card withBorder padding="xl" radius="md">

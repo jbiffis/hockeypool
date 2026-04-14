@@ -12,4 +12,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, Intege
     Optional<Participant> findByEmail(String email);
     Optional<Participant> findByEmailAndSeasonId(String email, Integer seasonId);
     List<Participant> findBySeasonId(Integer seasonId);
+    long countBySeasonId(Integer seasonId);
 }

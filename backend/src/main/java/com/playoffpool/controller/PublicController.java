@@ -58,7 +58,11 @@ public class PublicController {
     @GetMapping("/seasons/{seasonId}/signup")
     public ResponseEntity<?> getSignupPage(@PathVariable Integer seasonId) {
         return seasonRepository.findById(seasonId)
-                .<ResponseEntity<?>>map(s -> ResponseEntity.ok(SeasonDto.fromEntity(s)))
+                .<ResponseEntity<?>>map(s -> {
+                    SeasonDto dto = SeasonDto.fromEntity(s);
+                    dto.setParticipantCount(participantRepository.countBySeasonId(seasonId));
+                    return ResponseEntity.ok(dto);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
