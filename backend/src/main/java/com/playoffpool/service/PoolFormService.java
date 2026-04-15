@@ -103,21 +103,20 @@ public class PoolFormService {
             openRound = openRounds.get(0);
         }
 
-        // Get questions for the open round
-        List<Question> primaryQuestions = questionRepository.findByRoundIdOrderByDisplayOrder(openRound.getId());
-
         // Find attached rounds
         List<Round> attachedRounds = roundRepository.findByDisplayWithRoundId(openRound.getId());
 
-        // Get questions for attached rounds
-        List<Question> attachedQuestions = new ArrayList<>();
-        for (Round attached : attachedRounds) {
-            attachedQuestions.addAll(questionRepository.findByRoundIdOrderByDisplayOrder(attached.getId()));
-        }
+        // Sort all rounds by displayOrder
+        List<Round> allRoundsSorted = new ArrayList<>();
+        allRoundsSorted.add(openRound);
+        allRoundsSorted.addAll(attachedRounds);
+        allRoundsSorted.sort(Comparator.comparingInt(r -> r.getDisplayOrder() != null ? r.getDisplayOrder() : Integer.MAX_VALUE));
 
-        // Combine: primary first, then attached
-        List<Question> allQuestions = new ArrayList<>(primaryQuestions);
-        allQuestions.addAll(attachedQuestions);
+        // Build question list in round displayOrder
+        List<Question> allQuestions = new ArrayList<>();
+        for (Round r : allRoundsSorted) {
+            allQuestions.addAll(questionRepository.findByRoundIdOrderByDisplayOrder(r.getId()));
+        }
 
         // Batch-load all options
         List<Integer> questionIds = allQuestions.stream()
