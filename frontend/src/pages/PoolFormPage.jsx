@@ -71,9 +71,7 @@ function PoolFormPage() {
     try {
       const res = await updateParticipantProfile(participant.id, name.trim(), teamName.trim());
       setParticipant(res.data);
-      const formRes = await getPoolForm(res.data.id, roundId, seasonId ? Number(seasonId) : undefined);
-      if (formRes.data.alreadySubmitted) { setForm(formRes.data); setStep('already'); }
-      else { setForm(formRes.data); setStep('questions'); }
+      setStep('identify');
     } catch (err) {
       setGlobalError(err.response?.data?.message || 'Failed to update profile. Please try again.');
     } finally {
@@ -225,7 +223,7 @@ function PoolFormPage() {
             <Stack>
               <TextInput label="Your name" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
               <TextInput label="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} required />
-              <Button type="submit" loading={loading} fullWidth>Continue</Button>
+              <Button type="submit" loading={loading} fullWidth>Save</Button>
             </Stack>
           </form>
         </Card>
