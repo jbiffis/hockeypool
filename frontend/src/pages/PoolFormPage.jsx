@@ -244,6 +244,14 @@ function PoolFormPage() {
 
   if (step === 'questions' && form) {
     let currentRoundId = null;
+    const childrenByParent = {};
+    for (const q of form.questions) {
+      if (q.parentQuestionId) {
+        if (!childrenByParent[q.parentQuestionId]) childrenByParent[q.parentQuestionId] = [];
+        childrenByParent[q.parentQuestionId].push(q);
+      }
+    }
+    const topLevelQuestions = form.questions.filter((q) => !q.parentQuestionId);
     return (
       <Container size="sm" mt="md" mb="xl">
         <Title order={1} ta="center" mb="xs">{form.round?.name || 'Playoff Pool'}</Title>
@@ -251,7 +259,7 @@ function PoolFormPage() {
         {form.deadline && <Text ta="center" c="dimmed" mb="lg">Picks are due by {formatDeadline(form.deadline)}</Text>}
         {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
         <Stack gap="md">
-          {form.questions.map((q) => {
+          {topLevelQuestions.map((q) => {
             let sectionHeader = null;
             if (q.roundId && q.roundId !== currentRoundId) {
               currentRoundId = q.roundId;
@@ -260,7 +268,16 @@ function PoolFormPage() {
             return (
               <div key={q.id}>
                 {sectionHeader}
-                <QuestionCard question={q} answer={answers[q.id]} error={errors[q.id] || null} onChange={(update) => handleAnswerChange(q.id, update)} />
+                <QuestionCard
+                  question={q}
+                  answer={answers[q.id]}
+                  error={errors[q.id] || null}
+                  onChange={(update) => handleAnswerChange(q.id, update)}
+                  childQuestions={childrenByParent[q.id] || []}
+                  answers={answers}
+                  errors={errors}
+                  onChildChange={handleAnswerChange}
+                />
               </div>
             );
           })}
