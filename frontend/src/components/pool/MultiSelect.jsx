@@ -1,4 +1,5 @@
-import { UnstyledButton, Checkbox, Text, Image, Group, Badge, Stack } from '@mantine/core';
+import { UnstyledButton, Checkbox, Text, Image, Group, Badge, SimpleGrid } from '@mantine/core';
+import classes from './MultiSelect.module.css';
 
 function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
   const atLimit = maxSelections != null && value.length >= maxSelections;
@@ -12,12 +13,13 @@ function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
   };
 
   return (
-    <Stack gap="xs">
+    <div>
       {maxSelections != null && (
-        <Text size="sm" c="dimmed">
+        <Text size="sm" c="dimmed" mb="xs">
           Select {maxSelections}
         </Text>
       )}
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xs">
       {options.map((opt) => {
         const checked = value.includes(opt.id);
         const disabled = !checked && atLimit;
@@ -25,19 +27,9 @@ function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
           <UnstyledButton
             key={opt.id}
             onClick={() => !disabled && handleToggle(opt.id)}
+            className={classes.option}
             data-checked={checked || undefined}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              padding: 'var(--mantine-spacing-sm)',
-              borderRadius: 'var(--mantine-radius-sm)',
-              border: `1px solid ${checked ? 'var(--mantine-color-blue-filled)' : 'var(--mantine-color-gray-3)'}`,
-              backgroundColor: checked ? 'var(--mantine-color-blue-light)' : 'var(--mantine-color-white)',
-              opacity: disabled ? 0.45 : 1,
-              cursor: disabled ? 'not-allowed' : 'pointer',
-              transition: 'background-color 150ms ease, border-color 150ms ease',
-            }}
+            data-disabled={disabled || undefined}
           >
             {opt.imageUrl && (
               <Image src={opt.imageUrl} alt="" w={40} h={40} radius="sm" fit="contain" />
@@ -67,7 +59,8 @@ function MultiSelect({ options, value = [], onChange, name, maxSelections }) {
           </UnstyledButton>
         );
       })}
-    </Stack>
+    </SimpleGrid>
+    </div>
   );
 }
 

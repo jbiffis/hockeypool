@@ -246,7 +246,8 @@ function PoolFormPage() {
     let currentRoundId = null;
     return (
       <Container size="sm" mt="md" mb="xl">
-        <Title order={1} ta="center" mb="xs">{form.roundName || 'Playoff Pool'}</Title>
+        <Title order={1} ta="center" mb="xs">{form.round?.name || 'Playoff Pool'}</Title>
+        {form.round?.description && <Text ta="center" c="dimmed" mb="xs">{form.round.description}</Text>}
         {form.deadline && <Text ta="center" c="dimmed" mb="lg">Picks are due by {formatDeadline(form.deadline)}</Text>}
         {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
         <Stack gap="md">

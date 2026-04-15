@@ -1,0 +1,29 @@
+.option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  border: 1px solid var(--mantine-color-gray-3);
+  background-color: var(--mantine-color-white);
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.option:hover {
+  background-color: var(--mantine-color-gray-0);
+}
+
+.option[data-checked] {
+  border-color: var(--mantine-color-blue-filled);
+  background-color: var(--mantine-color-blue-light);
+}
+
+.option[data-checked]:hover {
+  background-color: var(--mantine-color-blue-light);
+}
+
+.option[data-disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
