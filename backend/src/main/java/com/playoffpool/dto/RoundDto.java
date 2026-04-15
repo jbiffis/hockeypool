@@ -40,7 +40,7 @@ public class RoundDto {
         round.setName(this.name);
         round.setDescription(this.description);
         round.setDeadline(this.deadline);
-        round.setStatus(this.status);
+        round.setStatus(this.status != null ? this.status : "draft");
         round.setDisplayOrder(this.displayOrder);
         if (this.displayWithRoundId != null) {
             Round displayWithRound = roundRepo.findById(this.displayWithRoundId).orElse(null);
