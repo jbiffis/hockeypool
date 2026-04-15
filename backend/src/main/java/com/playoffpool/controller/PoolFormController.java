@@ -49,6 +49,18 @@ public class PoolFormController {
                 .body(ParticipantDto.fromEntity(participant, false));
     }
 
+    @PatchMapping("/participant/{participantId}")
+    public ResponseEntity<ParticipantDto> updateProfile(@PathVariable Integer participantId,
+                                                         @RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String teamName = body.get("teamName");
+        if (name == null || name.isBlank() || teamName == null || teamName.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Participant updated = poolFormService.updateParticipantProfile(participantId, name.trim(), teamName.trim());
+        return ResponseEntity.ok(ParticipantDto.fromEntity(updated, true));
+    }
+
     @GetMapping("/form")
     public ResponseEntity<PoolFormDto> getForm(@RequestParam(required = false) Integer participantId,
                                                 @RequestParam(required = false) Integer roundId,

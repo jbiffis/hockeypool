@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { lookupParticipant, registerParticipant, getPoolForm, submitPicks } from '../api/pool';
+import { lookupParticipant, registerParticipant, updateParticipantProfile, getPoolForm, submitPicks } from '../api/pool';
 import QuestionCard from '../components/pool/QuestionCard';
 import { Container, Title, TextInput, Button, Card, Alert, Stack, Text, Divider } from '@mantine/core';
 
@@ -26,8 +26,13 @@ function PoolFormPage() {
     try {
       const res = await lookupParticipant(email.trim(), seasonId ? Number(seasonId) : undefined);
       setParticipant(res.data);
-      setIsNew(false);
-      setStep('identify');
+      if (!res.data.name || !res.data.teamName) {
+        setIsNew(false);
+        setStep('complete-profile');
+      } else {
+        setIsNew(false);
+        setStep('identify');
+      }
     } catch (err) {
       if (err.response && err.response.status === 404) {
         setIsNew(true);
@@ -53,6 +58,24 @@ function PoolFormPage() {
       else { setForm(formRes.data); setStep('questions'); }
     } catch (err) {
       setGlobalError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteProfile = async (e) => {
+    e.preventDefault();
+    if (!name.trim() || !teamName.trim()) return;
+    setGlobalError(null);
+    setLoading(true);
+    try {
+      const res = await updateParticipantProfile(participant.id, name.trim(), teamName.trim());
+      setParticipant(res.data);
+      const formRes = await getPoolForm(res.data.id, roundId, seasonId ? Number(seasonId) : undefined);
+      if (formRes.data.alreadySubmitted) { setForm(formRes.data); setStep('already'); }
+      else { setForm(formRes.data); setStep('questions'); }
+    } catch (err) {
+      setGlobalError(err.response?.data?.message || 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -186,6 +209,25 @@ function PoolFormPage() {
           <Text c="dimmed" mb="lg">Your team: {participant.teamName}</Text>
           {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
           <Button loading={loading} fullWidth onClick={handleContinue}>Continue to picks</Button>
+        </Card>
+      </Container>
+    );
+  }
+
+  if (step === 'complete-profile') {
+    return (
+      <Container size="xs" mt={80}>
+        <Card withBorder padding="xl" radius="md">
+          <Title order={1} ta="center" mb="sm">Almost there!</Title>
+          <Text ta="center" c="dimmed" mb="lg">We just need your name and team name to continue.</Text>
+          {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
+          <form onSubmit={handleCompleteProfile}>
+            <Stack>
+              <TextInput label="Your name" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+              <TextInput label="Team name" value={teamName} onChange={(e) => setTeamName(e.target.value)} required />
+              <Button type="submit" loading={loading} fullWidth>Continue</Button>
+            </Stack>
+          </form>
         </Card>
       </Container>
     );

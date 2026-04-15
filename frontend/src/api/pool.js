@@ -8,6 +8,10 @@ export function registerParticipant(email, name, teamName, seasonId) {
   return api.post('/pool/register', { email, name, teamName, seasonId });
 }
 
+export function updateParticipantProfile(participantId, name, teamName) {
+  return api.patch(`/pool/participant/${participantId}`, { name, teamName });
+}
+
 export function getPoolForm(participantId, roundId, seasonId) {
   const params = {};
   if (participantId) params.participantId = participantId;

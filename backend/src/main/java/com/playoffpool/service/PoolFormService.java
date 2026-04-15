@@ -67,6 +67,15 @@ public class PoolFormService {
         return participantRepository.save(p);
     }
 
+    @Transactional
+    public Participant updateParticipantProfile(Integer participantId, String name, String teamName) {
+        Participant p = participantRepository.findById(participantId)
+                .orElseThrow(() -> new NoSuchElementException("Participant not found"));
+        p.setName(name);
+        p.setTeamName(teamName);
+        return participantRepository.save(p);
+    }
+
     @Transactional(readOnly = true)
     public PoolFormDto getRoundForm(Integer participantId, Integer roundId) {
         return getRoundForm(participantId, roundId, null);
