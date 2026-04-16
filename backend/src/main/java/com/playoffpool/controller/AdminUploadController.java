@@ -11,9 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -25,6 +25,31 @@ public class AdminUploadController {
     private static final Set<String> ALLOWED_TYPES = Set.of(
         "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"
     );
+
+    @GetMapping("/uploads")
+    public ResponseEntity<List<Map<String, Object>>> listUploads() throws IOException {
+        Path dirPath = Paths.get(uploadDir);
+        if (!Files.exists(dirPath)) {
+            return ResponseEntity.ok(List.of());
+        }
+        try (Stream<Path> files = Files.list(dirPath)) {
+            List<Map<String, Object>> result = files
+                .filter(Files::isRegularFile)
+                .sorted(Comparator.comparingLong(p -> {
+                    try { return Files.getLastModifiedTime(p).toMillis(); } catch (IOException e) { return 0L; }
+                }))
+                .map(p -> {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("filename", p.getFileName().toString());
+                    entry.put("url", "/api/uploads/" + p.getFileName().toString());
+                    try { entry.put("size", Files.size(p)); } catch (IOException e) { entry.put("size", 0); }
+                    return entry;
+                })
+                .collect(Collectors.toList());
+            Collections.reverse(result);
+            return ResponseEntity.ok(result);
+        }
+    }
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
