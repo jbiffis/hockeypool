@@ -84,7 +84,7 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
         {title}
         {isMandatory && !isTextBox && <Text span c="red" ml={4}>*</Text>}
       </Text>
-      {description && <Text size="sm" c="dimmed" mb="sm">{description}</Text>}
+      {description && <Text size="sm" c="dark.3" mb="sm">{description}</Text>}
       {imageUrl && <Image src={imageUrl} alt={title} radius="sm" maw={400} mb="sm" />}
       {renderInput(question, answer, name, maxWager, maxSelections, options)}
       {error && <Alert color="red" mt="xs">{error}</Alert>}
@@ -99,7 +99,7 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
               {child.title}
               {child.isMandatory && <Text span c="red" ml={4}>*</Text>}
             </Text>
-            {child.description && <Text size="xs" c="dimmed" mb="xs">{child.description}</Text>}
+            {child.description && <Text size="xs" c="dark.3" mb="xs">{child.description}</Text>}
             {renderInput(child, childAnswer, `question-${child.id}`, child.maxWager, child.maxSelections, child.options || [])}
             {childError && <Alert color="red" mt="xs">{childError}</Alert>}
           </div>
