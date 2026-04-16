@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { lookupParticipant, registerParticipant, updateParticipantProfile, getPoolForm, submitPicks } from '../api/pool';
 import QuestionCard from '../components/pool/QuestionCard';
 import { Container, Title, TextInput, Button, Card, Alert, Stack, Text, Divider } from '@mantine/core';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function PoolFormPage() {
   const { roundId, seasonId } = useParams();
@@ -266,7 +268,11 @@ function PoolFormPage() {
     return (
       <Container size="sm" mt="md" mb="xl">
         <Title order={1} ta="center" mb="xs">{form.round?.name || 'Playoff Pool'}</Title>
-        {form.round?.description && <Text ta="center" c="dark.3" mb="xs">{form.round.description}</Text>}
+        {form.round?.description && (
+          <div style={{ textAlign: 'center', marginBottom: 8, fontSize: 14 }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.round.description}</ReactMarkdown>
+          </div>
+        )}
         {form.deadline && <Text ta="center" c="dimmed" mb="lg">Picks are due by {formatDeadline(form.deadline)}</Text>}
         {globalError && <Alert color="red" mb="md">{globalError}</Alert>}
         <Stack gap="md">

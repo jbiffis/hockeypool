@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { TextInput, Textarea, NumberInput, Select, Group, Button, Stack, Text } from '@mantine/core';
+import { TextInput, Textarea, NumberInput, Select, Group, Button, Stack, Text, Paper } from '@mantine/core';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function RoundForm({ round, allRounds, onSubmit, onCancel }) {
   const [form, setForm] = useState({
@@ -37,7 +39,13 @@ function RoundForm({ round, allRounds, onSubmit, onCancel }) {
     <form onSubmit={handleSubmit}>
       <Stack gap="sm">
         <TextInput label="Name" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} required />
-        <Textarea label="Description" value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} minRows={3} />
+        <Textarea label="Description (markdown supported)" value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} minRows={3} />
+        {form.description && (
+          <Paper withBorder p="sm" style={{ fontSize: 14 }}>
+            <Text size="xs" c="dimmed" mb={4}>Preview</Text>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.description}</ReactMarkdown>
+          </Paper>
+        )}
         <TextInput label="Deadline" type="datetime-local" value={form.deadline} onChange={(e) => setForm(p => ({ ...p, deadline: e.target.value }))} />
         <Group grow>
           <NumberInput label="Display Order" value={form.displayOrder} onChange={(val) => setForm(p => ({ ...p, displayOrder: val || 0 }))} />
