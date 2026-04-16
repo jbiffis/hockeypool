@@ -11,6 +11,7 @@ public class QuestionOptionDto {
     private Integer points;
     private String subtext;
     private String imageUrl;
+    private Integer boxGroup;
 
     public QuestionOptionDto() {
     }
@@ -24,6 +25,7 @@ public class QuestionOptionDto {
         dto.setPoints(o.getPoints());
         dto.setSubtext(o.getSubtext());
         dto.setImageUrl(o.getImageUrl());
+        dto.setBoxGroup(o.getBoxGroup());
         return dto;
     }
 
@@ -81,5 +83,13 @@ public class QuestionOptionDto {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getBoxGroup() {
+        return boxGroup;
+    }
+
+    public void setBoxGroup(Integer boxGroup) {
+        this.boxGroup = boxGroup;
     }
 }

@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { label: 'Rounds', path: '/admin/rounds' },
   { label: 'Participants', path: '/admin/participants' },
   { label: 'Divisions', path: '/admin/divisions' },
+  { label: 'Uploads', path: '/admin/uploads' },
 ];
 
 function AdminLayout() {

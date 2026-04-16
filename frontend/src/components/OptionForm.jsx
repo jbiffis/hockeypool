@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { TextInput, NumberInput, Group, Button, Stack } from '@mantine/core';
+import { TextInput, NumberInput, Group, Button, Stack, Select } from '@mantine/core';
 
-function OptionForm({ option, onSubmit, onCancel }) {
+function OptionForm({ option, onSubmit, onCancel, questionType }) {
   const [form, setForm] = useState({
     optionText: '',
     subtext: '',
     imageUrl: '',
     displayOrder: 0,
     points: '',
+    boxGroup: '',
   });
 
   useEffect(() => {
@@ -18,6 +19,7 @@ function OptionForm({ option, onSubmit, onCancel }) {
         imageUrl: option.imageUrl || '',
         displayOrder: option.displayOrder ?? 0,
         points: option.points ?? '',
+        boxGroup: option.boxGroup != null ? String(option.boxGroup) : '',
       });
     }
   }, [option]);
@@ -30,6 +32,7 @@ function OptionForm({ option, onSubmit, onCancel }) {
       points: form.points !== '' ? Number(form.points) : null,
       subtext: form.subtext || null,
       imageUrl: form.imageUrl || null,
+      boxGroup: form.boxGroup !== '' ? Number(form.boxGroup) : null,
     });
   }
 
@@ -43,6 +46,16 @@ function OptionForm({ option, onSubmit, onCancel }) {
           <NumberInput label="Order" value={form.displayOrder} onChange={(val) => setForm(p => ({ ...p, displayOrder: val || 0 }))} />
           <NumberInput label="Points" value={form.points} onChange={(val) => setForm(p => ({ ...p, points: val ?? '' }))} />
         </Group>
+        {questionType === 'box' && (
+          <Select
+            label="Box"
+            placeholder="Select box"
+            value={form.boxGroup}
+            onChange={(val) => setForm(p => ({ ...p, boxGroup: val || '' }))}
+            data={[{ value: '1', label: 'Box 1' }, { value: '2', label: 'Box 2' }]}
+            required
+          />
+        )}
         <Group>
           <Button type="submit" size="sm">{option ? 'Update' : 'Add'}</Button>
           <Button variant="default" size="sm" onClick={onCancel}>Cancel</Button>

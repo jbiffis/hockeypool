@@ -104,7 +104,7 @@ function PoolFormPage() {
     for (const q of form.questions) {
       const a = answers[q.id];
       if (q.isMandatory) {
-        if (q.questionType === 'multi_select') {
+        if (q.questionType === 'multi_select' || q.questionType === 'box') {
           if (!a || !a.selectedOptionIds || a.selectedOptionIds.length === 0) newErrors[q.id] = 'Please select at least one option.';
         } else if (q.questionType === 'free_form' || q.questionType === 'number_of_games') {
           if (!a || !a.freeFormValue || !a.freeFormValue.trim()) newErrors[q.id] = 'This question is required.';
@@ -119,6 +119,17 @@ function PoolFormPage() {
       }
       if (q.questionType === 'multi_select' && q.maxSelections != null && a && a.selectedOptionIds) {
         if (a.selectedOptionIds.length > q.maxSelections) newErrors[q.id] = `You can select at most ${q.maxSelections} option${q.maxSelections === 1 ? '' : 's'}.`;
+      }
+      if (q.questionType === 'box' && q.maxSelections != null) {
+        const selected = a?.selectedOptionIds || [];
+        const opts = q.options || [];
+        const box1Ids = new Set(opts.filter(o => o.boxGroup === 1).map(o => o.id));
+        const box2Ids = new Set(opts.filter(o => o.boxGroup === 2).map(o => o.id));
+        const sel1 = selected.filter(id => box1Ids.has(id)).length;
+        const sel2 = selected.filter(id => box2Ids.has(id)).length;
+        if (sel1 !== q.maxSelections || sel2 !== q.maxSelections) {
+          newErrors[q.id] = `Please select exactly ${q.maxSelections} player${q.maxSelections === 1 ? '' : 's'} from each box.`;
+        }
       }
       if (q.questionType === 'jeopardy' && a && a.freeFormValue) {
         const wager = Number(a.freeFormValue);

@@ -28,6 +28,9 @@ public class QuestionOption {
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
+    @Column(name = "box_group")
+    private Integer boxGroup;
+
     public QuestionOption() {
     }
 
@@ -85,5 +88,13 @@ public class QuestionOption {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getBoxGroup() {
+        return boxGroup;
+    }
+
+    public void setBoxGroup(Integer boxGroup) {
+        this.boxGroup = boxGroup;
     }
 }

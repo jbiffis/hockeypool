@@ -7,6 +7,7 @@ const QUESTION_TYPES = [
   { value: 'jeopardy', label: 'Jeopardy' },
   { value: 'number_of_games', label: 'Number of Games' },
   { value: 'text_box', label: 'Text Box' },
+  { value: 'box', label: 'Box' },
 ];
 
 function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
@@ -50,7 +51,7 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
       imageUrl: isTextBox ? null : (form.imageUrl || null),
       isMandatory: isTextBox ? false : form.isMandatory,
       maxWager: form.questionType === 'jeopardy' && form.maxWager !== '' ? Number(form.maxWager) : null,
-      maxSelections: form.questionType === 'multi_select' && form.maxSelections !== '' ? Number(form.maxSelections) : null,
+      maxSelections: (form.questionType === 'multi_select' || form.questionType === 'box') && form.maxSelections !== '' ? Number(form.maxSelections) : null,
       points: showPoints && form.points !== '' ? Number(form.points) : null,
       parentQuestionId: isTextBox ? null : (form.parentQuestionId ? Number(form.parentQuestionId) : null),
     };
@@ -88,8 +89,14 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
           <NumberInput label="Max Wager" value={form.maxWager} onChange={(val) => setForm(p => ({ ...p, maxWager: val ?? '' }))} />
         )}
 
-        {form.questionType === 'multi_select' && (
-          <NumberInput label="Max Selections" value={form.maxSelections} onChange={(val) => setForm(p => ({ ...p, maxSelections: val ?? '' }))} placeholder="Unlimited" min={1} />
+        {(form.questionType === 'multi_select' || form.questionType === 'box') && (
+          <NumberInput
+            label={form.questionType === 'box' ? 'Picks per box' : 'Max Selections'}
+            value={form.maxSelections}
+            onChange={(val) => setForm(p => ({ ...p, maxSelections: val ?? '' }))}
+            placeholder={form.questionType === 'box' ? 'Required' : 'Unlimited'}
+            min={1}
+          />
         )}
 
         {!isTextBox && (

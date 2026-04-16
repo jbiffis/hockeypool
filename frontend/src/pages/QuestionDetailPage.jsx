@@ -82,7 +82,7 @@ function QuestionDetailPage() {
         {options.map(opt =>
           editingOptionId === opt.id ? (
             <Card key={opt.id} withBorder padding="sm">
-              <OptionForm option={opt} onSubmit={(data) => handleUpdateOption(opt.id, data)} onCancel={() => setEditingOptionId(null)} />
+              <OptionForm option={opt} questionType={question.questionType} onSubmit={(data) => handleUpdateOption(opt.id, data)} onCancel={() => setEditingOptionId(null)} />
             </Card>
           ) : (
             <Card key={opt.id} withBorder padding="sm">
@@ -91,6 +91,7 @@ function QuestionDetailPage() {
                   <Text size="sm" c="dimmed">#{opt.displayOrder}</Text>
                   <Text size="sm" fw={500}>{opt.optionText}</Text>
                   {opt.points != null && <Badge variant="light" color="blue" size="sm">{opt.points} pts</Badge>}
+                  {opt.boxGroup != null && <Badge variant="outline" color="gray" size="sm">Box {opt.boxGroup}</Badge>}
                 </Group>
                 <Group gap="xs">
                   <Button size="compact-sm" variant="default" onClick={() => setEditingOptionId(opt.id)}>Edit</Button>
@@ -107,7 +108,7 @@ function QuestionDetailPage() {
       {showOptionForm && (
         <Card withBorder mt="md" padding="md">
           <Title order={4} mb="sm">New Option</Title>
-          <OptionForm option={null} onSubmit={handleCreateOption} onCancel={() => setShowOptionForm(false)} />
+          <OptionForm option={null} questionType={question.questionType} onSubmit={handleCreateOption} onCancel={() => setShowOptionForm(false)} />
         </Card>
       )}
 

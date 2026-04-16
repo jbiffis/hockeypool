@@ -3,6 +3,7 @@ import MultiSelect from './MultiSelect';
 import FreeFormInput from './FreeFormInput';
 import JeopardyInput from './JeopardyInput';
 import NumberOfGamesInput from './NumberOfGamesInput';
+import BoxInput from './BoxInput';
 
 function QuestionCard({ question, answer = {}, error, onChange, childQuestions = [], answers = {}, errors = {}, onChildChange }) {
   const { id, title, description, imageUrl, questionType, isMandatory, maxWager, maxSelections, options = [] } = question;
@@ -51,6 +52,15 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
             value={a.freeFormValue || ''}
             onChange={(val) => (q === question ? onChange({ freeFormValue: val }) : onChildChange(q.id, { freeFormValue: val }))}
             name={n}
+          />
+        );
+      case 'box':
+        return (
+          <BoxInput
+            options={opts}
+            value={a.selectedOptionIds || []}
+            onChange={(ids) => (q === question ? onChange({ selectedOptionIds: ids }) : onChildChange(q.id, { selectedOptionIds: ids }))}
+            maxSelections={ms}
           />
         );
       case 'text_box':

@@ -16,6 +16,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import PublicParticipantDetailPage from './pages/PublicParticipantDetailPage';
 import QuestionPage from './pages/QuestionPage';
 import SignupPage from './pages/SignupPage';
+import UploadsPage from './pages/UploadsPage';
 
 function ProtectedRoute() {
   const { authenticated, loading } = useAuth();
@@ -47,6 +48,7 @@ function App() {
           <Route path="participants/:participantId" element={<ParticipantDetailPage />} />
           <Route path="divisions" element={<DivisionsPage />} />
           <Route path="rounds/:roundId/responses" element={<ResponsesPage />} />
+          <Route path="uploads" element={<UploadsPage />} />
         </Route>
       </Route>
     </Routes>

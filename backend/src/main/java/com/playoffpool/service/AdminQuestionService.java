@@ -127,6 +127,7 @@ public class AdminQuestionService {
         option.setPoints(dto.getPoints());
         option.setSubtext(dto.getSubtext());
         option.setImageUrl(dto.getImageUrl());
+        option.setBoxGroup(dto.getBoxGroup());
 
         QuestionOption saved = questionOptionRepository.save(option);
         return QuestionOptionDto.fromEntity(saved);
@@ -141,6 +142,7 @@ public class AdminQuestionService {
         option.setPoints(dto.getPoints());
         option.setSubtext(dto.getSubtext());
         option.setImageUrl(dto.getImageUrl());
+        option.setBoxGroup(dto.getBoxGroup());
 
         QuestionOption saved = questionOptionRepository.save(option);
         return QuestionOptionDto.fromEntity(saved);
