@@ -93,9 +93,9 @@ public class PoolFormService {
         } else {
             List<Round> openRounds;
             if (seasonId != null) {
-                openRounds = roundRepository.findBySeasonIdAndStatus(seasonId, "open");
+                openRounds = roundRepository.findBySeasonIdAndStatusAndDisplayWithRoundIdIsNull(seasonId, "open");
             } else {
-                openRounds = roundRepository.findByStatus("open");
+                openRounds = roundRepository.findByStatusAndDisplayWithRoundIdIsNull("open");
             }
             if (openRounds.isEmpty()) {
                 throw new NoSuchElementException("No round is currently open");
@@ -175,7 +175,7 @@ public class PoolFormService {
 
         // Find open round scoped to participant's season
         Integer seasonId = participant.getSeason().getId();
-        List<Round> openRounds = roundRepository.findBySeasonIdAndStatus(seasonId, "open");
+        List<Round> openRounds = roundRepository.findBySeasonIdAndStatusAndDisplayWithRoundIdIsNull(seasonId, "open");
         if (openRounds.isEmpty()) {
             throw new NoSuchElementException("No round is currently open");
         }

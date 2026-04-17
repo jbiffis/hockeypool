@@ -16,5 +16,9 @@ public interface RoundRepository extends JpaRepository<Round, Integer> {
 
     List<Round> findBySeasonIdAndStatus(Integer seasonId, String status);
 
+    List<Round> findBySeasonIdAndStatusAndDisplayWithRoundIdIsNull(Integer seasonId, String status);
+
+    List<Round> findByStatusAndDisplayWithRoundIdIsNull(String status);
+
     List<Round> findByDisplayWithRoundId(Integer displayWithRoundId);
 }
