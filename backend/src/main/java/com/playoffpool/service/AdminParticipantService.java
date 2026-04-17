@@ -19,19 +19,22 @@ public class AdminParticipantService {
     private final QuestionRepository questionRepository;
     private final QuestionOptionRepository questionOptionRepository;
     private final ParticipantScoreRepository participantScoreRepository;
+    private final RoundRepository roundRepository;
 
     public AdminParticipantService(ParticipantRepository participantRepository,
                                    ResponseRepository responseRepository,
                                    ResponseAnswerRepository responseAnswerRepository,
                                    QuestionRepository questionRepository,
                                    QuestionOptionRepository questionOptionRepository,
-                                   ParticipantScoreRepository participantScoreRepository) {
+                                   ParticipantScoreRepository participantScoreRepository,
+                                   RoundRepository roundRepository) {
         this.participantRepository = participantRepository;
         this.responseRepository = responseRepository;
         this.responseAnswerRepository = responseAnswerRepository;
         this.questionRepository = questionRepository;
         this.questionOptionRepository = questionOptionRepository;
         this.participantScoreRepository = participantScoreRepository;
+        this.roundRepository = roundRepository;
     }
 
     public List<Participant> getAllParticipants() {
@@ -81,7 +84,53 @@ public class AdminParticipantService {
 
     @Transactional(readOnly = true)
     public List<ParticipantResponseDto> getResponsesByParticipant(Integer participantId) {
-        return buildResponseDtos(responseRepository.findByParticipantId(participantId));
+        Participant participant = participantRepository.findById(participantId)
+                .orElseThrow(() -> new NoSuchElementException("Participant not found"));
+
+        List<Response> responses = responseRepository.findByParticipantId(participantId);
+        Map<Integer, Response> responseByRoundId = responses.stream()
+                .collect(Collectors.toMap(r -> r.getRound().getId(), r -> r));
+
+        List<Round> allRounds = roundRepository.findBySeasonIdOrderByDisplayOrderAsc(
+                participant.getSeason().getId());
+
+        List<ParticipantResponseDto> result = buildResponseDtos(responses);
+        Map<Integer, ParticipantResponseDto> dtoByRoundId = result.stream()
+                .collect(Collectors.toMap(ParticipantResponseDto::getRoundId, d -> d));
+
+        List<QuestionOption> allOptions = questionOptionRepository.findAll();
+        Map<Integer, QuestionOption> optionMap = allOptions.stream()
+                .collect(Collectors.toMap(QuestionOption::getId, o -> o));
+
+        for (Round round : allRounds) {
+            if (dtoByRoundId.containsKey(round.getId())) continue;
+
+            List<Question> roundQuestions = questionRepository.findByRoundIdOrderByDisplayOrder(round.getId());
+            List<AnswerDto> answerDtos = new ArrayList<>();
+            for (Question question : roundQuestions) {
+                AnswerDto answerDto = new AnswerDto();
+                answerDto.setQuestionId(question.getId());
+                answerDto.setQuestionTitle(question.getTitle());
+                answerDto.setCorrectAnswerText(question.getCorrectAnswerText());
+                answerDtos.add(answerDto);
+            }
+
+            ParticipantResponseDto dto = new ParticipantResponseDto();
+            dto.setParticipantId(participant.getId());
+            dto.setParticipantName(participant.getName());
+            dto.setTeamName(participant.getTeamName());
+            dto.setEmail(participant.getEmail());
+            dto.setRoundId(round.getId());
+            dto.setRoundName(round.getName());
+            dto.setRoundDisplayOrder(round.getDisplayOrder());
+            dto.setSubmittedAt(null);
+            dto.setAnswers(answerDtos);
+            dto.setRoundPointsTotal(null);
+            result.add(dto);
+        }
+
+        result.sort(Comparator.comparingInt(r -> r.getRoundDisplayOrder() != null ? r.getRoundDisplayOrder() : 0));
+        return result;
     }
 
     private List<ParticipantResponseDto> buildResponseDtos(List<Response> responses) {

@@ -1,4 +1,6 @@
-import { Card, Text, Image, Alert, Divider } from '@mantine/core';
+import { Card, Text, Image, Alert } from '@mantine/core';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import MultiSelect from './MultiSelect';
 import FreeFormInput from './FreeFormInput';
 import JeopardyInput from './JeopardyInput';
@@ -84,7 +86,7 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
         {title}
         {isMandatory && !isTextBox && <Text span c="red" ml={4}>*</Text>}
       </Text>
-      {description && <Text size="sm" c="dark.3" mb="sm">{description}</Text>}
+      {description && <div style={{ fontSize: 14, color: 'var(--mantine-color-dark-3)', marginBottom: 8 }}><ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown></div>}
       {imageUrl && <Image src={imageUrl} alt={title} radius="sm" maw={400} mb="sm" />}
       {renderInput(question, answer, name, maxWager, maxSelections, options)}
       {error && <Alert color="red" mt="xs">{error}</Alert>}
@@ -94,12 +96,11 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
         const childError = errors[child.id] || null;
         return (
           <div key={child.id} id={`question-${child.id}`}>
-            <Divider my="sm" />
-            <Text fw={600} size="sm" mb={child.description ? 4 : 'xs'}>
+            <Text fw={600} size="sm" mb={child.description ? 4 : 'xs'} mt="sm">
               {child.title}
               {child.isMandatory && <Text span c="red" ml={4}>*</Text>}
             </Text>
-            {child.description && <Text size="xs" c="dark.3" mb="xs">{child.description}</Text>}
+            {child.description && <div style={{ fontSize: 12, color: 'var(--mantine-color-dark-3)', marginBottom: 4 }}><ReactMarkdown remarkPlugins={[remarkGfm]}>{child.description}</ReactMarkdown></div>}
             {renderInput(child, childAnswer, `question-${child.id}`, child.maxWager, child.maxSelections, child.options || [])}
             {childError && <Alert color="red" mt="xs">{childError}</Alert>}
           </div>
