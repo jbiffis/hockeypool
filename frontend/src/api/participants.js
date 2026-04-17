@@ -17,3 +17,7 @@ export function updateParticipantPaid(id, paid) {
 export function getParticipantResponses(participantId) {
   return api.get(`/admin/participants/${participantId}/responses`);
 }
+
+export function deleteParticipantResponse(participantId, roundId) {
+  return api.delete(`/admin/participants/${participantId}/responses/${roundId}`);
+}

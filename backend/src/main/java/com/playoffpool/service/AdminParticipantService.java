@@ -77,6 +77,16 @@ public class AdminParticipantService {
         participantRepository.deleteById(id);
     }
 
+    @Transactional
+    public void deleteResponse(Integer participantId, Integer roundId) {
+        Response response = responseRepository.findByParticipantIdAndRoundId(participantId, roundId)
+                .orElseThrow(() -> new NoSuchElementException("Response not found"));
+        participantScoreRepository.deleteAll(
+                participantScoreRepository.findByParticipantIdAndRoundId(participantId, roundId));
+        responseAnswerRepository.deleteAll(responseAnswerRepository.findByResponseId(response.getId()));
+        responseRepository.delete(response);
+    }
+
     @Transactional(readOnly = true)
     public List<ParticipantResponseDto> getResponsesByRound(Integer roundId) {
         return buildResponseDtos(responseRepository.findByRoundId(roundId));

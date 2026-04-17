@@ -3,6 +3,7 @@ package com.playoffpool.controller;
 import com.playoffpool.dto.ParticipantResponseDto;
 import com.playoffpool.model.Participant;
 import com.playoffpool.service.AdminParticipantService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,5 +46,11 @@ public class AdminParticipantController {
     @GetMapping("/participants/{participantId}/responses")
     public List<ParticipantResponseDto> getResponsesByParticipant(@PathVariable Integer participantId) {
         return adminParticipantService.getResponsesByParticipant(participantId);
+    }
+
+    @DeleteMapping("/participants/{participantId}/responses/{roundId}")
+    public ResponseEntity<Void> deleteResponse(@PathVariable Integer participantId, @PathVariable Integer roundId) {
+        adminParticipantService.deleteResponse(participantId, roundId);
+        return ResponseEntity.noContent().build();
     }
 }

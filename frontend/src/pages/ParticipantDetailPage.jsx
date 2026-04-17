@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getParticipantResponses } from '../api/participants';
+import { getParticipantResponses, deleteParticipantResponse } from '../api/participants';
 import { Title, Table, Button, Group, Alert, Card, Text, Badge } from '@mantine/core';
 
 function ParticipantDetailPage() {
@@ -8,12 +8,26 @@ function ParticipantDetailPage() {
   const navigate = useNavigate();
   const [responses, setResponses] = useState([]);
   const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   useEffect(() => { fetchData(); }, [participantId]);
 
   async function fetchData() {
     try { setResponses((await getParticipantResponses(participantId)).data); }
     catch { setError('Failed to load responses'); }
+  }
+
+  async function handleDeleteResponse(roundId, roundName) {
+    if (!window.confirm(`Delete ${roundName} response for this participant? This cannot be undone.`)) return;
+    setDeleting(roundId);
+    try {
+      await deleteParticipantResponse(participantId, roundId);
+      await fetchData();
+    } catch {
+      setError('Failed to delete response');
+    } finally {
+      setDeleting(null);
+    }
   }
 
   const participant = responses.length > 0 ? responses[0] : null;
@@ -44,6 +58,17 @@ function ParticipantDetailPage() {
             <Group>
               {r.roundPointsTotal != null && <Badge variant="light">{r.roundPointsTotal} pts</Badge>}
               <Text size="xs" c="dimmed">Submitted {r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '--'}</Text>
+              {r.submittedAt && (
+                <Button
+                  size="compact-sm"
+                  color="red"
+                  variant="subtle"
+                  loading={deleting === r.roundId}
+                  onClick={() => handleDeleteResponse(r.roundId, r.roundName)}
+                >
+                  Delete
+                </Button>
+              )}
             </Group>
           </Group>
           <Table striped>
