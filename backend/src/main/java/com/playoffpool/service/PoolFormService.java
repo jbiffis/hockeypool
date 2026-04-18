@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PoolFormService {
+
+    private static final ZoneId DEADLINE_ZONE = ZoneId.of("America/Toronto");
 
     private final ParticipantRepository participantRepository;
     private final RoundRepository roundRepository;
@@ -181,8 +184,8 @@ public class PoolFormService {
         }
         Round openRound = openRounds.get(0);
 
-        // Validate deadline
-        if (openRound.getDeadline() != null && !LocalDateTime.now().isBefore(openRound.getDeadline())) {
+        // Validate deadline — stored as naive LocalDateTime representing Eastern wall-clock time
+        if (openRound.getDeadline() != null && !LocalDateTime.now(DEADLINE_ZONE).isBefore(openRound.getDeadline())) {
             throw new IllegalArgumentException("The deadline for this round has passed");
         }
 

@@ -46,7 +46,7 @@ function RoundForm({ round, allRounds, onSubmit, onCancel }) {
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.description}</ReactMarkdown>
           </Paper>
         )}
-        <TextInput label="Deadline" type="datetime-local" value={form.deadline} onChange={(e) => setForm(p => ({ ...p, deadline: e.target.value }))} />
+        <TextInput label="Deadline (Eastern Time)" type="datetime-local" value={form.deadline} onChange={(e) => setForm(p => ({ ...p, deadline: e.target.value }))} />
         <Group grow>
           <NumberInput label="Display Order" value={form.displayOrder} onChange={(val) => setForm(p => ({ ...p, displayOrder: val || 0 }))} />
           <Select
