@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { lookupParticipant, registerParticipant, updateParticipantProfile, getPoolForm, submitPicks } from '../api/pool';
+import { formatDeadlineEt } from '../utils/deadline';
 import QuestionCard from '../components/pool/QuestionCard';
 import { Container, Title, TextInput, Button, Card, Alert, Stack, Text, Divider } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
@@ -40,7 +41,7 @@ function PoolFormPage() {
         setIsNew(true);
         setStep('identify');
       } else {
-        setGlobalError(err.response?.data?.message || 'Something went wrong. Please try again.');
+        setGlobalError(err.response?.data?.error || err.response?.data?.message || 'Something went wrong. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -59,7 +60,7 @@ function PoolFormPage() {
       if (formRes.data.alreadySubmitted) { setForm(formRes.data); setStep('already'); }
       else { setForm(formRes.data); setStep('questions'); }
     } catch (err) {
-      setGlobalError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setGlobalError(err.response?.data?.error || err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ function PoolFormPage() {
       setParticipant(res.data);
       setStep('identify');
     } catch (err) {
-      setGlobalError(err.response?.data?.message || 'Failed to update profile. Please try again.');
+      setGlobalError(err.response?.data?.error || err.response?.data?.message || 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ function PoolFormPage() {
       if (formRes.data.alreadySubmitted) { setForm(formRes.data); setStep('already'); }
       else { setForm(formRes.data); setStep('questions'); }
     } catch (err) {
-      setGlobalError(err.response?.data?.message || 'Failed to load form. Please try again.');
+      setGlobalError(err.response?.data?.error || err.response?.data?.message || 'Failed to load form. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -164,16 +165,13 @@ function PoolFormPage() {
       await submitPicks(participant.id, answersArray);
       setStep('submitted');
     } catch (err) {
-      setGlobalError(err.response?.data?.message || 'Failed to submit picks. Please try again.');
+      setGlobalError(err.response?.data?.error || err.response?.data?.message || 'Failed to submit picks. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDeadline = (dateStr) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-  };
+  const formatDeadline = formatDeadlineEt;
 
   if (step === 'email') {
     return (
