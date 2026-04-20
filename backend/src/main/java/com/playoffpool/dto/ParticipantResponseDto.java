@@ -9,6 +9,7 @@ public class ParticipantResponseDto {
     private String participantName;
     private String teamName;
     private String email;
+    private Boolean paid;
     private Integer roundId;
     private String roundName;
     private Integer roundDisplayOrder;
@@ -49,6 +50,14 @@ public class ParticipantResponseDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Boolean getPaid() {
+        return paid;
+    }
+
+    public void setPaid(Boolean paid) {
+        this.paid = paid;
     }
 
     public Integer getRoundId() { return roundId; }

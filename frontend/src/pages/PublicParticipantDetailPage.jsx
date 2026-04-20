@@ -17,20 +17,21 @@ function PublicParticipantDetailPage() {
   }, [participantId]);
 
   const participant = responses.length > 0 ? responses[0] : null;
+  const isPaid = participant ? participant.paid === true : true;
   const overallTotal = responses.reduce((sum, r) => sum + (r.roundPointsTotal || 0), 0);
-  const hasAnyScores = responses.some(r => r.roundPointsTotal != null);
+  const hasAnyScores = isPaid && responses.some(r => r.roundPointsTotal != null);
 
   return (
     <Container size="md" py="xl">
-      <Anchor component={Link} to={`/standings/${seasonId}`} size="sm" mb="md" display="block">← Back to Standings</Anchor>
+      <Anchor component={Link} to={`/standings/${seasonId}`} size="sm" mb="md" display="block" style={{ color: '#cbd5e1' }}>← Back to Standings</Anchor>
 
       {participant ? (
         <>
-          <Title order={1}>{participant.participantName}</Title>
-          <Text c="dimmed" mb="md">{participant.teamName}</Text>
+          <Title order={1} className="hero-title">{participant.participantName}</Title>
+          <Text className="hero-subtitle" mb="md">{participant.teamName}</Text>
         </>
       ) : (
-        <Title order={1}>{loading ? 'Loading...' : 'Participant'}</Title>
+        <Title order={1} className="hero-title">{loading ? 'Loading...' : 'Participant'}</Title>
       )}
 
       {error && <Alert color="red" mb="md">{error}</Alert>}
@@ -44,12 +45,15 @@ function PublicParticipantDetailPage() {
           {hasAnyScores && (
             <Badge size="lg" variant="light" color="blue" mb="lg">Overall Total: {overallTotal} pts</Badge>
           )}
+          {!isPaid && (
+            <Alert color="yellow" mb="lg">Scores are hidden until this participant&apos;s entry fee is received.</Alert>
+          )}
 
           {responses.map(r => (
             <Card key={r.roundId} withBorder mb="md" padding="md">
               <Group justify="space-between" mb="sm">
                 <Title order={3}>{r.roundName}</Title>
-                {r.roundPointsTotal != null && <Badge variant="light">{r.roundPointsTotal} pts</Badge>}
+                {isPaid && r.roundPointsTotal != null && <Badge variant="light">{r.roundPointsTotal} pts</Badge>}
               </Group>
               <Table striped>
                 <Table.Thead>
@@ -57,14 +61,14 @@ function PublicParticipantDetailPage() {
                     <Table.Th>Question</Table.Th>
                     <Table.Th>Your Pick</Table.Th>
                     <Table.Th>Correct Answer</Table.Th>
-                    <Table.Th ta="center">Point Value</Table.Th>
-                    <Table.Th ta="center">Points Scored</Table.Th>
+                    {isPaid && <Table.Th ta="center">Point Value</Table.Th>}
+                    {isPaid && <Table.Th ta="center">Points Scored</Table.Th>}
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   {(r.answers || []).map((a, i) => {
-                    const isCorrect = a.correctAnswerText != null && a.selectedOptionText === a.correctAnswerText;
-                    const isWrong = a.correctAnswerText != null && a.selectedOptionText != null && a.selectedOptionText !== a.correctAnswerText;
+                    const isCorrect = isPaid && a.correctAnswerText != null && a.selectedOptionText === a.correctAnswerText;
+                    const isWrong = isPaid && a.correctAnswerText != null && a.selectedOptionText != null && a.selectedOptionText !== a.correctAnswerText;
                     return (
                       <Table.Tr key={i}>
                         <Table.Td>
@@ -76,13 +80,13 @@ function PublicParticipantDetailPage() {
                           {a.selectedOptionText || a.freeFormValue || '--'}
                         </Table.Td>
                         <Table.Td c="dimmed">{a.correctAnswerText ?? 'N/A'}</Table.Td>
-                        <Table.Td ta="center">{a.optionPointValue ?? '--'}</Table.Td>
-                        <Table.Td ta="center">{a.pointsEarned ?? '--'}</Table.Td>
+                        {isPaid && <Table.Td ta="center">{a.optionPointValue ?? '--'}</Table.Td>}
+                        {isPaid && <Table.Td ta="center">{a.pointsEarned ?? '--'}</Table.Td>}
                       </Table.Tr>
                     );
                   })}
                 </Table.Tbody>
-                {r.roundPointsTotal != null && (
+                {isPaid && r.roundPointsTotal != null && (
                   <Table.Tfoot>
                     <Table.Tr fw={700}>
                       <Table.Td colSpan={4} ta="right">Round Total</Table.Td>

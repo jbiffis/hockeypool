@@ -1,4 +1,49 @@
-/* Minimal reset - Mantine handles all component styling */
 body {
   margin: 0;
+}
+
+.public-shell {
+  position: relative;
+  min-height: 100vh;
+}
+
+.public-shell__bg {
+  position: fixed;
+  inset: 0;
+  background-image: url('/rink-bg.webp');
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
+}
+
+.public-shell__overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 12, 28, 0.72) 0%, rgba(5, 12, 28, 0.88) 100%);
+  z-index: -1;
+}
+
+.public-shell__content {
+  position: relative;
+  z-index: 1;
+}
+
+.public-shell__admin {
+  position: fixed !important;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hero-title {
+  color: #f8fafc !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+.hero-subtitle {
+  color: rgba(226, 232, 240, 0.9) !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }

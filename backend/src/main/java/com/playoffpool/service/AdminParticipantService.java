@@ -130,6 +130,7 @@ public class AdminParticipantService {
             dto.setParticipantName(participant.getName());
             dto.setTeamName(participant.getTeamName());
             dto.setEmail(participant.getEmail());
+            dto.setPaid(participant.getPaid());
             dto.setRoundId(round.getId());
             dto.setRoundName(round.getName());
             dto.setRoundDisplayOrder(round.getDisplayOrder());
@@ -193,6 +194,7 @@ public class AdminParticipantService {
             dto.setParticipantName(participant.getName());
             dto.setTeamName(participant.getTeamName());
             dto.setEmail(participant.getEmail());
+            dto.setPaid(participant.getPaid());
             dto.setRoundId(response.getRound().getId());
             dto.setRoundName(response.getRound().getName());
             dto.setRoundDisplayOrder(response.getRound().getDisplayOrder());

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getParticipantResponses, deleteParticipantResponse } from '../api/participants';
+import { getParticipantResponses, deleteParticipantResponse, deleteParticipant } from '../api/participants';
 import { Title, Table, Button, Group, Alert, Card, Text, Badge } from '@mantine/core';
 
 function ParticipantDetailPage() {
@@ -9,6 +9,7 @@ function ParticipantDetailPage() {
   const [responses, setResponses] = useState([]);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [deletingParticipant, setDeletingParticipant] = useState(false);
 
   useEffect(() => { fetchData(); }, [participantId]);
 
@@ -30,15 +31,35 @@ function ParticipantDetailPage() {
     }
   }
 
+  async function handleDeleteParticipant() {
+    const label = participant ? `${participant.participantName} (${participant.teamName})` : 'this participant';
+    if (!window.confirm(`Delete ${label}? All of their responses and scores will be permanently removed. This cannot be undone.`)) return;
+    setDeletingParticipant(true);
+    try {
+      await deleteParticipant(participantId);
+      navigate('/admin/participants');
+    } catch {
+      setError('Failed to delete participant');
+      setDeletingParticipant(false);
+    }
+  }
+
   const participant = responses.length > 0 ? responses[0] : null;
   const overallTotal = responses.reduce((sum, r) => sum + (r.roundPointsTotal || 0), 0);
   const hasAnyScores = responses.some(r => r.roundPointsTotal != null);
 
   return (
     <div>
-      <Button variant="subtle" size="compact-sm" onClick={() => navigate('/admin/participants')} mb="sm">
-        ← Back to Participants
-      </Button>
+      <Group justify="space-between" mb="sm">
+        <Button variant="subtle" size="compact-sm" onClick={() => navigate('/admin/participants')}>
+          ← Back to Participants
+        </Button>
+        {participant && (
+          <Button color="red" variant="outline" size="compact-sm" loading={deletingParticipant} onClick={handleDeleteParticipant}>
+            Delete Participant
+          </Button>
+        )}
+      </Group>
 
       <Title order={1} mb="xs">
         {participant ? `${participant.participantName} - ${participant.teamName}` : 'Loading...'}

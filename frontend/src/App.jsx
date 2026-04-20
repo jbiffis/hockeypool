@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import PoolFormPage from './pages/PoolFormPage';
 import LoginPage from './pages/LoginPage';
 import AdminLayout from './components/AdminLayout';
+import PublicLayout from './components/PublicLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import SeasonsPage from './pages/SeasonsPage';
 import RoundsPage from './pages/RoundsPage';
@@ -28,14 +29,16 @@ function ProtectedRoute() {
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<PoolFormPage />} />
-      <Route path="/pool/season/:seasonId" element={<PoolFormPage />} />
-      <Route path="/pool/season/:seasonId/round/:roundId" element={<PoolFormPage />} />
-      <Route path="/pool/round/:roundId" element={<PoolFormPage />} />
-      <Route path="/season/:seasonId/signup" element={<SignupPage />} />
-      <Route path="/standings/:seasonId" element={<LeaderboardPage />} />
-      <Route path="/standings/:seasonId/participant/:participantId" element={<PublicParticipantDetailPage />} />
-      <Route path="/standings/:seasonId/question/:questionId" element={<QuestionPage />} />
+      <Route path="/" element={<Navigate to="/standings/2" replace />} />
+      <Route element={<PublicLayout />}>
+        <Route path="/pool/season/:seasonId" element={<PoolFormPage />} />
+        <Route path="/pool/season/:seasonId/round/:roundId" element={<PoolFormPage />} />
+        <Route path="/pool/round/:roundId" element={<PoolFormPage />} />
+        <Route path="/season/:seasonId/signup" element={<SignupPage />} />
+        <Route path="/standings/:seasonId" element={<LeaderboardPage />} />
+        <Route path="/standings/:seasonId/participant/:participantId" element={<PublicParticipantDetailPage />} />
+        <Route path="/standings/:seasonId/question/:questionId" element={<QuestionPage />} />
+      </Route>
       <Route path="/admin/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminLayout />}>

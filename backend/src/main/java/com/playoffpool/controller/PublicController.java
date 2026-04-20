@@ -1,5 +1,6 @@
 package com.playoffpool.controller;
 
+import com.playoffpool.dto.AnswerDto;
 import com.playoffpool.dto.DivisionDto;
 import com.playoffpool.dto.LeaderboardDto;
 import com.playoffpool.dto.ParticipantResponseDto;
@@ -105,8 +106,18 @@ public class PublicController {
     @GetMapping("/participants/{participantId}/responses")
     public List<ParticipantResponseDto> getParticipantResponses(@PathVariable Integer participantId) {
         List<ParticipantResponseDto> responses = adminParticipantService.getResponsesByParticipant(participantId);
+        boolean unpaid = !responses.isEmpty() && !Boolean.TRUE.equals(responses.get(0).getPaid());
         for (ParticipantResponseDto r : responses) {
             r.setEmail(null);
+            if (unpaid) {
+                r.setRoundPointsTotal(null);
+                if (r.getAnswers() != null) {
+                    for (AnswerDto a : r.getAnswers()) {
+                        a.setPointsEarned(null);
+                        a.setOptionPointValue(null);
+                    }
+                }
+            }
         }
         return responses;
     }

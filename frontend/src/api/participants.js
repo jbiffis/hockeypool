@@ -14,6 +14,10 @@ export function updateParticipantPaid(id, paid) {
   return api.patch(`/admin/participants/${id}/paid`, { paid });
 }
 
+export function deleteParticipant(id) {
+  return api.delete(`/admin/participants/${id}`);
+}
+
 export function getParticipantResponses(participantId) {
   return api.get(`/admin/participants/${participantId}/responses`);
 }

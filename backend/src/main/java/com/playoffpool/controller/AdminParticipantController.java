@@ -38,6 +38,12 @@ public class AdminParticipantController {
         return adminParticipantService.updatePaidStatus(id, body.get("paid"));
     }
 
+    @DeleteMapping("/participants/{id}")
+    public ResponseEntity<Void> deleteParticipant(@PathVariable Integer id) {
+        adminParticipantService.deleteParticipant(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/rounds/{roundId}/responses")
     public List<ParticipantResponseDto> getResponsesByRound(@PathVariable Integer roundId) {
         return adminParticipantService.getResponsesByRound(roundId);

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSeasons, getLeaderboard } from '../api/leaderboard';
 import { getDivisions } from '../api/divisions';
-import { Container, Title, Table, Select, Group, Text, ScrollArea, UnstyledButton, Center } from '@mantine/core';
+import { Container, Title, Table, Select, Group, Text, ScrollArea, UnstyledButton, Center, Paper, Stack } from '@mantine/core';
 import cx from 'clsx';
 
 function LeaderboardPage() {
@@ -86,37 +86,42 @@ function LeaderboardPage() {
 
   return (
     <Container size="xl" py="xl">
-      <Group justify="space-between" mb="lg" wrap="wrap">
-        <Title order={1}>Playoff Pool Standings</Title>
-        <Group>
-          {divisions.length > 0 && (
+      <Stack gap={4} align="center" mb="xl">
+        <Title order={1} className="hero-title" ta="center" fz={{ base: 32, sm: 44 }}>Playoff Pool Standings</Title>
+        <Text className="hero-subtitle" ta="center" size="md">Live leaderboard — updated every round</Text>
+      </Stack>
+
+      <Paper shadow="lg" radius="lg" p="md" bg="white">
+        <Group justify="flex-end" mb="md" wrap="wrap">
+          <Group>
+            {divisions.length > 0 && (
+              <Select
+                label="Division"
+                placeholder="Overall"
+                value={divisionId != null ? String(divisionId) : null}
+                onChange={(val) => setDivisionId(val ? Number(val) : null)}
+                data={divisions.map(d => ({ value: String(d.id), label: d.name }))}
+                clearable
+                style={{ minWidth: 160 }}
+              />
+            )}
             <Select
-              label="Division"
-              placeholder="Overall"
-              value={divisionId != null ? String(divisionId) : null}
-              onChange={(val) => setDivisionId(val ? Number(val) : null)}
-              data={divisions.map(d => ({ value: String(d.id), label: d.name }))}
-              clearable
+              label="Season"
+              value={seasonId || null}
+              onChange={(val) => navigate(`/standings/${val}`)}
+              data={seasons.map(s => ({ value: String(s.id), label: s.name }))}
               style={{ minWidth: 160 }}
             />
-          )}
-          <Select
-            label="Season"
-            value={seasonId || null}
-            onChange={(val) => navigate(`/standings/${val}`)}
-            data={seasons.map(s => ({ value: String(s.id), label: s.name }))}
-            style={{ minWidth: 160 }}
-          />
+          </Group>
         </Group>
-      </Group>
 
-      {loading ? (
-        <Center py="xl"><Text c="dimmed">Loading standings...</Text></Center>
-      ) : !data || data.entries.length === 0 ? (
-        <Center py="xl"><Text c="dimmed">No participants found for this season.</Text></Center>
-      ) : (
-        <ScrollArea h="calc(100vh - 180px)" onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
-          <Table striped highlightOnHover stickyHeader tabularNums miw={700}>
+        {loading ? (
+          <Center py="xl"><Text c="dimmed">Loading standings...</Text></Center>
+        ) : !data || data.entries.length === 0 ? (
+          <Center py="xl"><Text c="dimmed">No participants found for this season.</Text></Center>
+        ) : (
+          <ScrollArea h="calc(100vh - 260px)" onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
+            <Table striped highlightOnHover stickyHeader tabularNums miw={700}>
             <Table.Thead style={scrolled ? { boxShadow: 'var(--mantine-shadow-sm)' } : undefined}>
               <Table.Tr>
                 <Table.Th style={{ width: 50 }}>#</Table.Th>
@@ -150,7 +155,8 @@ function LeaderboardPage() {
             </Table.Tbody>
           </Table>
         </ScrollArea>
-      )}
+        )}
+      </Paper>
     </Container>
   );
 }

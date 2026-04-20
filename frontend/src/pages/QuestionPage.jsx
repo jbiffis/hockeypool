@@ -25,16 +25,16 @@ function QuestionPage() {
     <Container size="sm" py="xl">
       <Group mb="md">
         {fromParticipantId ? (
-          <Anchor component={Link} to={`/standings/${seasonId}/participant/${fromParticipantId}`} size="sm">← Back to Participant</Anchor>
+          <Anchor component={Link} to={`/standings/${seasonId}/participant/${fromParticipantId}`} size="sm" style={{ color: '#cbd5e1' }}>← Back to Participant</Anchor>
         ) : (
-          <Anchor component={Link} to={`/standings/${seasonId}`} size="sm">← Back to Standings</Anchor>
+          <Anchor component={Link} to={`/standings/${seasonId}`} size="sm" style={{ color: '#cbd5e1' }}>← Back to Standings</Anchor>
         )}
       </Group>
 
       {question && (
         <>
-          <Title order={1} mb="xs">{question.title}</Title>
-          <Text c="dimmed" mb="lg">{question.roundName}</Text>
+          <Title order={1} mb="xs" className="hero-title">{question.title}</Title>
+          <Text className="hero-subtitle" mb="lg">{question.roundName}</Text>
         </>
       )}
 
