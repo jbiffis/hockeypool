@@ -18,6 +18,7 @@ import PublicParticipantDetailPage from './pages/PublicParticipantDetailPage';
 import QuestionPage from './pages/QuestionPage';
 import SignupPage from './pages/SignupPage';
 import UploadsPage from './pages/UploadsPage';
+import LivePage from './pages/LivePage';
 
 function ProtectedRoute() {
   const { authenticated, loading } = useAuth();
@@ -35,6 +36,7 @@ function App() {
         <Route path="/pool/season/:seasonId/round/:roundId" element={<PoolFormPage />} />
         <Route path="/pool/round/:roundId" element={<PoolFormPage />} />
         <Route path="/season/:seasonId/signup" element={<SignupPage />} />
+        <Route path="/live" element={<LivePage />} />
         <Route path="/standings/:seasonId" element={<LeaderboardPage />} />
         <Route path="/standings/:seasonId/participant/:participantId" element={<PublicParticipantDetailPage />} />
         <Route path="/standings/:seasonId/question/:questionId" element={<QuestionPage />} />
