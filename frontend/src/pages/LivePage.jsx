@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getLiveData } from '../api/live';
 import { useLocalStorage } from '@mantine/hooks';
 import {
-  Badge, Button, Checkbox, Drawer, Group, Stack, Text, Title,
-  ActionIcon, Tooltip, ScrollArea,
+  Button, Checkbox, Drawer, Group, Stack, Text, ActionIcon, Tooltip,
 } from '@mantine/core';
 
 // ── team colour accents ───────────────────────────────────────────────────────
@@ -15,152 +14,264 @@ const TEAM_COLORS = {
 };
 
 const PICKER_PALETTE = [
-  '#3b82f6','#10b981','#f59e0b','#ec4899','#8b5cf6',
-  '#06b6d4','#84cc16','#f97316','#6366f1','#ef4444',
-  '#14b8a6','#d946ef','#22c55e','#fb923c','#a855f7',
+  '#60a5fa','#34d399','#fbbf24','#f472b6','#a78bfa',
+  '#22d3ee','#a3e635','#fb923c','#818cf8','#f87171',
+  '#2dd4bf','#e879f9','#4ade80','#fdba74','#c084fc',
 ];
 
 function pickerColor(id) {
   return PICKER_PALETTE[id % PICKER_PALETTE.length];
 }
 
-// ── pill component ────────────────────────────────────────────────────────────
-function PickerPill({ picker }) {
+// ── big picker chip ──────────────────────────────────────────────────────────
+function PickerPill({ picker, size = 'md' }) {
   const color = pickerColor(picker.participantId);
+  const sizes = {
+    md: { fs: 15, pad: '4px 12px', radius: 8 },
+    lg: { fs: 18, pad: '6px 14px', radius: 10 },
+  };
+  const s = sizes[size];
   return (
     <span style={{
-      display: 'inline-block',
-      padding: '1px 8px',
-      borderRadius: 99,
-      fontSize: 11,
-      fontWeight: 600,
-      lineHeight: '18px',
-      background: color + '33',
+      display: 'inline-flex', alignItems: 'center',
+      padding: s.pad,
+      borderRadius: s.radius,
+      fontSize: s.fs,
+      fontWeight: 700,
+      lineHeight: 1.2,
+      background: color + '22',
       color,
-      border: `1px solid ${color}55`,
+      border: `2px solid ${color}88`,
       whiteSpace: 'nowrap',
+      textShadow: `0 0 8px ${color}55`,
     }}>
       {picker.teamName}
     </span>
   );
 }
 
-// ── live pulsing dot ──────────────────────────────────────────────────────────
-function LiveDot() {
+// ── live pulsing badge ───────────────────────────────────────────────────────
+function LiveBadge() {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      padding: '6px 14px',
+      background: 'linear-gradient(135deg, #dc2626, #ef4444)',
+      borderRadius: 8,
+      boxShadow: '0 0 20px rgba(239,68,68,0.6)',
+    }}>
       <span className="live-dot" />
-      <span style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 1 }}>LIVE</span>
+      <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: 2 }}>LIVE</span>
     </span>
   );
 }
 
-// ── game card ─────────────────────────────────────────────────────────────────
+// ── game card (TV scale) ──────────────────────────────────────────────────────
 function GameCard({ game, filteredPicks }) {
   const isLive = game.gameState === 'LIVE' || game.gameState === 'CRIT';
+  const isFinal = game.gameState === 'FINAL' || game.gameState === 'OFF';
   const startET = game.startTimeUTC
     ? new Date(game.startTimeUTC).toLocaleTimeString('en-US', {
         hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York',
       })
     : '';
 
-  const awayColor = TEAM_COLORS[game.awayTeam.abbrev] || '#888';
-  const homeColor = TEAM_COLORS[game.homeTeam.abbrev] || '#888';
+  const awayColor = TEAM_COLORS[game.awayTeam.abbrev] || '#64748b';
+  const homeColor = TEAM_COLORS[game.homeTeam.abbrev] || '#64748b';
+
+  const TeamSide = ({ team, picks, color, align }) => (
+    <div style={{
+      flex: 1, display: 'flex', flexDirection: 'column',
+      alignItems: align, minWidth: 0, gap: 10,
+    }}>
+      <div style={{ position: 'relative', width: 110, height: 110 }}>
+        <div style={{
+          position: 'absolute', inset: -10, borderRadius: '50%',
+          background: `radial-gradient(circle, ${color}55 0%, transparent 65%)`,
+          filter: 'blur(8px)',
+        }} />
+        <img
+          src={team.logo}
+          alt={team.abbrev}
+          style={{
+            position: 'relative', width: 110, height: 110, objectFit: 'contain',
+            filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.6))',
+          }}
+        />
+      </div>
+      <div style={{
+        fontSize: 24, fontWeight: 900, color: '#fff',
+        textTransform: 'uppercase', letterSpacing: 0.5,
+        textShadow: `0 0 12px ${color}aa`,
+        textAlign: align === 'flex-end' ? 'right' : 'left',
+        lineHeight: 1,
+      }}>
+        {team.name}
+      </div>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap',
+        gap: 6, justifyContent: align === 'flex-end' ? 'flex-end' : 'flex-start',
+        minHeight: 34,
+      }}>
+        {picks.length === 0
+          ? <span style={{ color: '#475569', fontStyle: 'italic', fontSize: 16 }}>no picks</span>
+          : picks.map(p => <PickerPill key={p.participantId} picker={p} size="md" />)
+        }
+      </div>
+    </div>
+  );
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.07)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      borderRadius: 14,
-      padding: '12px 14px',
-      backdropFilter: 'blur(8px)',
+      background: 'linear-gradient(135deg, rgba(15,23,42,0.92), rgba(2,6,23,0.92))',
+      border: '1px solid rgba(148,163,184,0.2)',
+      borderRadius: 20,
+      padding: '20px 28px',
+      boxShadow: '0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
       flex: 1,
-      minWidth: 0,
+      minHeight: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      {/* header row */}
-      <Group justify="space-between" mb={8}>
-        {isLive ? <LiveDot /> : <Badge size="xs" variant="outline" color="gray">{startET}</Badge>}
-        {isLive && (
-          <Text size="xs" fw={600} c="gray.4">
-            {game.inIntermission ? `INT after ${game.period}` : `${game.period} · ${game.clock}`}
-          </Text>
-        )}
-      </Group>
+      {/* coloured edge accents */}
+      <div style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: 6,
+        background: `linear-gradient(180deg, ${awayColor}, ${homeColor})`,
+      }} />
 
-      {/* teams */}
-      {[
-        { team: game.awayTeam, picks: filteredPicks.away, color: awayColor },
-        { team: game.homeTeam, picks: filteredPicks.home, color: homeColor },
-      ].map(({ team, picks, color }) => (
-        <div key={team.abbrev} style={{ marginBottom: 8 }}>
-          <Group gap={8} mb={4} align="center">
-            <img
-              src={team.logo}
-              alt={team.abbrev}
-              style={{ width: 28, height: 28, objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }}
-            />
-            <Text fw={700} size="sm" style={{ color: '#f1f5f9', flex: 1 }}>{team.name}</Text>
-            {team.score != null && (
-              <Text fw={800} size="xl" style={{
-                color: '#fff',
-                lineHeight: 1,
-                minWidth: 20,
-                textAlign: 'right',
-                textShadow: `0 0 12px ${color}88`,
-              }}>
-                {team.score}
-              </Text>
-            )}
-          </Group>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, paddingLeft: 36, minHeight: 20 }}>
-            {picks.length === 0
-              ? <Text size="xs" c="dimmed" fs="italic">—</Text>
-              : picks.map(p => <PickerPill key={p.participantId} picker={p} />)
-            }
+      {/* status bar */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        marginBottom: 16,
+      }}>
+        {isLive
+          ? <LiveBadge />
+          : isFinal
+            ? <span style={{ fontSize: 16, fontWeight: 800, color: '#94a3b8', letterSpacing: 2 }}>FINAL</span>
+            : <span style={{ fontSize: 18, fontWeight: 800, color: '#cbd5e1', letterSpacing: 1 }}>{startET} ET</span>
+        }
+        {isLive && (
+          <span style={{ fontSize: 18, fontWeight: 800, color: '#fbbf24', letterSpacing: 1 }}>
+            {game.inIntermission ? `INT · ${game.period}` : `${game.period} · ${game.clock}`}
+          </span>
+        )}
+      </div>
+
+      {/* matchup row */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 20, flex: 1,
+      }}>
+        <TeamSide team={game.awayTeam} picks={filteredPicks.away} color={awayColor} align="flex-start" />
+
+        {/* scores */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 18,
+          padding: '0 8px',
+        }}>
+          <div style={{
+            fontSize: 86, fontWeight: 900, lineHeight: 1,
+            color: '#fff',
+            textShadow: `0 0 24px ${awayColor}aa, 0 4px 12px rgba(0,0,0,0.6)`,
+            minWidth: 70, textAlign: 'center',
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            {game.awayTeam.score ?? '—'}
+          </div>
+          <div style={{
+            fontSize: 36, fontWeight: 900, color: '#475569', lineHeight: 1,
+          }}>
+            ·
+          </div>
+          <div style={{
+            fontSize: 86, fontWeight: 900, lineHeight: 1,
+            color: '#fff',
+            textShadow: `0 0 24px ${homeColor}aa, 0 4px 12px rgba(0,0,0,0.6)`,
+            minWidth: 70, textAlign: 'center',
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            {game.homeTeam.score ?? '—'}
           </div>
         </div>
-      ))}
+
+        <TeamSide team={game.homeTeam} picks={filteredPicks.home} color={homeColor} align="flex-end" />
+      </div>
     </div>
   );
 }
 
 // ── player row (hot hand / blockade) ─────────────────────────────────────────
 function PlayerRow({ player, filteredPickers }) {
-  const teamColor = TEAM_COLORS[player.teamAbbrev] || '#888';
+  const teamColor = TEAM_COLORS[player.teamAbbrev] || '#64748b';
   return (
-    <div style={{ marginBottom: 6 }}>
-      <Group gap={6} mb={3}>
-        <img
-          src={`https://assets.nhle.com/logos/nhl/svg/${player.teamAbbrev}_light.svg`}
-          alt={player.teamAbbrev}
-          style={{ width: 20, height: 20, objectFit: 'contain', opacity: 0.9 }}
-        />
-        <Text size="xs" fw={700} style={{ color: '#e2e8f0', flex: 1 }}>{player.playerName}</Text>
-        {player.points != null && (
-          <Badge size="xs" variant="filled" style={{
-            background: teamColor + '44', color: teamColor === '#888' ? '#ccc' : '#fff',
-            border: `1px solid ${teamColor}66`, minWidth: 32,
-          }}>
-            {player.points}pt
-          </Badge>
-        )}
-      </Group>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, paddingLeft: 26, minHeight: 16 }}>
-        {filteredPickers.length === 0
-          ? <Text size="xs" c="dimmed" fs="italic">—</Text>
-          : filteredPickers.map(p => <PickerPill key={p.participantId} picker={p} />)
-        }
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '10px 12px',
+      borderRadius: 10,
+      background: 'linear-gradient(90deg, rgba(30,41,59,0.6), rgba(15,23,42,0.3))',
+      borderLeft: `4px solid ${teamColor}`,
+      marginBottom: 8,
+    }}>
+      <img
+        src={`https://assets.nhle.com/logos/nhl/svg/${player.teamAbbrev}_light.svg`}
+        alt={player.teamAbbrev}
+        style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 }}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontSize: 18, fontWeight: 800, color: '#f8fafc',
+          lineHeight: 1.1, marginBottom: 4,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        }}>
+          {player.playerName}
+        </div>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 4,
+        }}>
+          {filteredPickers.length === 0
+            ? <span style={{ fontSize: 13, color: '#475569', fontStyle: 'italic' }}>—</span>
+            : filteredPickers.map(p => <PickerPill key={p.participantId} picker={p} size="md" />)
+          }
+        </div>
       </div>
+      {player.points != null && (
+        <div style={{
+          fontSize: 28, fontWeight: 900, color: '#fff',
+          padding: '6px 14px', borderRadius: 10,
+          background: teamColor,
+          boxShadow: `0 0 20px ${teamColor}88`,
+          minWidth: 56, textAlign: 'center',
+          lineHeight: 1,
+        }}>
+          {player.points}
+        </div>
+      )}
     </div>
   );
 }
 
 // ── section heading ───────────────────────────────────────────────────────────
-function SectionLabel({ children }) {
+function SectionLabel({ icon, label, accent }) {
   return (
-    <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb={6} style={{ letterSpacing: 1 }}>
-      {children}
-    </Text>
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      padding: '8px 14px',
+      marginBottom: 10,
+      background: `linear-gradient(90deg, ${accent}, ${accent}00)`,
+      borderLeft: `4px solid ${accent}`,
+      borderRadius: 4,
+    }}>
+      <span style={{ fontSize: 24 }}>{icon}</span>
+      <span style={{
+        fontSize: 22, fontWeight: 900, color: '#fff',
+        textTransform: 'uppercase', letterSpacing: 2,
+        textShadow: `0 0 12px ${accent}`,
+      }}>
+        {label}
+      </span>
+    </div>
   );
 }
 
@@ -184,7 +295,6 @@ function LivePage() {
     return () => clearInterval(iv);
   }, [fetchData]);
 
-  // default to all selected on first load
   const selectedSet = useMemo(() => {
     if (!data) return new Set();
     if (storedIds === null) return new Set(data.participants.map(p => p.participantId));
@@ -220,89 +330,136 @@ function LivePage() {
     (pickers || []).filter(p => selectedSet.has(p.participantId));
 
   const selectedCount = selectedSet.size;
+  const totalCount = data?.participants?.length || 0;
 
   return (
     <>
       <style>{`
-        @keyframes pulse-dot {
+        @keyframes pulse-dot-live {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.7); }
+          50% { opacity: 0.4; transform: scale(0.6); }
         }
         .live-dot {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: #ef4444;
-          animation: pulse-dot 1.2s ease-in-out infinite;
+          width: 12px; height: 12px; border-radius: 50%;
+          background: #fff;
+          box-shadow: 0 0 12px #fff;
+          animation: pulse-dot-live 1.2s ease-in-out infinite;
           display: inline-block;
         }
-        .live-page { display: flex; flex-direction: column; height: 100vh; padding: 12px 16px; box-sizing: border-box; }
-        .live-main { display: flex; gap: 14px; flex: 1; min-height: 0; margin-top: 10px; }
-        .live-games { flex: 1.1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-        .live-sidebar { width: 340px; min-width: 280px; display: flex; flex-direction: column; gap: 10px; }
-        .side-card {
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 14px;
-          padding: 12px 14px;
-          backdropFilter: blur(8px);
+        .tv-shell {
+          display: flex; flex-direction: column;
+          height: 100vh;
+          padding: 20px 28px;
+          box-sizing: border-box;
+          gap: 16px;
+        }
+        .tv-header {
+          display: flex; justify-content: space-between; align-items: center;
+          padding-bottom: 12px;
+          border-bottom: 2px solid rgba(148,163,184,0.15);
+        }
+        .tv-title {
+          font-size: 42px;
+          font-weight: 900;
+          color: #fff;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          text-shadow: 0 0 24px rgba(239,68,68,0.5), 0 4px 12px rgba(0,0,0,0.6);
+          line-height: 1;
+          display: flex; align-items: center; gap: 14px;
+        }
+        .tv-subtitle {
+          font-size: 14px; color: #64748b; font-weight: 600; letter-spacing: 1px;
+          text-transform: uppercase;
+        }
+        .tv-main {
+          display: grid;
+          grid-template-columns: 1fr 420px;
+          gap: 20px;
           flex: 1;
-          overflow: hidden;
+          min-height: 0;
+        }
+        .tv-games {
+          display: flex; flex-direction: column;
+          gap: 16px; min-height: 0; min-width: 0;
+        }
+        .tv-sidebar {
+          display: flex; flex-direction: column;
+          gap: 16px;
+          min-height: 0;
+        }
+        .tv-card {
+          background: linear-gradient(135deg, rgba(15,23,42,0.92), rgba(2,6,23,0.92));
+          border: 1px solid rgba(148,163,184,0.2);
+          border-radius: 20px;
+          padding: 18px 18px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+          flex: 1;
           display: flex;
           flex-direction: column;
+          min-height: 0;
+          overflow: hidden;
         }
-        .side-scroll { flex: 1; overflow-y: auto; }
-        .side-scroll::-webkit-scrollbar { width: 4px; }
-        .side-scroll::-webkit-scrollbar-track { background: transparent; }
-        .side-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        .tv-scroll { flex: 1; overflow-y: auto; padding-right: 6px; }
+        .tv-scroll::-webkit-scrollbar { width: 6px; }
+        .tv-scroll::-webkit-scrollbar-track { background: transparent; }
+        .tv-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.3); border-radius: 4px; }
+        .tv-btn-big {
+          font-size: 18px !important;
+          font-weight: 800 !important;
+          padding: 12px 24px !important;
+          height: auto !important;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+        }
       `}</style>
 
-      <div className="live-page">
+      <div className="tv-shell">
         {/* header */}
-        <Group justify="space-between" align="center">
-          <Group gap={10} align="center">
-            <Title order={3} style={{ color: '#f8fafc', fontWeight: 800, letterSpacing: 0.5 }}>
-              🏒 Live Now
-            </Title>
+        <div className="tv-header">
+          <div className="tv-title">
+            <span style={{ fontSize: 44 }}>🏒</span>
+            <span>Live Scoreboard</span>
+          </div>
+          <Group gap={16}>
             {lastRefresh && (
-              <Text size="xs" c="dimmed">
+              <div className="tv-subtitle">
                 updated {lastRefresh.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' })}
-              </Text>
+              </div>
             )}
-          </Group>
-          <Group gap={8}>
             <Tooltip label="Refresh">
-              <ActionIcon variant="subtle" color="gray" onClick={fetchData} size="sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <ActionIcon variant="light" color="gray" onClick={fetchData} size="xl" radius="xl">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                 </svg>
               </ActionIcon>
             </Tooltip>
             <Button
-              size="xs"
-              variant="light"
+              className="tv-btn-big"
+              variant="filled"
               color="blue"
+              radius="xl"
               onClick={() => setDrawerOpen(true)}
-              style={{ fontWeight: 700 }}
             >
-              Who's Here? {selectedCount > 0 && `(${selectedCount})`}
+              Who's Here? {selectedCount}/{totalCount}
             </Button>
           </Group>
-        </Group>
+        </div>
 
-        {/* main content */}
-        <div className="live-main">
-          {/* games column */}
-          <div className="live-games">
+        {/* main */}
+        <div className="tv-main">
+          {/* games */}
+          <div className="tv-games">
             {!data ? (
-              <div style={{ color: '#94a3b8', fontSize: 14, marginTop: 20 }}>Loading games…</div>
+              <div style={{ color: '#94a3b8', fontSize: 24, marginTop: 40, textAlign: 'center' }}>Loading games…</div>
             ) : data.games.length === 0 ? (
               <div style={{
-                flex: 1,
-                display: 'flex', flexDirection: 'column',
+                flex: 1, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center',
-                color: '#64748b', fontSize: 14, gap: 8,
+                color: '#64748b', gap: 16,
               }}>
-                <span style={{ fontSize: 40 }}>🏒</span>
-                <span>No games scheduled today.</span>
+                <span style={{ fontSize: 80 }}>🏒</span>
+                <span style={{ fontSize: 28, fontWeight: 700 }}>No games scheduled today</span>
               </div>
             ) : (
               data.games.map(game => (
@@ -316,11 +473,11 @@ function LivePage() {
           </div>
 
           {/* sidebar */}
-          <div className="live-sidebar">
+          <div className="tv-sidebar">
             {/* hot hand */}
-            <div className="side-card">
-              <SectionLabel>🔥 Hot Hand</SectionLabel>
-              <div className="side-scroll">
+            <div className="tv-card">
+              <SectionLabel icon="🔥" label="Hot Hand" accent="#f97316" />
+              <div className="tv-scroll">
                 {(data?.hotHand || []).map(player => (
                   <PlayerRow
                     key={player.optionId}
@@ -332,9 +489,9 @@ function LivePage() {
             </div>
 
             {/* blockade */}
-            <div className="side-card" style={{ flex: 'none' }}>
-              <SectionLabel>🧱 Blockade</SectionLabel>
-              <div>
+            <div className="tv-card" style={{ flex: 'none', maxHeight: '38%' }}>
+              <SectionLabel icon="🧱" label="Blockade" accent="#3b82f6" />
+              <div className="tv-scroll">
                 {(data?.blockade || []).map(player => (
                   <PlayerRow
                     key={player.optionId}
@@ -354,24 +511,24 @@ function LivePage() {
         onClose={() => setDrawerOpen(false)}
         title={
           <Group justify="space-between" style={{ width: '100%' }}>
-            <Text fw={700}>Who's Here?</Text>
+            <Text size="lg" fw={800} c="#f8fafc">Who's Here?</Text>
             <Group gap={6}>
-              <Button size="xs" variant="subtle" onClick={selectAll}>All</Button>
-              <Button size="xs" variant="subtle" color="red" onClick={selectNone}>None</Button>
+              <Button size="sm" variant="light" color="blue" onClick={selectAll}>All</Button>
+              <Button size="sm" variant="light" color="red" onClick={selectNone}>None</Button>
             </Group>
           </Group>
         }
         position="right"
-        size={280}
-        overlayProps={{ opacity: 0.3 }}
+        size={360}
+        overlayProps={{ opacity: 0.5 }}
         styles={{
-          header: { background: '#0f172a', borderBottom: '1px solid rgba(255,255,255,0.08)' },
-          body: { background: '#0f172a', padding: '8px 16px' },
+          header: { background: '#0f172a', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBlock: 14 },
+          body: { background: '#0f172a', padding: '12px 18px' },
           title: { width: '100%' },
           close: { color: '#94a3b8' },
         }}
       >
-        <Stack gap={4}>
+        <Stack gap={6}>
           {(data?.participants || []).map(p => (
             <Checkbox
               key={p.participantId}
@@ -379,12 +536,12 @@ function LivePage() {
               onChange={() => toggleParticipant(p.participantId)}
               label={
                 <div>
-                  <Text size="sm" fw={600} style={{ color: '#f1f5f9', lineHeight: 1.2 }}>{p.teamName}</Text>
-                  <Text size="xs" c="dimmed">{p.name}</Text>
+                  <Text size="md" fw={700} style={{ color: '#f1f5f9', lineHeight: 1.2 }}>{p.teamName}</Text>
+                  <Text size="sm" c="dimmed">{p.name}</Text>
                 </div>
               }
               styles={{
-                root: { padding: '4px 0', cursor: 'pointer' },
+                root: { padding: '6px 0', cursor: 'pointer' },
                 input: { cursor: 'pointer' },
               }}
             />
