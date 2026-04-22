@@ -89,6 +89,7 @@ public class LeaderboardService {
         }
 
         dto.setEntries(entries);
+        dto.setLastUpdatedAt(participantScoreRepository.findMaxUpdatedAtForSeason(seasonId));
         return dto;
     }
 }

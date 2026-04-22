@@ -89,6 +89,13 @@ function LeaderboardPage() {
       <Stack gap={4} align="center" mb="xl">
         <Title order={1} className="hero-title" ta="center" fz={{ base: 32, sm: 44 }}>Playoff Pool Standings</Title>
         <Text className="hero-subtitle" ta="center" size="md">Live leaderboard — updated every round</Text>
+        {data?.lastUpdatedAt && (
+          <Text className="hero-subtitle" ta="center" size="sm" c="dimmed">
+            Stats last updated {new Date(data.lastUpdatedAt).toLocaleString('en-US', {
+              month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+            })}
+          </Text>
+        )}
       </Stack>
 
       <Paper shadow="lg" radius="lg" p="md" bg="white">

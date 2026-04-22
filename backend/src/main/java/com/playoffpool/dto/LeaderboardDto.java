@@ -7,6 +7,7 @@ public class LeaderboardDto {
 
     private List<RoundInfo> rounds;
     private List<LeaderboardEntry> entries;
+    private java.time.Instant lastUpdatedAt;
 
     public LeaderboardDto() {}
 
@@ -15,6 +16,9 @@ public class LeaderboardDto {
 
     public List<LeaderboardEntry> getEntries() { return entries; }
     public void setEntries(List<LeaderboardEntry> entries) { this.entries = entries; }
+
+    public java.time.Instant getLastUpdatedAt() { return lastUpdatedAt; }
+    public void setLastUpdatedAt(java.time.Instant lastUpdatedAt) { this.lastUpdatedAt = lastUpdatedAt; }
 
     public static class RoundInfo {
         private Integer id;
