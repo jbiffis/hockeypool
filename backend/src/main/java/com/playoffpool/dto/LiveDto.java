@@ -70,6 +70,8 @@ public class LiveDto {
         private boolean inIntermission;
         private List<PickerInfo> awayPicks;
         private List<PickerInfo> homePicks;
+        private String seriesStatus;
+        private Integer gameNumberOfSeries;
 
         public String getGameId() { return gameId; }
         public void setGameId(String gameId) { this.gameId = gameId; }
@@ -91,6 +93,10 @@ public class LiveDto {
         public void setAwayPicks(List<PickerInfo> awayPicks) { this.awayPicks = awayPicks; }
         public List<PickerInfo> getHomePicks() { return homePicks; }
         public void setHomePicks(List<PickerInfo> homePicks) { this.homePicks = homePicks; }
+        public String getSeriesStatus() { return seriesStatus; }
+        public void setSeriesStatus(String seriesStatus) { this.seriesStatus = seriesStatus; }
+        public Integer getGameNumberOfSeries() { return gameNumberOfSeries; }
+        public void setGameNumberOfSeries(Integer gameNumberOfSeries) { this.gameNumberOfSeries = gameNumberOfSeries; }
     }
 
     public static class PlayerPicksInfo {

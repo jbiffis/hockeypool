@@ -297,6 +297,28 @@ public class PublicController {
 
                     gi.setAwayPicks(teamPicksMap.getOrDefault(awayName, Collections.emptyList()));
                     gi.setHomePicks(teamPicksMap.getOrDefault(homeName, Collections.emptyList()));
+
+                    JsonNode ss = game.path("seriesStatus");
+                    if (ss != null && !ss.isMissingNode() && !ss.isNull()) {
+                        String topAbbrev = ss.path("topSeedTeamAbbrev").asText("");
+                        int topWins = ss.path("topSeedWins").asInt(0);
+                        String botAbbrev = ss.path("bottomSeedTeamAbbrev").asText("");
+                        int botWins = ss.path("bottomSeedWins").asInt(0);
+                        int gameNum = ss.path("gameNumberOfSeries").asInt(0);
+                        String status;
+                        if (topWins == 0 && botWins == 0) {
+                            status = "Game 1";
+                        } else if (topWins == botWins) {
+                            status = "Series tied " + topWins + "-" + botWins;
+                        } else if (topWins > botWins) {
+                            status = topAbbrev + " leads " + topWins + "-" + botWins;
+                        } else {
+                            status = botAbbrev + " leads " + botWins + "-" + topWins;
+                        }
+                        gi.setSeriesStatus(status);
+                        if (gameNum > 0) gi.setGameNumberOfSeries(gameNum);
+                    }
+
                     games.add(gi);
                 }
             }
@@ -309,9 +331,61 @@ public class PublicController {
                 .sorted(Comparator.comparing(LiveDto.PickerInfo::getTeamName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .collect(Collectors.toList()));
         dto.setGames(games);
-        dto.setHotHand(buildLivePlayerPicks(74));
-        dto.setBlockade(buildLivePlayerPicks(75));
+        List<LiveDto.PlayerPicksInfo> hotHand = buildLivePlayerPicks(74);
+        List<LiveDto.PlayerPicksInfo> blockade = buildLivePlayerPicks(75);
+
+        // Override points with current-game stats for players in live games
+        Map<String, Integer> liveSkaterPts = new java.util.HashMap<>();
+        Map<String, Integer> liveGoalieSaves = new java.util.HashMap<>();
+        for (LiveDto.GameInfo gi : games) {
+            if (!"LIVE".equals(gi.getGameState()) && !"CRIT".equals(gi.getGameState())) continue;
+            try {
+                JsonNode box = nhlApiClient.getBoxscore(gi.getGameId());
+                JsonNode stats = box.path("playerByGameStats");
+                collectSkaterPts(liveSkaterPts, stats.path("awayTeam"), gi.getAwayTeam().getAbbrev());
+                collectSkaterPts(liveSkaterPts, stats.path("homeTeam"), gi.getHomeTeam().getAbbrev());
+                collectGoalieSaves(liveGoalieSaves, stats.path("awayTeam"), gi.getAwayTeam().getAbbrev());
+                collectGoalieSaves(liveGoalieSaves, stats.path("homeTeam"), gi.getHomeTeam().getAbbrev());
+            } catch (Exception ignored) {}
+        }
+        for (LiveDto.PlayerPicksInfo info : hotHand) {
+            Integer pts = liveSkaterPts.get(info.getTeamAbbrev() + "|" + lastNameKey(info.getPlayerName()));
+            if (pts != null) info.setPoints(pts);
+        }
+        for (LiveDto.PlayerPicksInfo info : blockade) {
+            Integer saves = liveGoalieSaves.get(info.getTeamAbbrev() + "|" + lastNameKey(info.getPlayerName()));
+            if (saves != null) info.setPoints(saves);
+        }
+        dto.setHotHand(hotHand);
+        dto.setBlockade(blockade);
         return dto;
+    }
+
+    private static String lastNameKey(String fullName) {
+        if (fullName == null) return "";
+        String s = fullName.trim();
+        int sp = s.lastIndexOf(' ');
+        return (sp < 0 ? s : s.substring(sp + 1)).toLowerCase();
+    }
+
+    private static void collectSkaterPts(Map<String, Integer> map, JsonNode teamNode, String teamAbbrev) {
+        for (String section : List.of("forwards", "defense")) {
+            for (JsonNode p : teamNode.path(section)) {
+                String name = p.path("name").path("default").asText("").trim();
+                int sp = name.lastIndexOf(' ');
+                String last = (sp < 0 ? name : name.substring(sp + 1)).toLowerCase();
+                map.put(teamAbbrev + "|" + last, p.path("points").asInt(0));
+            }
+        }
+    }
+
+    private static void collectGoalieSaves(Map<String, Integer> map, JsonNode teamNode, String teamAbbrev) {
+        for (JsonNode p : teamNode.path("goalies")) {
+            String name = p.path("name").path("default").asText("").trim();
+            int sp = name.lastIndexOf(' ');
+            String last = (sp < 0 ? name : name.substring(sp + 1)).toLowerCase();
+            map.put(teamAbbrev + "|" + last, p.path("saves").asInt(0));
+        }
     }
 
     private List<LiveDto.PlayerPicksInfo> buildLivePlayerPicks(Integer questionId) {

@@ -27,23 +27,24 @@ function pickerColor(id) {
 function PickerPill({ picker, size = 'md' }) {
   const color = pickerColor(picker.participantId);
   const sizes = {
-    md: { fs: 15, pad: '4px 12px', radius: 8 },
-    lg: { fs: 18, pad: '6px 14px', radius: 10 },
+    md: { fs: 24, pad: '10px 22px' },
+    lg: { fs: 28, pad: '12px 26px' },
   };
   const s = sizes[size];
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center',
       padding: s.pad,
-      borderRadius: s.radius,
+      borderRadius: 999,
       fontSize: s.fs,
       fontWeight: 700,
       lineHeight: 1.2,
-      background: color + '22',
-      color,
-      border: `2px solid ${color}88`,
+      background: 'rgba(2,6,23,0.5)',
+      color: '#fff',
+      border: `2px solid ${color}`,
+      boxShadow: `0 0 10px ${color}66`,
       whiteSpace: 'nowrap',
-      textShadow: `0 0 8px ${color}55`,
+      textShadow: '0 1px 3px rgba(0,0,0,0.9)',
     }}>
       {picker.teamName}
     </span>
@@ -79,12 +80,10 @@ function GameCard({ game, filteredPicks }) {
   const awayColor = TEAM_COLORS[game.awayTeam.abbrev] || '#64748b';
   const homeColor = TEAM_COLORS[game.homeTeam.abbrev] || '#64748b';
 
-  const TeamSide = ({ team, picks, color, align }) => (
-    <div style={{
-      flex: 1, display: 'flex', flexDirection: 'column',
-      alignItems: align, minWidth: 0, gap: 10,
-    }}>
-      <div style={{ position: 'relative', width: 110, height: 110 }}>
+  const TeamSide = ({ team, picks, color, side }) => {
+    const isHome = side === 'home';
+    const logo = (
+      <div style={{ position: 'relative', width: 140, height: 140, flexShrink: 0 }}>
         <div style={{
           position: 'absolute', inset: -10, borderRadius: '50%',
           background: `radial-gradient(circle, ${color}55 0%, transparent 65%)`,
@@ -94,32 +93,48 @@ function GameCard({ game, filteredPicks }) {
           src={team.logo}
           alt={team.abbrev}
           style={{
-            position: 'relative', width: 110, height: 110, objectFit: 'contain',
+            position: 'relative', width: 140, height: 140, objectFit: 'contain',
             filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.6))',
           }}
         />
       </div>
+    );
+    const nameAndPicks = (
       <div style={{
-        fontSize: 24, fontWeight: 900, color: '#fff',
-        textTransform: 'uppercase', letterSpacing: 0.5,
-        textShadow: `0 0 12px ${color}aa`,
-        textAlign: align === 'flex-end' ? 'right' : 'left',
-        lineHeight: 1,
+        flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column',
+        alignItems: isHome ? 'flex-end' : 'flex-start', gap: 8,
       }}>
-        {team.name}
+        <div style={{
+          fontSize: 36, fontWeight: 900,
+          color: '#fde047',
+          textTransform: 'uppercase', letterSpacing: 0.5,
+          textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,1)',
+          textAlign: isHome ? 'right' : 'left',
+          lineHeight: 1.05,
+        }}>
+          {team.name}
+        </div>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap',
+          gap: 6, justifyContent: isHome ? 'flex-end' : 'flex-start',
+          minHeight: 30,
+        }}>
+          {picks.length === 0
+            ? <span style={{ color: '#475569', fontStyle: 'italic', fontSize: 15 }}>no picks</span>
+            : picks.map(p => <PickerPill key={p.participantId} picker={p} size="md" />)
+          }
+        </div>
       </div>
+    );
+    return (
       <div style={{
-        display: 'flex', flexWrap: 'wrap',
-        gap: 6, justifyContent: align === 'flex-end' ? 'flex-end' : 'flex-start',
-        minHeight: 34,
+        flex: 1, display: 'flex', flexDirection: 'row',
+        alignItems: 'center', minWidth: 0, gap: 14,
       }}>
-        {picks.length === 0
-          ? <span style={{ color: '#475569', fontStyle: 'italic', fontSize: 16 }}>no picks</span>
-          : picks.map(p => <PickerPill key={p.participantId} picker={p} size="md" />)
-        }
+        {isHome ? <>{nameAndPicks}{logo}</> : <>{logo}{nameAndPicks}</>}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={{
@@ -144,19 +159,44 @@ function GameCard({ game, filteredPicks }) {
       {/* status bar */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 16, gap: 12,
       }}>
-        {isLive
-          ? <LiveBadge />
-          : isFinal
-            ? <span style={{ fontSize: 16, fontWeight: 800, color: '#94a3b8', letterSpacing: 2 }}>FINAL</span>
-            : <span style={{ fontSize: 18, fontWeight: 800, color: '#cbd5e1', letterSpacing: 1 }}>{startET} ET</span>
-        }
-        {isLive && (
-          <span style={{ fontSize: 18, fontWeight: 800, color: '#fbbf24', letterSpacing: 1 }}>
-            {game.inIntermission ? `INT · ${game.period}` : `${game.period} · ${game.clock}`}
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isLive
+            ? <LiveBadge />
+            : isFinal
+              ? <span style={{ fontSize: 16, fontWeight: 800, color: '#94a3b8', letterSpacing: 2 }}>FINAL</span>
+              : <span style={{ fontSize: 18, fontWeight: 800, color: '#cbd5e1', letterSpacing: 1 }}>{startET} ET</span>
+          }
+          {game.gameNumberOfSeries && (
+            <span style={{
+              fontSize: 14, fontWeight: 800, color: '#94a3b8',
+              padding: '4px 10px', borderRadius: 6,
+              background: 'rgba(148,163,184,0.15)',
+              letterSpacing: 1,
+            }}>
+              GAME {game.gameNumberOfSeries}
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {game.seriesStatus && (
+            <span style={{
+              fontSize: 16, fontWeight: 800, color: '#e2e8f0',
+              textTransform: 'uppercase', letterSpacing: 1,
+              padding: '4px 10px', borderRadius: 6,
+              background: 'rgba(100,116,139,0.25)',
+              border: '1px solid rgba(148,163,184,0.35)',
+            }}>
+              {game.seriesStatus}
+            </span>
+          )}
+          {isLive && (
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#fbbf24', letterSpacing: 1 }}>
+              {game.inIntermission ? `INT · ${game.period}` : `${game.period} · ${game.clock}`}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* matchup row */}
@@ -164,7 +204,7 @@ function GameCard({ game, filteredPicks }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: 20, flex: 1,
       }}>
-        <TeamSide team={game.awayTeam} picks={filteredPicks.away} color={awayColor} align="flex-start" />
+        <TeamSide team={game.awayTeam} picks={filteredPicks.away} color={awayColor} side="away" />
 
         {/* scores */}
         <div style={{
@@ -172,7 +212,7 @@ function GameCard({ game, filteredPicks }) {
           padding: '0 8px',
         }}>
           <div style={{
-            fontSize: 86, fontWeight: 900, lineHeight: 1,
+            fontSize: 120, fontWeight: 900, lineHeight: 1,
             color: '#fff',
             textShadow: `0 0 24px ${awayColor}aa, 0 4px 12px rgba(0,0,0,0.6)`,
             minWidth: 70, textAlign: 'center',
@@ -186,7 +226,7 @@ function GameCard({ game, filteredPicks }) {
             ·
           </div>
           <div style={{
-            fontSize: 86, fontWeight: 900, lineHeight: 1,
+            fontSize: 120, fontWeight: 900, lineHeight: 1,
             color: '#fff',
             textShadow: `0 0 24px ${homeColor}aa, 0 4px 12px rgba(0,0,0,0.6)`,
             minWidth: 70, textAlign: 'center',
@@ -196,7 +236,7 @@ function GameCard({ game, filteredPicks }) {
           </div>
         </div>
 
-        <TeamSide team={game.homeTeam} picks={filteredPicks.home} color={homeColor} align="flex-end" />
+        <TeamSide team={game.homeTeam} picks={filteredPicks.home} color={homeColor} side="home" />
       </div>
     </div>
   );
@@ -217,32 +257,32 @@ function PlayerRow({ player, filteredPickers }) {
       <img
         src={`https://assets.nhle.com/logos/nhl/svg/${player.teamAbbrev}_light.svg`}
         alt={player.teamAbbrev}
-        style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 }}
+        style={{ width: 60, height: 60, objectFit: 'contain', flexShrink: 0 }}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 18, fontWeight: 800, color: '#f8fafc',
-          lineHeight: 1.1, marginBottom: 4,
+          fontSize: 26, fontWeight: 800, color: '#f8fafc',
+          lineHeight: 1.1, marginBottom: 6,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           {player.playerName}
         </div>
         <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: 4,
+          display: 'flex', flexWrap: 'wrap', gap: 6,
         }}>
           {filteredPickers.length === 0
-            ? <span style={{ fontSize: 13, color: '#475569', fontStyle: 'italic' }}>—</span>
+            ? <span style={{ fontSize: 16, color: '#475569', fontStyle: 'italic' }}>—</span>
             : filteredPickers.map(p => <PickerPill key={p.participantId} picker={p} size="md" />)
           }
         </div>
       </div>
       {player.points != null && (
         <div style={{
-          fontSize: 28, fontWeight: 900, color: '#fff',
-          padding: '6px 14px', borderRadius: 10,
+          fontSize: 40, fontWeight: 900, color: '#fff',
+          padding: '8px 18px', borderRadius: 12,
           background: teamColor,
-          boxShadow: `0 0 20px ${teamColor}88`,
-          minWidth: 56, textAlign: 'center',
+          boxShadow: `0 0 24px ${teamColor}aa`,
+          minWidth: 72, textAlign: 'center',
           lineHeight: 1,
         }}>
           {player.points}
@@ -263,9 +303,9 @@ function SectionLabel({ icon, label, accent }) {
       borderLeft: `4px solid ${accent}`,
       borderRadius: 4,
     }}>
-      <span style={{ fontSize: 24 }}>{icon}</span>
+      <span style={{ fontSize: 32 }}>{icon}</span>
       <span style={{
-        fontSize: 22, fontWeight: 900, color: '#fff',
+        fontSize: 30, fontWeight: 900, color: '#fff',
         textTransform: 'uppercase', letterSpacing: 2,
         textShadow: `0 0 12px ${accent}`,
       }}>
@@ -296,22 +336,12 @@ function LivePage() {
   }, [fetchData]);
 
   const selectedSet = useMemo(() => {
-    if (!data) return new Set();
-    if (storedIds === null) return new Set(data.participants.map(p => p.participantId));
+    if (storedIds === null) return new Set();
     return new Set(storedIds);
-  }, [data, storedIds]);
-
-  const initIfNull = () => {
-    if (storedIds === null && data) {
-      setStoredIds(data.participants.map(p => p.participantId));
-    }
-  };
+  }, [storedIds]);
 
   const toggleParticipant = (id) => {
-    initIfNull();
-    const current = storedIds !== null
-      ? new Set(storedIds)
-      : new Set(data.participants.map(p => p.participantId));
+    const current = new Set(storedIds || []);
     if (current.has(id)) current.delete(id); else current.add(id);
     setStoredIds([...current]);
   };
@@ -331,6 +361,24 @@ function LivePage() {
 
   const selectedCount = selectedSet.size;
   const totalCount = data?.participants?.length || 0;
+
+  const liveGames = (data?.games || []).filter(
+    g => g.gameState === 'LIVE' || g.gameState === 'CRIT'
+  );
+
+  // abbrev aliases between NHL canonical and pool option text
+  const ABBREV_ALIASES = { TBL: 'TB', TB: 'TBL', UTA: 'UTH', UTH: 'UTA', ANA: 'ANH', ANH: 'ANA' };
+  const liveTeams = new Set();
+  liveGames.forEach(g => {
+    [g.awayTeam.abbrev, g.homeTeam.abbrev].forEach(a => {
+      if (!a) return;
+      liveTeams.add(a);
+      if (ABBREV_ALIASES[a]) liveTeams.add(ABBREV_ALIASES[a]);
+    });
+  });
+  const isPlaying = (player) => liveTeams.has(player.teamAbbrev);
+  const liveHotHand = (data?.hotHand || []).filter(isPlaying);
+  const liveBlockade = (data?.blockade || []).filter(isPlaying);
 
   return (
     <>
@@ -374,7 +422,7 @@ function LivePage() {
         }
         .tv-main {
           display: grid;
-          grid-template-columns: 1fr 420px;
+          grid-template-columns: 1fr 1fr;
           gap: 20px;
           flex: 1;
           min-height: 0;
@@ -452,17 +500,17 @@ function LivePage() {
           <div className="tv-games">
             {!data ? (
               <div style={{ color: '#94a3b8', fontSize: 24, marginTop: 40, textAlign: 'center' }}>Loading games…</div>
-            ) : data.games.length === 0 ? (
+            ) : liveGames.length === 0 ? (
               <div style={{
                 flex: 1, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center',
                 color: '#64748b', gap: 16,
               }}>
                 <span style={{ fontSize: 80 }}>🏒</span>
-                <span style={{ fontSize: 28, fontWeight: 700 }}>No games scheduled today</span>
+                <span style={{ fontSize: 28, fontWeight: 700 }}>No live games right now</span>
               </div>
             ) : (
-              data.games.map(game => (
+              liveGames.map(game => (
                 <GameCard
                   key={game.gameId}
                   game={game}
@@ -478,13 +526,16 @@ function LivePage() {
             <div className="tv-card">
               <SectionLabel icon="🔥" label="Hot Hand" accent="#f97316" />
               <div className="tv-scroll">
-                {(data?.hotHand || []).map(player => (
-                  <PlayerRow
-                    key={player.optionId}
-                    player={player}
-                    filteredPickers={filterPickers(player.pickers)}
-                  />
-                ))}
+                {liveHotHand.length === 0
+                  ? <div style={{ color: '#475569', fontSize: 18, fontStyle: 'italic', padding: '8px 4px' }}>No Hot Hand players in live games</div>
+                  : liveHotHand.map(player => (
+                    <PlayerRow
+                      key={player.optionId}
+                      player={player}
+                      filteredPickers={filterPickers(player.pickers)}
+                    />
+                  ))
+                }
               </div>
             </div>
 
@@ -492,13 +543,16 @@ function LivePage() {
             <div className="tv-card" style={{ flex: 'none', maxHeight: '38%' }}>
               <SectionLabel icon="🧱" label="Blockade" accent="#3b82f6" />
               <div className="tv-scroll">
-                {(data?.blockade || []).map(player => (
-                  <PlayerRow
-                    key={player.optionId}
-                    player={player}
-                    filteredPickers={filterPickers(player.pickers)}
-                  />
-                ))}
+                {liveBlockade.length === 0
+                  ? <div style={{ color: '#475569', fontSize: 18, fontStyle: 'italic', padding: '8px 4px' }}>No Blockade goalies in live games</div>
+                  : liveBlockade.map(player => (
+                    <PlayerRow
+                      key={player.optionId}
+                      player={player}
+                      filteredPickers={filterPickers(player.pickers)}
+                    />
+                  ))
+                }
               </div>
             </div>
           </div>
