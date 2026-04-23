@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { MantineProvider, createTheme } from '@mantine/core'
 import { AuthProvider } from './context/AuthContext'
 import '@mantine/core/styles.css'
+import './index.css'
 import App from './App.jsx'
 
 const theme = createTheme({
