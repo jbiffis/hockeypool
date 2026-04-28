@@ -334,9 +334,9 @@ public class PublicController {
         List<LiveDto.PlayerPicksInfo> hotHand = buildLivePlayerPicks(74);
         List<LiveDto.PlayerPicksInfo> blockade = buildLivePlayerPicks(75);
 
-        // Override points with current-game stats for players in live games
+        // Override hot-hand points with current-game G+A (skater points scoring matches the question formula).
+        // Blockade is GP + 2*W, which only resolves at game end, so we leave its points as the cumulative tournament total.
         Map<String, Integer> liveSkaterPts = new java.util.HashMap<>();
-        Map<String, Integer> liveGoalieSaves = new java.util.HashMap<>();
         for (LiveDto.GameInfo gi : games) {
             if (!"LIVE".equals(gi.getGameState()) && !"CRIT".equals(gi.getGameState())) continue;
             try {
@@ -344,17 +344,11 @@ public class PublicController {
                 JsonNode stats = box.path("playerByGameStats");
                 collectSkaterPts(liveSkaterPts, stats.path("awayTeam"), gi.getAwayTeam().getAbbrev());
                 collectSkaterPts(liveSkaterPts, stats.path("homeTeam"), gi.getHomeTeam().getAbbrev());
-                collectGoalieSaves(liveGoalieSaves, stats.path("awayTeam"), gi.getAwayTeam().getAbbrev());
-                collectGoalieSaves(liveGoalieSaves, stats.path("homeTeam"), gi.getHomeTeam().getAbbrev());
             } catch (Exception ignored) {}
         }
         for (LiveDto.PlayerPicksInfo info : hotHand) {
             Integer pts = liveSkaterPts.get(info.getTeamAbbrev() + "|" + lastNameKey(info.getPlayerName()));
             if (pts != null) info.setPoints(pts);
-        }
-        for (LiveDto.PlayerPicksInfo info : blockade) {
-            Integer saves = liveGoalieSaves.get(info.getTeamAbbrev() + "|" + lastNameKey(info.getPlayerName()));
-            if (saves != null) info.setPoints(saves);
         }
         dto.setHotHand(hotHand);
         dto.setBlockade(blockade);
@@ -376,15 +370,6 @@ public class PublicController {
                 String last = (sp < 0 ? name : name.substring(sp + 1)).toLowerCase();
                 map.put(teamAbbrev + "|" + last, p.path("points").asInt(0));
             }
-        }
-    }
-
-    private static void collectGoalieSaves(Map<String, Integer> map, JsonNode teamNode, String teamAbbrev) {
-        for (JsonNode p : teamNode.path("goalies")) {
-            String name = p.path("name").path("default").asText("").trim();
-            int sp = name.lastIndexOf(' ');
-            String last = (sp < 0 ? name : name.substring(sp + 1)).toLowerCase();
-            map.put(teamAbbrev + "|" + last, p.path("saves").asInt(0));
         }
     }
 
