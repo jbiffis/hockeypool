@@ -23,7 +23,8 @@ public class AdminUploadController {
     private String uploadDir;
 
     private static final Set<String> ALLOWED_TYPES = Set.of(
-        "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"
+        "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+        "video/mp4", "video/webm", "video/quicktime"
     );
 
     @GetMapping("/uploads")
@@ -55,7 +56,7 @@ public class AdminUploadController {
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Only image files are allowed"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Only image and video files are allowed"));
         }
 
         String originalFilename = file.getOriginalFilename();

@@ -6,6 +6,7 @@ import FreeFormInput from './FreeFormInput';
 import JeopardyInput from './JeopardyInput';
 import NumberOfGamesInput from './NumberOfGamesInput';
 import BoxInput from './BoxInput';
+import { markdownComponents, isVideoUrl } from '../markdownComponents';
 
 function QuestionCard({ question, answer = {}, error, onChange, childQuestions = [], answers = {}, errors = {}, onChildChange }) {
   const { id, title, description, imageUrl, questionType, isMandatory, maxWager, maxSelections, options = [] } = question;
@@ -86,8 +87,10 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
         {title}
         {isMandatory && !isTextBox && <Text span c="red" ml={4}>*</Text>}
       </Text>
-      {description && <div style={{ fontSize: 14, color: 'var(--mantine-color-dark-3)', marginBottom: 8 }}><ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown></div>}
-      {imageUrl && <Image src={imageUrl} alt={title} radius="sm" maw={400} mb="sm" />}
+      {description && <div style={{ fontSize: 14, color: 'var(--mantine-color-dark-3)', marginBottom: 8 }}><ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{description}</ReactMarkdown></div>}
+      {imageUrl && (isVideoUrl(imageUrl)
+        ? <video src={imageUrl} controls preload="metadata" style={{ maxWidth: 400, width: '100%', borderRadius: 6, marginBottom: 12 }} />
+        : <Image src={imageUrl} alt={title} radius="sm" maw={400} mb="sm" />)}
       {renderInput(question, answer, name, maxWager, maxSelections, options)}
       {error && <Alert color="red" mt="xs">{error}</Alert>}
 
@@ -100,7 +103,7 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
               {child.title}
               {child.isMandatory && <Text span c="red" ml={4}>*</Text>}
             </Text>
-            {child.description && <div style={{ fontSize: 12, color: 'var(--mantine-color-dark-3)', marginBottom: 4 }}><ReactMarkdown remarkPlugins={[remarkGfm]}>{child.description}</ReactMarkdown></div>}
+            {child.description && <div style={{ fontSize: 12, color: 'var(--mantine-color-dark-3)', marginBottom: 4 }}><ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{child.description}</ReactMarkdown></div>}
             {renderInput(child, childAnswer, `question-${child.id}`, child.maxWager, child.maxSelections, child.options || [])}
             {childError && <Alert color="red" mt="xs">{childError}</Alert>}
           </div>

@@ -46,9 +46,9 @@ function UploadsPage() {
       <Card withBorder maw={500} mb="xl">
         <Stack>
           <FileInput
-            label="Select image"
+            label="Select image or video"
             placeholder="Click to select..."
-            accept="image/*"
+            accept="image/*,video/mp4,video/webm,video/quicktime"
             value={file}
             onChange={setFile}
           />
@@ -61,37 +61,49 @@ function UploadsPage() {
 
       {uploads.length > 0 && (
         <>
-          <Title order={2} mb="sm">Uploaded images</Title>
+          <Title order={2} mb="sm">Uploaded media</Title>
           <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="sm">
-            {uploads.map((u) => (
-              <Card key={u.filename} withBorder padding="sm">
-                <Image
-                  src={u.url}
-                  alt={u.filename}
-                  height={120}
-                  fit="contain"
-                  mb="xs"
-                  bg="gray.1"
-                  radius="sm"
-                />
-                <Group gap="xs">
-                  <TextInput value={u.url} readOnly size="xs" style={{ flex: 1 }} />
-                  <CopyButton value={u.url}>
-                    {({ copied, copy }) => (
-                      <Button variant="default" size="xs" onClick={copy}>
-                        {copied ? 'Copied' : 'Copy'}
-                      </Button>
-                    )}
-                  </CopyButton>
-                </Group>
-              </Card>
-            ))}
+            {uploads.map((u) => {
+              const isVideo = /\.(mp4|webm|mov)$/i.test(u.filename);
+              return (
+                <Card key={u.filename} withBorder padding="sm">
+                  {isVideo ? (
+                    <video
+                      src={u.url}
+                      controls
+                      preload="metadata"
+                      style={{ width: '100%', height: 120, background: '#f1f3f5', borderRadius: 4, marginBottom: 8 }}
+                    />
+                  ) : (
+                    <Image
+                      src={u.url}
+                      alt={u.filename}
+                      height={120}
+                      fit="contain"
+                      mb="xs"
+                      bg="gray.1"
+                      radius="sm"
+                    />
+                  )}
+                  <Group gap="xs">
+                    <TextInput value={u.url} readOnly size="xs" style={{ flex: 1 }} />
+                    <CopyButton value={u.url}>
+                      {({ copied, copy }) => (
+                        <Button variant="default" size="xs" onClick={copy}>
+                          {copied ? 'Copied' : 'Copy'}
+                        </Button>
+                      )}
+                    </CopyButton>
+                  </Group>
+                </Card>
+              );
+            })}
           </SimpleGrid>
         </>
       )}
 
       {uploads.length === 0 && (
-        <Text c="dimmed">No images uploaded yet.</Text>
+        <Text c="dimmed">No media uploaded yet.</Text>
       )}
     </div>
   );
