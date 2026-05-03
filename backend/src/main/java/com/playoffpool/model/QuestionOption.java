@@ -31,6 +31,9 @@ public class QuestionOption {
     @Column(name = "box_group")
     private Integer boxGroup;
 
+    @Column(name = "participant_id")
+    private Integer participantId;
+
     public QuestionOption() {
     }
 
@@ -96,5 +99,13 @@ public class QuestionOption {
 
     public void setBoxGroup(Integer boxGroup) {
         this.boxGroup = boxGroup;
+    }
+
+    public Integer getParticipantId() {
+        return participantId;
+    }
+
+    public void setParticipantId(Integer participantId) {
+        this.participantId = participantId;
     }
 }

@@ -19,6 +19,8 @@ function QuestionDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState(null);
+  const [scoringResult, setScoringResult] = useState(null);
+  const [scoring, setScoring] = useState(false);
 
   useEffect(() => { fetchData(); }, [roundId, questionId]);
 
@@ -53,6 +55,26 @@ function QuestionDetailPage() {
     catch { setError('Failed to delete option'); }
   }
 
+  async function handleScoreBestTeamName() {
+    setScoring(true);
+    setScoringResult(null);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/questions/${questionId}/score-best-team-name`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`Scoring failed (${res.status})`);
+      const data = await res.json();
+      setScoringResult(data);
+      fetchData();
+    } catch (e) {
+      setError(e.message || 'Failed to score');
+    } finally {
+      setScoring(false);
+    }
+  }
+
   if (!question) return <Text>Loading...</Text>;
 
   return (
@@ -72,6 +94,21 @@ function QuestionDetailPage() {
         <Title order={3} mb="sm">Edit Question</Title>
         <QuestionForm question={question} allQuestions={allQuestions} onSubmit={handleUpdateQuestion} onCancel={() => navigate(`/admin/rounds/${roundId}`)} />
       </Card>
+
+      {question.questionType === 'best_team_name' && (
+        <Card withBorder mb="lg" padding="md">
+          <Title order={3} mb="sm">Score Best Team Name</Title>
+          <Text size="sm" c="dimmed" mb="sm">
+            Tally votes, mark the most-picked team(s) correct, and award {question.points ?? 0} pts to participants who picked any winner.
+          </Text>
+          <Button onClick={handleScoreBestTeamName} loading={scoring}>Compute Scores</Button>
+          {scoringResult && (
+            <Alert color="green" mt="sm">
+              {scoringResult.totalResponses} responses; max {scoringResult.maxVotes} votes. Winner(s): {scoringResult.winningLabels?.join(', ') || 'none'}. Awarded {scoringResult.pointsAwarded} pts to {scoringResult.winningPickerCount} participant(s).
+            </Alert>
+          )}
+        </Card>
+      )}
 
       <Group justify="space-between" mb="sm">
         <Title order={2}>Options</Title>

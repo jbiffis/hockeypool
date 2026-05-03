@@ -117,6 +117,8 @@ function PoolFormPage() {
             const wager = Number(a.freeFormValue);
             if (isNaN(wager) || wager < 1 || wager > q.maxWager) newErrors[q.id] = `Wager must be between 1 and ${q.maxWager}.`;
           }
+        } else if (q.questionType === 'best_team_name') {
+          if (!a || !a.selectedOptionId) newErrors[q.id] = 'Please select an answer.';
         }
       }
       if (q.questionType === 'multi_select' && q.maxSelections != null && a && a.selectedOptionIds) {

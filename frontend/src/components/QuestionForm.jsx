@@ -8,6 +8,7 @@ const QUESTION_TYPES = [
   { value: 'number_of_games', label: 'Number of Games' },
   { value: 'text_box', label: 'Text Box' },
   { value: 'box', label: 'Box' },
+  { value: 'best_team_name', label: 'Best Team Name' },
 ];
 
 function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
@@ -44,7 +45,7 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
   function handleSubmit(e) {
     e.preventDefault();
     const isTextBox = form.questionType === 'text_box';
-    const showPoints = form.questionType === 'free_form' || form.questionType === 'number_of_games';
+    const showPoints = form.questionType === 'free_form' || form.questionType === 'number_of_games' || form.questionType === 'best_team_name';
     const data = {
       ...form,
       displayOrder: Number(form.displayOrder),
@@ -81,7 +82,7 @@ function QuestionForm({ question, allQuestions, onSubmit, onCancel }) {
           <NumberInput label="Display Order" value={form.displayOrder} onChange={(val) => setForm(p => ({ ...p, displayOrder: val || 0 }))} />
         </Group>
 
-        {(form.questionType === 'free_form' || form.questionType === 'number_of_games') && (
+        {(form.questionType === 'free_form' || form.questionType === 'number_of_games' || form.questionType === 'best_team_name') && (
           <NumberInput label="Points" value={form.points} onChange={(val) => setForm(p => ({ ...p, points: val ?? '' }))} placeholder="Points value" />
         )}
 

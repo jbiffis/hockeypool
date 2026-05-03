@@ -133,6 +133,18 @@ public class PoolFormService {
             }
         }
 
+        // For best_team_name, hide the calling participant's own team option
+        if (participantId != null) {
+            for (Question q : allQuestions) {
+                if ("best_team_name".equals(q.getQuestionType())) {
+                    List<QuestionOption> opts = optionsByQuestionId.get(q.getId());
+                    if (opts != null) {
+                        opts.removeIf(o -> participantId.equals(o.getParticipantId()));
+                    }
+                }
+            }
+        }
+
         // Build FormQuestionDto list
         List<FormQuestionDto> questionDtos = allQuestions.stream()
                 .map(q -> FormQuestionDto.fromEntity(q, optionsByQuestionId.getOrDefault(q.getId(), Collections.emptyList())))
@@ -223,7 +235,7 @@ public class PoolFormService {
                     throw new IllegalArgumentException("Mandatory question '" + q.getTitle() + "' must be answered");
                 }
                 String type = q.getQuestionType();
-                if ("jeopardy".equals(type)) {
+                if ("jeopardy".equals(type) || "best_team_name".equals(type)) {
                     if (answer.getSelectedOptionId() == null) {
                         throw new IllegalArgumentException("Mandatory question '" + q.getTitle() + "' must be answered");
                     }
@@ -328,6 +340,15 @@ public class PoolFormService {
                     }
                     ra.setFreeFormValue(answer.getFreeFormValue());
                     responseAnswers.add(ra);
+                } else if ("best_team_name".equals(type)) {
+                    if (answer.getSelectedOptionId() != null) {
+                        ResponseAnswer ra = new ResponseAnswer();
+                        ra.setResponse(response);
+                        ra.setQuestion(q);
+                        QuestionOption option = questionOptionRepository.findById(answer.getSelectedOptionId()).orElse(null);
+                        ra.setSelectedOption(option);
+                        responseAnswers.add(ra);
+                    }
                 } else if ("multi_select".equals(type) || "box".equals(type)) {
                     if (answer.getSelectedOptionIds() != null) {
                         for (Integer optionId : answer.getSelectedOptionIds()) {

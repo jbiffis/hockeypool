@@ -6,6 +6,7 @@ import FreeFormInput from './FreeFormInput';
 import JeopardyInput from './JeopardyInput';
 import NumberOfGamesInput from './NumberOfGamesInput';
 import BoxInput from './BoxInput';
+import BestTeamNameInput from './BestTeamNameInput';
 import { markdownComponents, isVideoUrl } from '../markdownComponents';
 
 function QuestionCard({ question, answer = {}, error, onChange, childQuestions = [], answers = {}, errors = {}, onChildChange }) {
@@ -64,6 +65,15 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
             value={a.selectedOptionIds || []}
             onChange={(ids) => (q === question ? onChange({ selectedOptionIds: ids }) : onChildChange(q.id, { selectedOptionIds: ids }))}
             maxSelections={ms}
+          />
+        );
+      case 'best_team_name':
+        return (
+          <BestTeamNameInput
+            options={opts}
+            value={a.selectedOptionId || null}
+            onChange={(optionId) => (q === question ? onChange({ selectedOptionId: optionId }) : onChildChange(q.id, { selectedOptionId: optionId }))}
+            name={n}
           />
         );
       case 'text_box':

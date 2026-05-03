@@ -12,6 +12,7 @@ public class QuestionOptionDto {
     private String subtext;
     private String imageUrl;
     private Integer boxGroup;
+    private Integer participantId;
 
     public QuestionOptionDto() {
     }
@@ -26,6 +27,7 @@ public class QuestionOptionDto {
         dto.setSubtext(o.getSubtext());
         dto.setImageUrl(o.getImageUrl());
         dto.setBoxGroup(o.getBoxGroup());
+        dto.setParticipantId(o.getParticipantId());
         return dto;
     }
 
@@ -91,5 +93,13 @@ public class QuestionOptionDto {
 
     public void setBoxGroup(Integer boxGroup) {
         this.boxGroup = boxGroup;
+    }
+
+    public Integer getParticipantId() {
+        return participantId;
+    }
+
+    public void setParticipantId(Integer participantId) {
+        this.participantId = participantId;
     }
 }
