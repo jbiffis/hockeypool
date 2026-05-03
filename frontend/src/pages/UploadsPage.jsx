@@ -28,8 +28,14 @@ function UploadsPage() {
         body: formData,
         credentials: 'include',
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      if (!res.ok) {
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const data = await res.json();
+          throw new Error(data.error || `Upload failed (${res.status})`);
+        }
+        throw new Error(res.status === 413 ? 'File too large' : `Upload failed (${res.status})`);
+      }
       setFile(null);
       fetchUploads();
     } catch (e) {
