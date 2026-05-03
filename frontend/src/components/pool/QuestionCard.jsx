@@ -9,7 +9,7 @@ import BoxInput from './BoxInput';
 import { markdownComponents, isVideoUrl } from '../markdownComponents';
 
 function QuestionCard({ question, answer = {}, error, onChange, childQuestions = [], answers = {}, errors = {}, onChildChange }) {
-  const { id, title, description, imageUrl, questionType, isMandatory, maxWager, maxSelections, options = [] } = question;
+  const { id, title, description, imageUrl, questionType, isMandatory, maxWager, maxSelections, points, options = [] } = question;
   const name = `question-${id}`;
 
   const renderInput = (q, a, n, mw, ms, opts) => {
@@ -86,6 +86,7 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
       <Text fw={600} size="md" mb={description || imageUrl ? 4 : 'sm'}>
         {title}
         {isMandatory && !isTextBox && <Text span c="red" ml={4}>*</Text>}
+        {points != null && !isTextBox && <Text span c="dimmed" ml={6} size="sm">({points} pts)</Text>}
       </Text>
       {description && <div style={{ fontSize: 14, color: 'var(--mantine-color-dark-3)', marginBottom: 8 }}><ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{description}</ReactMarkdown></div>}
       {imageUrl && (isVideoUrl(imageUrl)
@@ -102,6 +103,7 @@ function QuestionCard({ question, answer = {}, error, onChange, childQuestions =
             <Text fw={600} size="sm" mb={child.description ? 4 : 'xs'} mt="sm">
               {child.title}
               {child.isMandatory && <Text span c="red" ml={4}>*</Text>}
+              {child.points != null && <Text span c="dimmed" ml={6} size="xs">({child.points} pts)</Text>}
             </Text>
             {child.description && <div style={{ fontSize: 12, color: 'var(--mantine-color-dark-3)', marginBottom: 4 }}><ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{child.description}</ReactMarkdown></div>}
             {renderInput(child, childAnswer, `question-${child.id}`, child.maxWager, child.maxSelections, child.options || [])}
