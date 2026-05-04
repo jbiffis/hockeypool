@@ -67,7 +67,7 @@ function QuestionPage() {
             const fromPicker = fromParticipantId != null ? opt.pickers.find(p => p.participantId === fromParticipantId) : null;
 
             return (
-              <Card key={opt.optionId} withBorder padding="sm" radius="md"
+              <Card key={opt.optionId ?? `text:${opt.optionText}`} withBorder padding="sm" radius="md"
                 style={opt.correct ? { borderColor: 'var(--mantine-color-green-5)' } : fromPicker ? { borderColor: 'var(--mantine-color-blue-4)' } : undefined}
               >
                 <Group justify="space-between" wrap="nowrap" mb={4}>

@@ -221,6 +221,45 @@ public class PublicController {
             optionDetails.add(od);
         }
 
+        // For free-form / number-of-games, synthesize one OptionDetail per distinct free_form_value
+        String qType = question.getQuestionType();
+        if ("number_of_games".equals(qType) || "free_form".equals(qType)) {
+            Map<String, List<ResponseAnswer>> answersByFreeForm = answers.stream()
+                    .filter(a -> a.getFreeFormValue() != null && !a.getFreeFormValue().trim().isEmpty())
+                    .collect(Collectors.groupingBy(a -> a.getFreeFormValue().trim()));
+
+            List<String> values = new ArrayList<>(answersByFreeForm.keySet());
+            if ("number_of_games".equals(qType)) {
+                values.sort(Comparator.comparingInt(s -> {
+                    try { return Integer.parseInt(s); } catch (NumberFormatException e) { return Integer.MAX_VALUE; }
+                }));
+            } else {
+                values.sort(String.CASE_INSENSITIVE_ORDER);
+            }
+
+            for (String value : values) {
+                OptionDetail od = new OptionDetail();
+                od.setOptionId(null);
+                od.setOptionText(value);
+                od.setCorrect(question.getCorrectAnswerText() != null
+                        && question.getCorrectAnswerText().equals(value));
+                List<PickerInfo> pickers = new ArrayList<>();
+                for (ResponseAnswer ra : answersByFreeForm.get(value)) {
+                    Participant p = participantMap.get(ra.getResponse().getParticipant().getId());
+                    if (p != null) {
+                        PickerInfo pi = new PickerInfo();
+                        pi.setParticipantId(p.getId());
+                        pi.setName(p.getName());
+                        pi.setTeamName(p.getTeamName());
+                        pickers.add(pi);
+                    }
+                }
+                pickers.sort(Comparator.comparing(PickerInfo::getTeamName, String.CASE_INSENSITIVE_ORDER));
+                od.setPickers(pickers);
+                optionDetails.add(od);
+            }
+        }
+
         dto.setOptions(optionDetails);
         return dto;
     }
