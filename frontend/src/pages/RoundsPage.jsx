@@ -5,6 +5,7 @@ import { getSeasons } from '../api/seasons';
 import RoundForm from '../components/RoundForm';
 import StatusBadge from '../components/StatusBadge';
 import ConfirmDialog from '../components/ConfirmDialog';
+import { formatDeadlineEt } from '../utils/deadline';
 import { Title, Table, Button, Group, Alert, Card, Select, Anchor } from '@mantine/core';
 
 const STATUS_FORWARD = { draft: 'open', open: 'closed', closed: 'scored' };
@@ -109,7 +110,7 @@ function RoundsPage() {
                   <Anchor component="button" onClick={() => navigate(`/admin/rounds/${round.id}`)}>{round.name}</Anchor>
                 </Table.Td>
                 <Table.Td><StatusBadge status={round.status} /></Table.Td>
-                <Table.Td>{round.deadline ? new Date(round.deadline).toLocaleString() : '--'}</Table.Td>
+                <Table.Td>{round.deadline ? formatDeadlineEt(round.deadline) : '--'}</Table.Td>
                 <Table.Td>{round.displayOrder}</Table.Td>
                 <Table.Td>
                   <Group gap="xs" wrap="wrap">
